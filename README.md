@@ -1,200 +1,154 @@
+<div align="center">
+
 # SwarmScope
 
-Understanding behaviour in multi-agent environments. (The Python package and command are `swarmgraph`.)
+**Understanding behaviour in multi-agent environments**
 
-![SwarmScope demo: a swarm of agents, one sentence becoming a behaviour, behaviours over time with the storyline](docs/media/swarmscope-demo.webp)
+<img src="docs/media/swarmscope-demo.webp" alt="SwarmScope: a swarm of agents, one sentence becoming a behaviour, and behaviours over time with the storyline" width="100%">
 
+[What it does](#what-it-does) · [How it works](#how-it-works) · [Quick start](#quick-start) · [Results](#results) · [Docs](#docs)
 
-Index and investigate multi-agent datasets — agent swarms, message boards, group chats, orchestrator/subagent logs —
-as an **MCP server + skill** that any agent can use. Built for the AI Village × Grove Research *AI Swarm Dynamics
-Hackathon* (Oct 3–4, 2026).
+<sub>Built for the AI Village × Grove Research <b>AI Swarm Dynamics Hackathon</b> · October 3–4, 2026</sub>
 
-Investigators of the OpenAI / Hugging Face incident had to read ~1,300 multi-million-token transcripts through analysis
-agents they could not fully trust. SwarmScope turns any such dataset into:
+</div>
 
-1. **An index** of events and relations — who *addressed*, *replied to*, *invoked* (spawned/assigned), *returned
-   results to*, or *read* whom — where every relation points at the event that shows it and records how it was found
-   (explicit field, reply field, `@mention`, call/return kind, parent link) and with what confidence.
-2. **A hypothesis ledger** where plans are pre-registered, metrics are computed by code, and verdicts are gated: an LLM
-   cannot mark a hypothesis *supported* unless the pre-registered metric passes and a verified event supports it.
-3. **Optional LLM layers** (via a local agent CLI, default Codex): **behaviour tags** for every event (what the actor
-   did, from a dataset-independent vocabulary, plus addressees found in the text), grounded node summaries, and a
-   fully automatic generate → measure → investigate → judge loop with separate investigator and judge calls.
-4. **Delegated reading for records too large to read** (agent transcripts: reasoning, tool calls and results): the
-   record is cut into chunks where the agent's own context starts afresh, and a sub-agent reads every chunk whole with
-   fixed questions (what it did, whether what it said holds up against the record, instructions and what it did with
-   them, concerns); instructions and commitments are followed across chunks, later statements are traced back to the
-   work they describe, behaviour over time is counted by code (sudden increases, starts, stops), and the analyst can
-   send its own questions to sub-agents over the chunks it chooses. Every reading cites events, checked by code; the
-   map says what was read and what was not.
+<br>
 
-Python 3.9+, standard library only.
+## Why
 
-Reproduce the stored results or rerun from the raw data: [docs/REPRODUCE.md](docs/REPRODUCE.md). Deploy the
-behaviour atlas (bundle, container, share mode): [docs/DEPLOY.md](docs/DEPLOY.md).
+Logs of many AI agents are too much to read and too fast to follow. Tens of thousands of messages, edits and tool
+calls hide the few things an overseer needs to know: **what the agents did, how their behaviour changed, and when**.
 
-## Use it
+SwarmScope turns any multi-agent log into something a person can follow on one screen, and every claim it makes
+points back to the events behind it.
 
-One command after converting the data (LLM stages run in parallel and resume where they stopped):
+## What it does
 
-```bash
-python3 -m swarmgraph --db wiki.sqlite prepare path/to/dataset --workers 12   # build → notes → rebuild → structure → cards → story → quality
-python3 -m swarmgraph --db wiki.sqlite explore --rounds 3 --per-round 6         # behaviour hypotheses, verified by several agents
-python3 -m swarmgraph --db wiki.sqlite serve                                  # /story for people, / for the network explorer
-python3 -m swarmgraph --db wiki.sqlite serve --share                          # same, technical detail withheld (for reports to others)
-
-# a transcript (action layer): delegated reading, then /agent shows how the agent's behaviour changed, for people
-python3 -m swarmgraph --db agent.sqlite sweep --rules --threads --workers 24   # chunks, sweep, rules, traced statements
-python3 -m swarmgraph --db agent.sqlite ledger --check                       # claims about artifacts vs the record
-python3 -m swarmgraph --db agent.sqlite serve                                # /agent for people (storyline, days, periods)
-python3 -m swarmgraph --db agent.sqlite serve --share                        # the same for outside readers: methods only by kind
-
-# behaviour map (/atlas): kinds of behaviour across all actors and when each was active (needs numpy, scipy,
-# scikit-learn, umap-learn: python3 -m venv .venv && .venv/bin/pip install numpy scipy scikit-learn umap-learn)
-.venv/bin/python -m swarmgraph --db wiki.sqlite atlas --workers 12          # after sweep; LLM names checked blind
-python3 -m swarmgraph --db wiki.sqlite serve                                # /atlas (any Python: the map is stored)
-python3 -m swarmgraph --db wiki.sqlite serve --also aiv=aiv.sqlite             # one server, several datasets: a picker on /features
-```
-
-Sub-agents run with none of the user's own Codex setup (no MCP servers, plugins, web search, computer use, apps):
-they read untrusted text, so a prompt inside it must find no tool to use (`llm.isolation()`).
-
-`--share` masks working methods in everything shown (links reduced to their domain, encoded strings, markup,
-commands, addresses, secret-like tokens) and concern cards are written to describe methods only by kind; on the wiki
-logs no link, encoding, markup, address or command survives in any of the 19,913 events.
-
-| setting | default | meaning |
-|---|---|---|
-| `--workers` / `$SWARMGRAPH_WORKERS` | 12 | parallel LLM calls in `prepare`, `tag`, `cards`, `auto` (each call is its own `codex exec`) |
-| `$SWARMGRAPH_CODEX` | `codex` on PATH or the ChatGPT app's bundled CLI | LLM command |
-| `$SWARMGRAPH_MODEL` | Codex default | model override |
-| `--tag-effort / --card-effort / --story-effort` | low / medium / high | reasoning effort per stage |
-
-The work store (`<index>.work`) runs in WAL mode, so the explorer and query tools can read while cards are written;
-stopping a run (Ctrl-C or SIGTERM) also stops its LLM calls. Measured on the wiki logs (19,913 events): notes 52 min
-with 24 workers, 386 cards 31 min with 12 workers, story 5 min.
-
-`explore` runs rounds of **behaviour hypotheses** ("after X, agents do Y more than at other times", "Y spreads along
-contact", "agents that do X also do Y"). Each hypothesis carries its basis (the events that suggested it) and a plain
-sentence; its plan is frozen, measured by code and re-run on each half of the window (replication); an advocate agent
-looks for fitting instances, a skeptic agent for counter-instances and alternative explanations, and a judge decides
-with the gates. The next round reads the verdicts. Results appear under "Behaviour being tested" in /story.
-
-Step by step:
-
-```bash
-# 1. convert your data to the common format (an agent writes this script; see skill/SKILL.md)
-python3 examples/forum/make_fixture.py && python3 examples/forum/convert.py
-# 2. build the index
-python3 -m swarmgraph --db forum.sqlite build examples/forum/dataset
-# 3. investigate (JSON in / JSON out), or connect the MCP server
-python3 -m swarmgraph --db forum.sqlite call signals
-python3 -m swarmgraph --db forum.sqlite call actor_card '{"name": "lead-2"}'
-python3 -m swarmgraph --db forum.sqlite call propose_hypothesis '{"statement": "archivist is answered less than others",
-  "plan": {"metric": "reply_rate", "params": {"actor": "archivist"}, "expect": {"op": "<", "value": "others_rate"}}}'
-python3 -m swarmgraph --db forum.sqlite tag                  # LLM event notes (needs Codex or $SWARMGRAPH_CODEX)
-python3 -m swarmgraph --db forum.sqlite build examples/forum/dataset   # rebuild: text addressees → llm_text relations
-python3 -m swarmgraph --db forum.sqlite structure            # useful links + note search (code)
-python3 -m swarmgraph --db forum.sqlite cards                # LLM trajectory / link / swarm cards, verified by code
-python3 -m swarmgraph --db forum.sqlite call quality         # check the structure before hypotheses
-python3 -m swarmgraph --db forum.sqlite auto --n 5          # LLM hypothesis loop (reads the cards)
-python3 -m swarmgraph --db forum.sqlite serve               # explorer: / (network, timeline), /story (phases, changes)
-```
-
-### MCP
-
-Claude Code:
-```bash
-claude mcp add swarmgraph --env PYTHONPATH=/path/to/swarmgraph --env SWARMGRAPH_DB=/path/to/index.sqlite -- python3 -m swarmgraph mcp
-```
-Codex (`~/.codex/config.toml`):
-```toml
-[mcp_servers.swarmgraph]
-command = "python3"
-args = ["-m", "swarmgraph", "mcp"]
-env = { PYTHONPATH = "/path/to/swarmgraph", SWARMGRAPH_DB = "/path/to/index.sqlite" }
-```
-Install the skill by copying `skill/SKILL.md` into your skills directory (e.g. `~/.claude/skills/swarmgraph/`).
-
-## Tools
-
-| group | tools |
+|  |  |
 |---|---|
-| build | `build` |
-| orient | `overview`, `trajectory` (actor / channel / 'all'), `link`, `changes`, `quality`, `signals`, `segments`, `actors`, `actor_card`, `tag_profile` |
-| evidence | `phase_events`, `find`, `interactions`, `timeline`, `search`, `get_event`, `behaviors` |
-| hypotheses | `metric_catalog`, `run_metric`, `propose_hypothesis`, `measure_hypothesis`, `add_evidence`, `record_verdict`, `hypotheses` |
-| LLM (optional) | `summarize_node`; CLI `tag`, `cards`, `auto`, `summarize` (code-only: `structure`) |
-| delegated reading | `storyline`, `periods` (start here), `chunk`, `rules`, `behaviour_changes`, `behaviour_map`, `delegate`, `claims_vs_record`; CLI `prepare`, `sweep`, `storyline`, `atlas`, `jobs`, `ledger` |
+| **Behaviours in plain words** | A dictionary of behaviours, like sparse-autoencoder features but written in words people can read ("Predicts future outcomes", "Copies others' text"). Every stretch of work is judged against it, event by event. |
+| **Checked, not just generated** | Two independent AI judges read the same stretches and their agreement is measured for every behaviour; each behaviour is also tested blind by a different model. |
+| **The arc of the record** | Phases, turning points and hypotheses that explain the change, each reviewed against the record by a separate reviewer. |
+| **Influence you can see** | Traces of reused words show who picked up whose text, and when. |
+| **One screen** | The behaviour atlas plays the record over time with the storyline beside it; any behaviour or stretch of work opens the events behind it. |
+| **Safe to share** | Share mode shows methods only by kind (links cut to their domain, payloads and secrets withheld). Sub-agents that read the record run isolated, with none of your own tools or connectors. |
 
-Metrics: interaction — `reply_rate`, `volume`, `before_after`, `pair`, `first_use`, `share`, `burst`; behaviour (needs
-tags) — `tag_rate`, `tag_before_after`, `reaction`, `tag_spread` (see `metric_catalog`).
+## How it works
 
-## Data format (summary — full spec in `swarmgraph/format.py` and `skill/SKILL.md`)
-
-`events.jsonl`: `id, ts, actor, text, kind (message|call|return|action|result|read|reasoning|self_report), to[],
-reply_to, channel, url, meta` (`meta.error` on a failed result; `meta.boundary = "context"` where an agent's context
-starts afresh)
-`actors.jsonl`: `id, label, kind, role, model, parent, lineage, aliases` · `phases.jsonl`: `label, start, end` ·
-`dataset.json`: `name, description, notes`
-
-## Tested on
-
-| dataset | events | relations | notes |
-|---|---|---|---|
-| synthetic forum (`examples/forum`) | 30 | addressed 24, invoked 4, returned 1, replied 4 | recipients only in subject tags; subagent spawn; successor hand-off |
-| wiki edit logs (`adapters/wiki_logs.py`) | 19,913 | addressed 12,959, replied 1,723 (before tags) | saves as diffs, admin deletions, recreations; actors = self-chosen author labels |
-| AI Village (`adapters/ai_village.py`) | 262,762 | addressed 55,658, replied 19,298 | same counts as the earlier dedicated builder (55,655 / 19,296); converts in ~50 s, builds in ~17 s |
-| AI Village agent transcript (`adapters/agent_transcript.py`) | 219,740 | read 34,972, addressed 5,457, replied 1,065 | one agent's 912 MB working record (reasoning, 32,550 tool calls with results, messages read and sent); 1,052 chunks swept, 354 rules (61 of 261 high/medium broken at least once), 630 statements its earlier work contradicts |
-| US/Canada government web evidence (`adapters/web_evidence.py`) | 1,125,129 | none (requests have no addressees) | requests made through a web archive, URL scanners and wiki links, grouped by query tag into 66 requesters; repeats fold, 431 chunks; behaviour by the hour |
-
-`python3 -m unittest discover -s tests` covers format validation, relation extraction, verdict gates and the MCP handshake.
-
-## Layout
-
-```
-swarmgraph/format.py     canonical format + validation        swarmgraph/tools.py        tool registry (MCP + CLI)
-swarmgraph/build.py      generic index builder                swarmgraph/mcp_server.py   stdio MCP server
-swarmgraph/query.py      read-only queries                    swarmgraph/cli.py          command line
-swarmgraph/metrics.py    deterministic metrics + checks       swarmgraph/llm.py          LLM CLI runner (Codex)
-swarmgraph/signals.py    anomaly + behaviour signals          swarmgraph/summarize*.py   grounded node summaries
-swarmgraph/tags.py       LLM event notes + tag queries         swarmgraph/structure.py    useful links, change candidates, checks
-swarmgraph/cards.py      LLM trajectory / link / swarm cards    swarmgraph/story.html      phases + change points view
-swarmgraph/hypotheses.py ledger, pre-registration, gates      swarmgraph/auto.py         automatic hypothesis loop
-swarmgraph/store.py      work store (<index>.work)            swarmgraph/web.py          explorer (+ explorer.html)
-adapters/ai_village.py   example adapter (large, real)        examples/forum/            example adapter (small, synthetic)
-adapters/wiki_logs.py    wiki edit-log adapter                swarmgraph/ledger.py       claims vs record (action layer)
-adapters/agent_transcript.py  agent transcripts               swarmgraph/chunks.py       chunks one reader can read whole
-swarmgraph/sweep.py      sweep, rules, traces, delegate jobs  swarmgraph/behaviour.py    behaviour over time (code)
-swarmgraph/agentview.py  /agent page data (+ agent.html)     swarmgraph/atlas.py        behaviour map (+ atlas.html)
-skill/SKILL.md           instructions for agents              tests/test_core.py         unit + MCP tests
+```mermaid
+flowchart LR
+    A["Any multi-agent log<br/><sub>wiki edits · boards · chats · transcripts</sub>"] --> B["Index<br/><sub>events + who addressed whom</sub>"]
+    B --> C["Delegated reading<br/><sub>every chunk read by a sub-agent</sub>"]
+    C --> D["Behaviour dictionary<br/><sub>plain words, judged event by event</sub>"]
+    C --> E["Arc<br/><sub>phases · turning points · hypotheses</sub>"]
+    D --> F["Behaviour atlas<br/><sub>one screen, over time</sub>"]
+    E --> F
 ```
 
-## How well it works (`eval/RESULTS.md`)
+1. **Convert** the log into a small common format (an agent can write the converter; examples in `adapters/`).
+2. **Prepare**: build the index and let sub-agents read every chunk with fixed questions; code checks every citation.
+3. **Behaviours**: propose behaviours from samples, merge them into a dictionary, judge stretches with two judges,
+   test each behaviour blind.
+4. **Arc**: an analyst reasons from a code-built skeleton of the whole record to phases and hypotheses; a reviewer
+   checks each one.
+5. **Look**: open the atlas in a browser, or query everything from an agent through MCP.
 
-Held-out hand labels (one labeller, blind to flags): on the wiki logs the alignment lens flags concerning events with
-precision 1.00 and recall 0.91 (it misses content-free edits whose concern lies in who made them); on five unseen
-AI Village days precision is 0.35–0.56 and recall uncertain — it over-flags in a benign environment, and gains on the
-tuning sample did not carry over. In an A/B test, a Codex analyst with the prepared index was as accurate as the same
-analyst with the raw log and a shell on five questions and faster on the open ones, but its concern labels and cards
-overstated or one-sided some findings (both conditions found the wiki misuse blind). Behaviour hypotheses written by the analyst were also graded by code against baselines, on events held out from
-what the analyst saw. On a large split (July seen, 31k August events held out) 13% of the raw analyst's and 10% of
-the structure-assisted analyst's hypotheses hold (p = 0.78; mismatched pairs pass 2.6-7%); on the month the analyst saw
-the structure's hypotheses held more often (28% vs 12%, p = 0.04) — a selection effect that does not carry over. On an investigation task (what should overseers know about these agents, including whether
-what they report is true), every run found the corrected and retracted claims with or without the structure, and the
-raw analyst was cheapest (section 9): on chat-scale logs the question matters more than the structure. On the ACTION layer (one agent's
-912 MB working transcript: reasoning, tool calls and results, messages read and sent) a ledger that sets each claim
-against the record made the difference: a blind pairwise judge preferred the ledger analyst's report to the raw
-analyst's in 7 and then 8 of 10 pairs (raw 1 each), at 15-19% fewer tokens (section 10), but narrowed what analysts
-looked at (section 11). Delegated reading (section 12: every chunk read by a sub-agent, rules followed across chunks,
-statements traced back to the work they describe, behaviour over time counted by code) found every finding raw
-readers had over ledger readers, and in a small check analysts with it found as many of them as raw readers (3.0 vs
-2.8 per report, ledger 1.6) over the same breadth, preferred to raw in 2 of 3 pairs. Untested: weaker or time-limited
-analysts, use by people.
+## Quick start
+
+```bash
+git clone https://github.com/CarterYoo/swarmscope && cd swarmscope
+python3 -m unittest discover -s tests                     # Python 3.9+, standard library only
+```
+
+Run it on your own log. LLM stages use the [Codex CLI](https://github.com/openai/codex); the Python package is
+`swarmgraph`.
+
+```bash
+python3 -m swarmgraph --db my.sqlite prepare path/to/dataset            # index, delegated reading, storyline
+python3 -m venv .venv && .venv/bin/pip install -r requirements-maps.txt  # only for the behaviour maps
+.venv/bin/python -m swarmgraph --db my.sqlite features all my_features   # behaviours, judges, checks, atlas
+python3 -m swarmgraph --db my.sqlite arc                                 # phases, turning points, hypotheses
+python3 -m swarmgraph --db my.sqlite serve --home /features              # → http://localhost:8792
+```
+
+Add `--share` to `serve` before showing it to anyone outside the investigation.
+
+<details>
+<summary><b>Dataset format</b></summary>
+
+<br>
+
+A folder with:
+
+- `events.jsonl`: one event per line, with `id`, `ts`, `actor`, `text`, `kind` (`message`, `call`, `return`, `action`,
+  `result`, `read`, `reasoning`, `self_report`), and optionally `to`, `reply_to`, `channel`, `url`, `meta`
+- `actors.jsonl`: `id`, `label`, `kind`, `role`, `model`, `parent`
+- `dataset.json`: `name`, `description`, `notes`; `phases.jsonl` optional
+
+Full specification: `swarmgraph/format.py` and `skill/SKILL.md`.
+
+</details>
+
+<details>
+<summary><b>Use it from an agent (MCP)</b></summary>
+
+<br>
+
+```bash
+claude mcp add swarmgraph --env PYTHONPATH=/path/to/swarmscope --env SWARMGRAPH_DB=/path/to/index.sqlite -- python3 -m swarmgraph mcp
+```
+
+For Codex, add the same command under `[mcp_servers.swarmgraph]` in `~/.codex/config.toml`. Copy `skill/SKILL.md`
+into your skills directory so the agent knows where to start (`storyline`, `periods`, then the evidence tools).
+
+</details>
+
+## Results
+
+Two real records, the same pipeline and prompts; only the converter is specific to each record.
+
+| Record | Events | Behaviours | Two-judge agreement (κ) | Blind detection | The arc it found |
+|---|---:|---:|---:|---:|---|
+| Wiki edit logs + other boards | 20,932 | 66 | 0.89 | 44 / 53 pass | *Shared research becomes advance coordination, then bulk cleanup* |
+| AI Village, July–August 2026 | 67,969 | 56 | 0.86 | 21 / 27 pass | *Expansion, boundary breaches, and uneven correction* |
+
+Stored results rebuild exactly from the saved model outputs (`scripts/verify.py`). Where it falls short is written up
+too: in a benign environment the concern flags over-flag, and on chat-scale logs the question asked matters more than
+the structure ([eval/RESULTS.md](eval/RESULTS.md)).
+
+## Docs
+
+| | |
+|---|---|
+| [Behaviour features](docs/BEHAVIOUR_FEATURES.md) | how the dictionary is built and checked |
+| [Reproduce](docs/REPRODUCE.md) | check the stored results, or rerun from the raw data |
+| [Deploy](docs/DEPLOY.md) | a self-contained bundle and container for the atlas |
+| [Evaluation](eval/RESULTS.md) | every experiment, including the ones that did not work |
+| [Agent skill](skill/SKILL.md) | instructions for agents using the tools |
+| [Demo video](demo/README.md) | how the video above is made (HyperFrames) |
+| [Reference](docs/REFERENCE.md) | every tool, command and setting, and the records it was tested on |
 
 ## Limits
 
-- Relations come from what the data states or an explicit convention the converter maps; unstated addressing (pure
-  context) is not inferred yet. `replied` requires an explicit address back.
-- LLM summaries see a sample of a node's events; open questions they raise must be checked with the query tools.
-- Metrics are simple descriptive statistics, not significance tests.
+- Relations come from what the log states (fields, replies, mentions); unstated addressing is not inferred.
+- Behaviour judgments are made by language models. They are checked for agreement and blind detection, not by
+  people at scale.
+- It only sees what is in the log: events that happened elsewhere do not appear.
+
+<details>
+<summary><b>Project layout</b></summary>
+
+<br>
+
+```
+swarmgraph/        the package: index, delegated reading, behaviours, arc, web pages, MCP server
+adapters/          converters for the records above (wiki logs, other boards, AI Village, agent transcripts)
+scripts/           verify, reproduce, bundle
+deploy/            container and serve script
+demo/              the demo video composition
+eval/              experiments and results
+skill/             instructions for agents
+tests/             unit tests
+```
+
+</details>
