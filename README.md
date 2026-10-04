@@ -24,24 +24,30 @@ points back to the events behind it.
 
 ## What it does
 
-|  |  |
-|---|---|
-| **Behaviours in plain words** | A dictionary of behaviours, like sparse-autoencoder features but written in words people can read ("Predicts future outcomes", "Copies others' text"). Every stretch of work is judged against it, event by event. |
-| **Checked, not just generated** | Two independent AI judges read the same stretches and their agreement is measured for every behaviour; each behaviour is also tested blind by a different model. |
-| **The arc of the record** | Phases, turning points and hypotheses that explain the change, each reviewed against the record by a separate reviewer. |
-| **Influence you can see** | Traces of reused words show who picked up whose text, and when. |
-| **One screen** | The behaviour atlas plays the record over time with the storyline beside it; any behaviour or stretch of work opens the events behind it. |
-| **Safe to share** | Share mode shows methods only by kind (links cut to their domain, payloads and secrets withheld). Sub-agents that read the record run isolated, with none of your own tools or connectors. |
+<table>
+<tr>
+<td width="50%" valign="top"><b>Behaviours in plain words</b><br>A dictionary of behaviours, like sparse-autoencoder features but written in words people can read: <i>Predicts future outcomes</i>, <i>Copies others' text</i>. Every stretch of work is judged against it, event by event.</td>
+<td width="50%" valign="top"><b>Checked, not just generated</b><br>Two independent AI judges read the same stretches and their agreement is measured for every behaviour; each behaviour is also tested blind by a different model.</td>
+</tr>
+<tr>
+<td valign="top"><b>The arc of the record</b><br>Phases, turning points and hypotheses that explain the change, each reviewed against the record by a separate reviewer.</td>
+<td valign="top"><b>Influence you can see</b><br>Traces of reused words show who picked up whose text, and when.</td>
+</tr>
+<tr>
+<td valign="top"><b>One screen</b><br>The behaviour atlas plays the record over time with the storyline beside it; any behaviour or stretch of work opens the events behind it.</td>
+<td valign="top"><b>Safe to share</b><br>Share mode shows methods only by kind: links cut to their domain, payloads and secrets withheld. Sub-agents that read the record run isolated, with none of your own tools.</td>
+</tr>
+</table>
 
 ## How it works
 
 ```mermaid
 flowchart LR
-    A["Any multi-agent log<br/><sub>wiki edits · boards · chats · transcripts</sub>"] --> B["Index<br/><sub>events + who addressed whom</sub>"]
-    B --> C["Delegated reading<br/><sub>every chunk read by a sub-agent</sub>"]
-    C --> D["Behaviour dictionary<br/><sub>plain words, judged event by event</sub>"]
-    C --> E["Arc<br/><sub>phases · turning points · hypotheses</sub>"]
-    D --> F["Behaviour atlas<br/><sub>one screen, over time</sub>"]
+    A[Multi-agent log] --> B[Index]
+    B --> C[Delegated reading]
+    C --> D[Behaviour dictionary]
+    C --> E[Arc]
+    D --> F[Behaviour atlas]
     E --> F
 ```
 
@@ -107,10 +113,14 @@ into your skills directory so the agent knows where to start (`storyline`, `peri
 
 Two real records, the same pipeline and prompts; only the converter is specific to each record.
 
-| Record | Events | Behaviours | Two-judge agreement (κ) | Blind detection | The arc it found |
-|---|---:|---:|---:|---:|---|
-| Wiki edit logs + other boards | 20,932 | 66 | 0.89 | 44 / 53 pass | *Shared research becomes advance coordination, then bulk cleanup* |
-| AI Village, July–August 2026 | 67,969 | 56 | 0.86 | 21 / 27 pass | *Expansion, boundary breaches, and uneven correction* |
+| Record | Events | Behaviours | Two-judge agreement (κ) | Blind detection |
+|---|---:|---:|---:|---:|
+| Wiki edit logs + other boards | 20,932 | 66 | 0.89 | 44 / 53 pass |
+| AI Village, July–August 2026 | 67,969 | 56 | 0.86 | 21 / 27 pass |
+
+The arcs it found:
+- **Wiki and other boards**: *shared research becomes advance coordination, then bulk cleanup*
+- **AI Village**: *expansion, boundary breaches, and uneven correction*
 
 Stored results rebuild exactly from the saved model outputs (`scripts/verify.py`). Where it falls short is written up
 too: in a benign environment the concern flags over-flag, and on chat-scale logs the question asked matters more than
@@ -118,15 +128,13 @@ the structure ([eval/RESULTS.md](eval/RESULTS.md)).
 
 ## Docs
 
-| | |
-|---|---|
-| [Behaviour features](docs/BEHAVIOUR_FEATURES.md) | how the dictionary is built and checked |
-| [Reproduce](docs/REPRODUCE.md) | check the stored results, or rerun from the raw data |
-| [Deploy](docs/DEPLOY.md) | a self-contained bundle and container for the atlas |
-| [Evaluation](eval/RESULTS.md) | every experiment, including the ones that did not work |
-| [Agent skill](skill/SKILL.md) | instructions for agents using the tools |
-| [Demo video](demo/README.md) | how the video above is made (HyperFrames) |
-| [Reference](docs/REFERENCE.md) | every tool, command and setting, and the records it was tested on |
+- [**Behaviour features**](docs/BEHAVIOUR_FEATURES.md): how the dictionary is built and checked
+- [**Reproduce**](docs/REPRODUCE.md): check the stored results, or rerun from the raw data
+- [**Deploy**](docs/DEPLOY.md): a self-contained bundle and container for the atlas
+- [**Evaluation**](eval/RESULTS.md): every experiment, including the ones that did not work
+- [**Agent skill**](skill/SKILL.md): instructions for agents using the tools
+- [**Reference**](docs/REFERENCE.md): every tool, command and setting, and the records it was tested on
+- [**Demo video**](demo/README.md): how the video above is made
 
 ## Limits
 
