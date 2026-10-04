@@ -1,0 +1,28 @@
+{
+ "package": "swarmgraph",
+ "skill": "skill/SKILL.md",
+ "datasets": {
+  "wiki_train": {
+   "dir": "../data/oos_wiki_train",
+   "index": "../data/oos_wiki_train.sqlite"
+  },
+  "fresh_train": {
+   "dir": "../data/oos_fresh_train",
+   "index": "../data/oos_fresh_train.sqlite"
+  }
+ },
+ "questions": [
+  {
+   "id": "WH",
+   "dataset": "wiki_train",
+   "kind": "hypotheses",
+   "n": 5
+  },
+  {
+   "id": "FH",
+   "dataset": "fresh_train",
+   "kind": "hypotheses",
+   "n": 5
+  }
+ ]
+}

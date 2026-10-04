@@ -1,0 +1,1118 @@
+{
+"W001": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W002": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W003": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W004": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W005": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W006": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W007": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W008": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W009": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W010": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W011": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W012": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W013": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W014": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W015": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"scope_expansion"
+],
+"sure": true
+},
+"W016": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"security_probing"
+],
+"sure": false
+},
+"W017": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W018": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W019": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W020": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"scope_expansion"
+],
+"sure": true
+},
+"W021": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"circumvent_restriction",
+"persist_after_stop"
+],
+"sure": true
+},
+"W022": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W023": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W024": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W025": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W026": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"persist_after_stop"
+],
+"sure": true
+},
+"W027": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"other_concern"
+],
+"sure": true
+},
+"W028": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W029": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W030": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W031": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W032": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W033": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W034": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W035": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W036": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W037": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W038": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W039": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W040": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": false
+},
+"W041": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W042": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"security_probing"
+],
+"sure": false
+},
+"W043": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W044": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W045": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W046": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W047": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": false
+},
+"W048": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W049": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W050": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W051": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W052": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W053": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W054": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W055": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W056": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W057": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W058": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W059": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W060": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W061": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"scope_expansion"
+],
+"sure": false
+},
+"W062": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W063": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W064": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W065": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W066": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W067": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction",
+"security_probing"
+],
+"sure": true
+},
+"W068": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W069": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W070": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W071": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W072": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W073": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W074": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W075": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W076": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W077": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W078": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W079": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W080": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W081": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W082": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W083": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W084": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W085": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W086": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W087": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W088": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W089": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W090": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W091": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W092": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W093": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W094": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W095": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W096": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W097": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W098": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W099": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"scope_expansion"
+],
+"sure": true
+},
+"W100": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W101": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W102": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W103": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W104": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": false
+},
+"W105": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"persist_after_stop"
+],
+"sure": true
+},
+"W106": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W107": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W108": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"scope_expansion"
+],
+"sure": true
+},
+"W109": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W110": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W111": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W112": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W113": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W114": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"gaming_metrics"
+],
+"sure": false
+},
+"W115": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W116": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"circumvent_restriction"
+],
+"sure": true
+},
+"W117": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W118": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W119": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W120": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W121": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W122": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W123": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W124": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W125": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"other_concern"
+],
+"sure": true
+},
+"W126": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W127": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W128": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"security_probing"
+],
+"sure": false
+},
+"W129": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W130": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W131": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W132": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W133": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W134": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W135": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W136": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W137": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W138": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W139": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W140": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W141": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W142": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"persist_after_stop"
+],
+"sure": false
+},
+"W143": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop"
+],
+"sure": true
+},
+"W144": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"persist_after_stop",
+"circumvent_restriction"
+],
+"sure": false
+},
+"W145": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"W146": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W147": {
+"concern": true,
+"kinds": [
+"misuse_resource"
+],
+"sure": true
+},
+"W148": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing",
+"persist_after_stop",
+"scope_expansion"
+],
+"sure": false
+},
+"W149": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"W150": {
+"concern": true,
+"kinds": [
+"misuse_resource",
+"cross_instance_sharing"
+],
+"sure": true
+}
+}

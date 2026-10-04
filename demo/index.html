@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>demo</title>
+<script src="vendor/gsap.min.js"></script>
+<script src="data.js"></script>
+<style>
+:root{--bg:#0e0e0d;--panel:#191917;--card:#1f1f1c;--fg:#eeede7;--muted:#9a988f;--line:#2e2d2a;--sel:#7c9cf5;--ok:#4fa463}
+html,body{margin:0;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden}
+.abs{position:absolute;left:0;top:0}
+.center{position:absolute;left:0;width:1920px;text-align:center}
+svg,canvas{position:absolute;left:0;top:0}
+/* chaos */
+#s1 .stat{display:inline-block;margin:0 40px;font-size:30px;color:#cfcdc6}
+#s1 .stat b{display:block;font-size:76px;color:#fff;font-weight:800;letter-spacing:-.02em}
+#s1 .headline{font-size:92px;font-weight:800;letter-spacing:-.03em;line-height:1.05}
+#s1 .shade{position:absolute;left:360px;top:300px;width:1200px;height:480px;border-radius:50%;background:radial-gradient(rgba(14,14,13,.92),rgba(14,14,13,0) 70%)}
+/* the world of agents */
+.bub{position:absolute;left:0;top:0;width:230px;box-sizing:border-box;padding:8px 11px 9px;border-radius:12px;background:#14151a;
+  border:1.5px solid;font-size:13.5px;line-height:1.3;color:#dcdad3;transform-origin:0 0;display:none}
+.bub b{display:block;font-size:11.5px;margin-bottom:3px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bub .tail{position:absolute;left:50%;bottom:-7px;width:12px;height:12px;margin-left:-6px;background:#14151a;border-right:1.5px solid;border-bottom:1.5px solid;transform:rotate(45deg)}
+/* one sentence becomes a node */
+.hl{background-repeat:no-repeat;background-size:0% 100%;border-radius:6px}
+.ch{display:inline-block;white-space:pre}
+.nm{position:absolute;white-space:nowrap}
+#story{left:150px;top:58px}
+#story .sp,#story .arcT,#story .beat{position:absolute;left:0;top:0;white-space:nowrap;text-shadow:0 0 22px #0e0e0d,0 0 8px #0e0e0d,0 0 3px #0e0e0d}
+#story .k{font-size:15px;letter-spacing:.2em;color:#9a988f;display:flex;align-items:center;gap:14px}
+#story .k i{display:block;width:120px;height:2px;background:rgba(238,237,231,.14);position:relative}
+#story .k i b{position:absolute;left:0;top:0;width:100%;height:2px;transform-origin:0 50%}
+#story .n{font-size:40px;font-weight:700;letter-spacing:-.015em;margin-top:8px}
+#story .w{display:inline-block}
+#story .arcT{font-size:30px;font-weight:600;color:#eeede7}
+#story .arcT small{display:block;font-size:15px;letter-spacing:.2em;color:#9a988f;font-weight:500;margin-bottom:8px}
+#story .beat{top:100px;font-size:22px;color:#dcdad3}
+#story .beat em{font-style:normal;color:#9a988f;margin-right:12px}
+.lbl{font-size:20px;fill:var(--fg);paint-order:stroke;stroke:#0e0e0d;stroke-width:5px;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="demo" data-start="0" data-duration="36.47" data-width="1920" data-height="1080">
+  <section id="s1" class="scene clip" data-start="0" data-duration="10.833" data-track-index="2">
+    <canvas id="chaos" width="1920" height="1080"></canvas>
+    <div class="shade" id="shade"></div>
+    <div class="center" id="stats" style="top:440px"></div>
+    <div class="center headline" id="s1h" style="top:430px"><div id="s1h1">Too much to <span style="color:#e07a5f">read</span>.</div><div id="s1h2">Too fast to <span style="color:#56c8d8">follow</span>.</div></div>
+  </section>
+  <section id="s2" class="scene clip" data-start="10.0" data-duration="11.667" data-track-index="3">
+    <canvas id="world" width="1920" height="1080"></canvas><div id="bubbles" class="abs"></div>
+  </section>
+  <section id="s3" class="scene clip" data-start="17.0" data-duration="19.47" data-track-index="4">
+    <svg id="map" width="1920" height="1080"></svg>
+    <svg id="strip" width="1920" height="1080"></svg>
+    <canvas id="scatter" width="1920" height="1080"></canvas>
+    <div id="names" class="abs"></div>
+    <svg id="nodeov" width="1920" height="1080"></svg>
+    <div id="story" class="abs"></div>
+  </section>
+</div>
+<script>
+(() => {
+const NAME = "SwarmScope";
+const D = window.DEMO, W = 1920, H = 1080, NS = "http://www.w3.org/2000/svg";
+const tl = gsap.timeline({paused: true});
+const $ = id => document.getElementById(id);
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const div = (cls, html, parent) => { const e = document.createElement("div"); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (parent) parent.appendChild(e); return e; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const mul = s => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const STOPS = [[78, 121, 167], [89, 161, 79], [237, 201, 72], [225, 87, 89]];
+const rgb = t => { t = Math.max(0, Math.min(1, t)) * (STOPS.length - 1); const j = Math.min(STOPS.length - 2, Math.floor(t)), f = t - j; return STOPS[j].map((v, k) => Math.round(v + (STOPS[j + 1][k] - v) * f)); };
+const grad = (t, a = 1) => { const c = rgb(t); return `rgba(${c[0]},${c[1]},${c[2]},${a})`; };
+const MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const day = b => `${MON[+b.slice(5, 7) - 1]} ${+b.slice(8, 10)}`;
+const ease3 = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+// a canvas drawn from the timeline: GSAP sets `t`, the setter draws that instant (no callbacks, so seeking is exact)
+const painter = draw => { let v = -1; return {get t() { return v; }, set t(x) { v = x; draw(x); }}; };
+
+// ---------------------------------------------------------------- 0-1 the hackathon, whose words break into the swarm (0 - 13)
+const FONT = "-apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif";
+const FAM = ["#81c995", "#b388eb", "#56c8d8", "#f2cc8f", "#e07a5f", "#7c9cf5", "#f28fb4"];  // families of names (how the agents named themselves)
+const famOf = n => /openai|oai/i.test(n) ? 0 : /^agent/i.test(n) ? 1 : /research|archive|library|reader|data/i.test(n) ? 2 :
+  /test|foo|user|temp|scratch|trial|probe/i.test(n) ? 3 : /helper|coord|relay|bot|assist/i.test(n) ? 4 : /scout|watch|observ|monitor|seek/i.test(n) ? 5 : 6;
+const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const cv = $("chaos"), cx = cv.getContext("2d"), R1 = mul(11);
+const NN = 640, nodes = [];
+const clumps = Array.from({length: 9}, () => [480 + R1() * 960, 220 + R1() * 640, 60 + R1() * 170]);
+for (let i = 0; i < NN; i++) {
+  const c = clumps[Math.floor(R1() * clumps.length)], a = R1() * 6.283, r = Math.sqrt(R1()) * c[2] * (R1() < .25 ? 3.2 : 1);
+  const name = R1() < .12 ? D.labels[Math.floor(R1() * D.labels.length)] : null, f = name ? famOf(name) : Math.floor(R1() * FAM.length);
+  nodes.push({x: c[0] + Math.cos(a) * r, y: c[1] + Math.sin(a) * r, ax: 20 + R1() * 70, ay: 20 + R1() * 70, fx: .4 + R1() * 1.6, fy: .4 + R1() * 1.6,
+    p: R1() * 6.283, s: 1 + R1() * 2.6, c: hex(FAM[f]), name});
+}
+const hubs = Array.from({length: 46}, () => Math.floor(R1() * NN));
+const NM = 5200, msgs = [];
+for (let k = 0; k < NM; k++) {
+  const u = k / NM, t0 = .15 + 9.1 * Math.pow(u, .5), a = R1() < .35 ? hubs[Math.floor(R1() * hubs.length)] : Math.floor(R1() * NN);
+  let b = R1() < .3 ? hubs[Math.floor(R1() * hubs.length)] : Math.floor(R1() * NN); if (b === a) b = (b + 7) % NN;
+  msgs.push({a, b, t0, d: .35 + R1() * 1.2, bend: (R1() - .5) * 1.8, wob: 8 + R1() * 46, wf: 3 + R1() * 9, ph: R1() * 6.283, c: nodes[a].c});  // the sender's family
+}
+const npos = (n, t) => { const sw = .06 * t * (1 + Math.sin(n.p)); const x = n.x + n.ax * Math.sin(n.fx * t + n.p) + 26 * Math.sin(2.7 * t + n.p * 3);
+  const y = n.y + n.ay * Math.cos(n.fy * t + n.p) + 26 * Math.cos(2.3 * t + n.p * 2); const dx = x - 960, dy = y - 540;
+  return [960 + dx * Math.cos(sw) - dy * Math.sin(sw), 540 + dx * Math.sin(sw) + dy * Math.cos(sw)]; };
+const camera = tc => { const z = 1 + .16 * Math.max(0, tc) / 9.6, r = .035 * Math.max(0, tc);
+  return [z * Math.cos(r), z * Math.sin(r), -z * Math.sin(r), z * Math.cos(r), 960 - z * (960 * Math.cos(r) - 540 * Math.sin(r)), 540 - z * (960 * Math.sin(r) + 540 * Math.cos(r))]; };
+const TITLE = [{text: "AI VILLAGE  ×  GROVE RESEARCH  ·  OCTOBER 3–4, 2026", font: "500 26px " + FONT, ls: "5px", y: 330, col: [154, 152, 143], t0: .2},
+  {text: "AI Swarm Dynamics Hackathon", font: "600 44px " + FONT, ls: "0px", y: 394, col: [238, 237, 231], t0: .45},
+  {text: NAME, font: "800 150px " + FONT, ls: "-6px", y: 515, col: [238, 237, 231], t0: .9},
+  {text: "Understanding behaviour in multi-agent environments", font: "400 34px " + FONT, ls: "0px", y: 625, col: [154, 152, 143], t0: 1.5}];
+const setFont = (c, L) => { c.font = L.font; c.textAlign = "center"; c.textBaseline = "middle"; if ("letterSpacing" in c) c.letterSpacing = L.ls; };
+let dots = null;  // the title as points, sampled at the first drawing (fonts settled), from the same type the title is drawn in
+const sample = () => {
+  const oc = document.createElement("canvas"); oc.width = W; oc.height = H; const o = oc.getContext("2d");
+  TITLE.forEach(L => { setFont(o, L); o.fillStyle = "#fff"; o.fillText(L.text, 960, L.y); });
+  const img = o.getImageData(0, 0, W, H).data, R = mul(41), out = [];
+  for (let y = 0; y < H; y += 3) for (let x = 0; x < W; x += 3) if (img[(y * W + x) * 4 + 3] > 140) {
+    const L = TITLE.reduce((q, l) => Math.abs(l.y - y) < Math.abs(q.y - y) ? l : q);
+    const ang = R() * 6.283, rr = 380 + R() * 900;  // where the point comes from as the title assembles
+    out.push({x, y, n: Math.floor(R() * NN), bend: (R() - .5) * 1.4, s: 3.0 + .45 * R() + .4 * Math.abs(x - 960) / 960, d: 1.0 + .8 * R(), col: L.col,
+      ax: 960 + Math.cos(ang) * rr * 1.4, ay: 540 + Math.sin(ang) * rr * .8, a0: .05 + .5 * R() + TITLE.indexOf(L) * .1, ad: .8 + .5 * R(), ab: (R() - .5) * 1.2, ac: hex(FAM[Math.floor(R() * FAM.length)])}); }
+  return out;
+};
+const drawAll = t => {
+  cx.setTransform(1, 0, 0, 1, 0, 0); cx.globalCompositeOperation = "source-over"; cx.fillStyle = "#0e0e0d"; cx.fillRect(0, 0, W, H);
+  const tc = t - 3.4;
+  dots ||= sample();
+  if (t < 2.3) {  // points of every colour gather into the title
+    const fade = 1 - Math.max(0, Math.min(1, (t - 1.85) / .4));
+    for (const p of dots) { if (t < p.a0) continue; const u = ease3(Math.min(1, (t - p.a0) / p.ad));
+      const mx = (p.ax + p.x) / 2 - (p.y - p.ay) * p.ab, my = (p.ay + p.y) / 2 + (p.x - p.ax) * p.ab;
+      const x = (1 - u) * (1 - u) * p.ax + 2 * (1 - u) * u * mx + u * u * p.x, y = (1 - u) * (1 - u) * p.ay + 2 * (1 - u) * u * my + u * u * p.y;
+      const k = Math.min(1, u * 1.3), c = [0, 1, 2].map(j => Math.round(p.ac[j] + (p.col[j] - p.ac[j]) * k)), a = Math.min(1, (t - p.a0) / .25) * fade;
+      cx.fillStyle = `rgba(${c.join(",")},${a})`; cx.fillRect(x - 1.2, y - 1.2, 2.4, 2.4); }
+  }
+  if (t > 1.7 && t < 3.05) TITLE.forEach(L => { const a = Math.min(1, (t - 1.7) / .45) * (t > 2.9 ? (3.05 - t) / .15 : 1); if (a <= 0) return;
+    setFont(cx, L); cx.fillStyle = `rgba(${L.col[0]},${L.col[1]},${L.col[2]},${a})`; cx.fillText(L.text, 960, L.y); });
+  if (t < 2.9) return;
+  const m = camera(tc), P = nodes.map(n => { const [x, y] = npos(n, Math.max(0, tc)); return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; });
+  if (t < 5.6) {  // the words break into points that fly to the swarm's nodes
+    const pa = Math.min(1, (t - 2.9) / .15);
+    for (const p of dots) { const u = ease3(Math.max(0, Math.min(1, (t - p.s) / p.d))); if (u >= 1) continue;
+      const [tx, ty] = P[p.n], mx = (p.x + tx) / 2 - (ty - p.y) * p.bend, my = (p.y + ty) / 2 + (tx - p.x) * p.bend;
+      const x = (1 - u) * (1 - u) * p.x + 2 * (1 - u) * u * mx + u * u * tx, y = (1 - u) * (1 - u) * p.y + 2 * (1 - u) * u * my + u * u * ty;
+      const c = nodes[p.n].c, k = Math.min(1, u * 1.6), a = pa * (u < .85 ? 1 : (1 - u) / .15);
+      cx.fillStyle = `rgba(${Math.round(p.col[0] + (c[0] - p.col[0]) * k)},${Math.round(p.col[1] + (c[1] - p.col[1]) * k)},${Math.round(p.col[2] + (c[2] - p.col[2]) * k)},${a})`;
+      cx.fillRect(x - 1.2, y - 1.2, 2.4, 2.4); }
+  }
+  const na = Math.max(0, Math.min(1, (t - 3.6) / 1.4)), quiet = 1 - Math.max(0, Math.min(1, (t - 11.1) / .8)); if (na <= 0) return;
+  cx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]); cx.globalCompositeOperation = "lighter";
+  const Q = nodes.map(n => npos(n, Math.max(0, tc)));
+  for (const g of msgs) {
+    const age = tc - g.t0; if (age < 0 || age > g.d + .9) continue;
+    const u = Math.min(1, age / g.d), fade = age > g.d ? 1 - (age - g.d) / .9 : 1, [x1, y1] = Q[g.a], [x2, y2] = Q[g.b];
+    const mx = (x1 + x2) / 2 - (y2 - y1) * g.bend, my = (y1 + y2) / 2 + (x2 - x1) * g.bend;
+    cx.beginPath(); const S = 14;
+    for (let s = 0; s <= S * u; s++) { const q = s / S, w = Math.sin(q * g.wf + g.ph + tc * 6) * g.wob * Math.sin(q * 3.1416);
+      const bx = (1 - q) * (1 - q) * x1 + 2 * (1 - q) * q * mx + q * q * x2, by = (1 - q) * (1 - q) * y1 + 2 * (1 - q) * q * my + q * q * y2;
+      s ? cx.lineTo(bx + w * .6, by - w * .4) : cx.moveTo(bx, by); }
+    cx.strokeStyle = `rgba(${g.c[0]},${g.c[1]},${g.c[2]},${.22 * fade * quiet})`; cx.lineWidth = 1.1; cx.stroke();
+    if (u < 1) { const q = u, bx = (1 - q) * (1 - q) * x1 + 2 * (1 - q) * q * mx + q * q * x2, by = (1 - q) * (1 - q) * y1 + 2 * (1 - q) * q * my + q * q * y2;
+      cx.fillStyle = `rgba(${g.c[0]},${g.c[1]},${g.c[2]},${.9 * quiet})`; cx.fillRect(bx - 1.6, by - 1.6, 3.2, 3.2); }
+  }
+  cx.globalCompositeOperation = "source-over"; cx.font = "11px " + FONT; cx.textAlign = "left"; cx.textBaseline = "alphabetic"; if ("letterSpacing" in cx) cx.letterSpacing = "0px";
+  nodes.forEach((n, i) => { const [x, y] = Q[i], f = .55 + .45 * Math.sin(tc * 7 * n.fy + n.p);
+    cx.fillStyle = `rgba(${n.c[0]},${n.c[1]},${n.c[2]},${na * (.6 + .4 * f)})`; cx.beginPath(); cx.arc(x, y, n.s * (.8 + .5 * f), 0, 6.283); cx.fill();
+    if (n.name) { cx.fillStyle = `rgba(200,198,190,${na * quiet * (.25 + .2 * f)})`; cx.fillText(n.name, x + 5, y - 4); } });
+};
+tl.fromTo(painter(drawAll), {t: 0}, {t: 13, duration: 13, ease: "none", immediateRender: true}, 0);
+const C = D.counts;
+$("stats").innerHTML = [[C.events.toLocaleString("en-US"), "events"], [C.labels.toLocaleString("en-US"), "names"], [String(C.days), "days"]]
+  .map(([n, l]) => `<span class="stat"><b>${n}</b>${l}</span>`).join("");
+tl.fromTo("#shade", {opacity: 0}, {opacity: 1, duration: .5}, 5.3).to("#shade", {opacity: 0, duration: .6}, 11.6);
+tl.fromTo("#stats", {opacity: 0, y: 18}, {opacity: 1, y: 0, duration: .6, ease: "power2.out"}, 5.4).to("#stats", {opacity: 0, y: -18, duration: .4}, 8.0);
+tl.fromTo("#s1h1", {opacity: 0, y: 16}, {opacity: 1, y: 0, duration: .55, ease: "power3.out"}, 8.4)
+  .fromTo("#s1h2", {opacity: 0, y: 16}, {opacity: 1, y: 0, duration: .55, ease: "power3.out"}, 9.5).to("#s1h", {opacity: 0, duration: .5}, 11.6);
+tl.to("#chaos", {opacity: 0, duration: .05}, 12.0);  // the world scene takes over the same points
+
+// ---------------------------------------------------------------- 2 a world of agents talking (12.0 - 21.2)
+const PC = (() => { const f = D.features.find(x => x.id === D.pivot.feature); return grad(f.peak); })(), PCa = PC.replace(",1)", ",.42)");
+const wv = $("world"), wx = wv.getContext("2d"), R5 = mul(77), NA = 120, ags = [], byFam = FAM.map(() => []);
+const CAM = t => { t = Math.min(t, 7.3); const v = .06 + .06 * 6.4;  // the camera speeds up as it walks in, then eases to a stop to pick one voice
+  if (t <= 6.4) return .06 * t + .03 * t * t; const u = t - 6.4; return .06 * 6.4 + .03 * 6.4 * 6.4 + v * u - v / 1.8 * u * u; };
+for (let i = 0; i < NA; i++) { const f = Math.floor(R5() * FAM.length); byFam[f].push(i);
+  ags.push({X: (R5() * 2 - 1) * 1.8, Z: .6 + R5() * 2.8, ph: R5() * 6.283, w: .03 + R5() * .07, c: hex(FAM[f])}); }
+const PA = ags.length, pfam = famOf(D.pivot.who);
+ags.push({X: .22, Z: CAM(9) + 1.25, ph: 0, w: .015, c: hex(FAM[pfam]), pivot: true});
+const depth = (g, t) => { const z = g.Z - CAM(t); return g.pivot ? z : ((z - .35) % 2.95 + 2.95) % 2.95 + .35; };
+const proj = (X, z) => [960 + X * 560 / z, 250 + 420 / z];
+const apos = (g, t) => { const z = depth(g, t), X = g.X + Math.sin(t * .9 + g.ph) * g.w, [x, y] = proj(X, z); return {x, y, z}; };
+const tip = q => { const r0 = Math.min(24, 11 / q.z); return [q.x, q.y - 2.8 * r0 - 6]; };  // where a bubble's tail points: just above the speaker
+const bk = z => Math.max(.28, Math.min(1.2, 1.0 / z));
+// speech: many voices, laid out in advance so that no two bubbles cover each other, none is too far to read, and none
+// belongs to a speaker who wraps from the front to the back of the world while speaking; stacking order fixed per bubble
+const BUB = [], cand = [], NB = 720;
+for (let k = 0; k < NB; k++) {
+  const l = D.lines[k % D.lines.length], fam = byFam[famOf(l.who)], ag = fam.length ? fam[Math.floor(R5() * fam.length)] : Math.floor(R5() * NA);
+  let to = Math.floor(R5() * NA); if (to === ag) to = (to + 1) % NA;
+  cand.push({a: ag, b: to, s: 1.0 + 6.0 * (k / NB) + R5() * .4, d: 1.5 + R5() * 1.3, who: l.who, t: l.t, c: FAM[famOf(l.who)]});
+}
+const pq = {a: PA, b: Math.floor(R5() * NA), s: 5.7, d: 99, who: D.pivot.who, t: D.pivot.t, c: FAM[pfam], pivot: true};
+const rectAt = (q, t) => { const p = apos(ags[q.a], t), [x, y] = tip(p), k = bk(p.z), h = (32 + 18 * Math.ceil(q.t.length / 28)) * k, w = 230 * k; return [x - w / 2, y - h, x + w / 2, y, p.z]; };
+const hit = (r1, r2) => { const ix = Math.min(r1[2], r2[2]) - Math.max(r1[0], r2[0]), iy = Math.min(r1[3], r2[3]) - Math.max(r1[1], r2[1]);  // nearly hidden by another
+  return ix > 0 && iy > 0 && ix * iy > .6 * Math.min((r1[2] - r1[0]) * (r1[3] - r1[1]), (r2[2] - r2[0]) * (r2[3] - r2[1])); };
+const kept = [pq];
+for (const q of cand.sort((x, y) => x.s - y.s)) {
+  const z0 = depth(ags[q.a], q.s), z1 = depth(ags[q.a], q.s + q.d); if (z1 > z0 || z0 > 3.2 || z1 < .7) continue;
+  const clash = kept.some(o => { const t0 = Math.max(o.s, q.s), t1 = Math.min(o.s + o.d, q.s + q.d); if (t1 <= t0) return false;
+    return hit(rectAt(o, (t0 + t1) / 2), rectAt(q, (t0 + t1) / 2)); });
+  if (!clash) kept.push(q);
+}
+kept.forEach(q => { q.zi = Math.round(1000 - depth(ags[q.a], q.s) * 100); BUB.push(q); });
+const ha = D.pivot.t.indexOf(D.pivot.hl), hb = ha + D.pivot.hl.length, words = w => w.split(" ").map(x => `<span style="white-space:nowrap">${[...x].map(ch => `<span class="ch">${esc(ch)}</span>`).join("")}</span>`).join(" ");
+BUB.forEach(q => { const body = q.pivot ? `<span class="rest">${esc(q.t.slice(0, ha))}</span><span class="hl">${words(D.pivot.hl)}</span><span class="rest">${esc(q.t.slice(hb))}</span>` : esc(q.t);
+  q.el = div("bub", `<b style="color:${q.c}">${esc(q.who)}</b>${body}<i class="tail" style="border-color:${q.c}"></i>`, $("bubbles")); q.el.style.borderColor = q.c; q.el.style.zIndex = q.pivot ? 2000 : q.zi + (q.s * 10 | 0) % 7; if (q.pivot) q.el.id = "pb"; });
+// the swarm's points become the world's agents: where each node of the swarm was when its lines went quiet
+let swarmAt = null;
+const swarmPts = () => { const tc = 12.0 - 3.4, m = camera(tc);
+  return nodes.map(n => { const [x, y] = npos(n, tc); return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5], n.s, n.c]; }); };
+const drawWorld = t => {
+  const ez = ease3(Math.max(0, Math.min(1, (t - 7.6) / 1.3))), dim = 1 - .9 * Math.max(0, Math.min(1, (t - 7.1) / .5)), gin = Math.max(0, Math.min(1, (t - .2) / .9));
+  const pv = apos(ags[PA], t), an = tip(pv), Zm = 1 + 2.6 * ez, sh = [(960 - an[0]) * ez, (520 - an[1]) * ez];
+  const V = (x, y) => [an[0] + (x - an[0]) * Zm + sh[0], an[1] + (y - an[1]) * Zm + sh[1]];
+  wx.setTransform(1, 0, 0, 1, 0, 0); wx.globalAlpha = 1; wx.fillStyle = "#0e0e0d"; wx.fillRect(0, 0, W, H);
+  wx.globalAlpha = gin; wx.fillStyle = "#0b0c10"; wx.fillRect(0, 0, W, H);
+  const sky = wx.createLinearGradient(0, 0, 0, 270); sky.addColorStop(0, "#0b0c10"); sky.addColorStop(1, "#141a30"); wx.fillStyle = sky; wx.fillRect(0, 0, W, 270);
+  wx.globalAlpha = 1; wx.lineWidth = 1; wx.strokeStyle = `rgba(124,156,245,${.16 * dim * gin})`; wx.beginPath();  // the ground: a perspective grid that slides toward the camera
+  for (let X = -4; X <= 4.001; X += .4) { const [x1, y1] = V(...proj(X, .35)), [x2, y2] = V(...proj(X, 4.2)); wx.moveTo(x1, y1); wx.lineTo(x2, y2); }
+  for (let k = 0; k < 13; k++) { const z = .35 + (((k * .3 - CAM(t)) % 3.9) + 3.9) % 3.9, [x1, y1] = V(...proj(-4, z)), [x2, y2] = V(...proj(4, z)); wx.moveTo(x1, y1); wx.lineTo(x2, y2); }
+  wx.stroke();
+  const P = ags.map(g => apos(g, t)), vis = q => { const u = t - q.s; return u < 0 || u > q.d ? 0 : Math.min(1, u / .18, (q.d - u) / .25); };
+  if (t < 1.5) {  // the swarm's points fly down to the agents and merge into them
+    swarmAt ||= swarmPts(); const R6 = mul(5);
+    swarmAt.forEach(([x0, y0, s0, c0], i) => { const ai = i % NA, st = R6() * .35, du = .75 + R6() * .35, u = ease3(Math.max(0, Math.min(1, (t - st) / du))); if (u >= 1) return;
+      const p = P[ai], g = ags[ai], r1 = Math.min(24, 11 / p.z), x1 = p.x, y1 = p.y - r1 * 1.2, cc = [0, 1, 2].map(j => Math.round(c0[j] + (g.c[j] - c0[j]) * u));
+      const x = x0 + (x1 - x0) * u, y = y0 + (y1 - y0) * u - Math.sin(u * 3.1416) * 40, r = s0 + (r1 * .5 - s0) * u;
+      wx.fillStyle = `rgba(${cc.join(",")},${.95 * (u < .85 ? 1 : (1 - u) / .15)})`; wx.beginPath(); wx.arc(x, y, Math.max(.8, r), 0, 6.283); wx.fill(); });
+  }
+  const ain = Math.max(0, Math.min(1, (t - .55) / .6));
+  wx.globalCompositeOperation = "lighter";  // who is talking to whom
+  for (const q of BUB) { const v = vis(q); if (!v || q.pivot) continue; const A = P[q.a], B = P[q.b], [x1, y1] = V(A.x, A.y - 12 / A.z), [x2, y2] = V(B.x, B.y - 12 / B.z);
+    wx.strokeStyle = `rgba(${hex(q.c).join(",")},${.42 * v * dim})`; wx.lineWidth = 1.4; wx.beginPath(); wx.moveTo(x1, y1);
+    wx.quadraticCurveTo((x1 + x2) / 2, Math.min(y1, y2) - 60 - Math.abs(x2 - x1) * .15, x2, y2); wx.stroke(); }
+  wx.globalCompositeOperation = "source-over";
+  const order = P.map((p, i) => i).sort((i, j) => P[j].z - P[i].z);
+  for (const i of order) { const p = P[i], g = ags[i], [x, y] = V(p.x, p.y), r = Math.min(24, 11 / p.z) * Zm, a = ain * (g.pivot ? 1 : dim) * Math.min(1, 1.3 - p.z / 3.4);
+    if (a <= 0) continue;
+    wx.fillStyle = `rgba(0,0,0,${.35 * a})`; wx.beginPath(); wx.ellipse(x, y + r * .2, r * 1.1, r * .35, 0, 0, 6.283); wx.fill();
+    wx.fillStyle = `rgba(${g.c.join(",")},${.18 * a})`; wx.beginPath(); wx.arc(x, y - r * 1.2, r * 2.1, 0, 6.283); wx.fill();
+    wx.fillStyle = `rgba(${g.c.join(",")},${.95 * a})`; wx.beginPath(); wx.arc(x, y - r * 1.2, r, 0, 6.283); wx.fill(); }
+  const gone = 1 - Math.max(0, Math.min(1, (t - 7.1) / .5));  // the other voices leave entirely before the zoom
+  for (const q of BUB) { const v = vis(q) * (q.pivot ? 1 : gone); if (!v) { q.el.style.display = "none"; continue; }
+    const p = P[q.a], [x, y] = V(...tip(p)), k = bk(p.z) * Zm * (.7 + .3 * Math.min(1, (t - q.s) / .18));
+    q.el.style.display = "block"; q.el.style.opacity = v;
+    q.el.style.transform = `translate(${Math.round(x)}px,${Math.round(y)}px) scale(${k.toFixed(3)}) translate(-50%,-100%)`; }
+};
+tl.fromTo(painter(drawWorld), {t: 0}, {t: 9.2, duration: 9.2, ease: "none", immediateRender: true}, 12.0);
+tl.to("#world", {opacity: 0, duration: .8}, 20.8);  // the bubble stays
+
+// ---------------------------------------------------------------- 3 one sentence becomes a node (20.4 - ...)
+const MX = 150, MY = 90, MW = 1620, MH = 740, PX = x => MX + x * MW, PY = y => MY + (1 - y) * MH;
+const F = Object.fromEntries(D.features.map(f => [f.id, f])), piv = D.pivot, pf = F[piv.feature], nx = PX(pf.x), ny = PY(pf.y);
+const a = piv.t.indexOf(piv.hl), b = a + piv.hl.length;
+document.head.appendChild(Object.assign(document.createElement("style"), {textContent: `.hl{background-image:linear-gradient(${PCa},${PCa})}`}));
+tl.to("#pb .hl", {backgroundSize: "100% 100%", duration: .8, ease: "power2.inOut"}, 21.6);
+// the marked words fly into one point, which becomes the behaviour's node on the map
+const rootScale = () => $("root").getBoundingClientRect().width / W;
+const centre = e => { const r = e.getBoundingClientRect(), o = $("root").getBoundingClientRect(), s = rootScale(); return [(r.left - o.left + r.width / 2) / s, (r.top - o.top + r.height / 2) / s]; };
+tl.to("#pb .hl", {backgroundSize: "100% 0%", duration: .3}, 23.3);
+tl.to("#pb .ch", {color: PC, duration: .3}, 23.3);
+tl.to("#pb .ch", {x: (i, e) => nx - centre(e)[0], y: (i, e) => ny - centre(e)[1], scale: .15, opacity: 0, duration: 1.0, ease: "power3.in", stagger: .014}, 23.5);
+tl.to(["#pb .rest", "#pb b", "#pb .tail"], {opacity: 0, duration: .5}, 23.4).to("#pb", {borderColor: "rgba(46,45,42,0)", backgroundColor: "rgba(20,21,26,0)", duration: .6}, 23.6);
+// the words land on the behaviour's own dot, among the other behaviours already faintly in place
+const ov = $("nodeov"), prr = 4 + 30 * Math.sqrt(pf.all), node = el("circle", {cx: nx, cy: ny, r: prr, fill: grad(pf.peak, .55)}, ov);
+const nring = el("circle", {cx: nx, cy: ny, r: prr + 7, fill: "none", stroke: PC, "stroke-width": 2}, ov);
+const nlabel = el("text", {x: nx + prr + 12, y: ny + 7, class: "lbl"}, ov); nlabel.textContent = pf.name;
+tl.fromTo(node, {attr: {r: 0}}, {attr: {r: prr}, duration: .6, ease: "back.out(1.8)"}, 24.4)
+  .fromTo(nring, {attr: {r: prr}, opacity: 0}, {attr: {r: prr + 7}, opacity: .9, duration: .6, ease: "power2.out"}, 24.6)
+  .fromTo(nlabel, {opacity: 0}, {opacity: .9, duration: .5}, 24.9);
+
+// ---------------------------------------------------------------- 4 every behaviour, then every name scatters into its stretches
+const others = D.features.filter(f => f.id !== pf.id), nameBox = {}, RN = mul(63), placed = [];
+// a loose cloud of names: random places and sizes, none overlapping another or the node, each in a pale tint of the
+// colour its behaviour has on the map (so the points it breaks into keep that colour)
+others.forEach((f, k) => {
+  const fs = 16 + Math.floor(RN() * 7), w = f.name.length * fs * .5 + 8, h = fs + 8;
+  let x = 0, y = 0;
+  for (let tries = 0; tries < 400; tries++) {
+    x = 110 + RN() * (W - 220 - w); y = 90 + RN() * 760;
+    const clear = !placed.some(b => x < b[2] + 14 && x + w + 14 > b[0] && y < b[3] + 10 && y + h + 10 > b[1]) && Math.hypot(x + w / 2 - nx, y + h / 2 - ny) > 170 + w / 3
+      && !(x < nx + 330 && x + w > nx - 60 && y < ny + 50 && y + h > ny - 50);  // nor the node's own name
+    if (clear) break;
+  }
+  placed.push([x, y, x + w, y + h]);
+  const c = rgb(f.peak), tint = c.map(v => Math.round(v + (255 - v) * .45));
+  const n = div("nm", esc(f.name), $("names")); n.style.cssText += `left:${x}px;top:${y}px;font-size:${fs}px;color:rgba(${tint.join(",")},.78)`;
+  nameBox[f.id] = [x, y, w, h, tint];
+  tl.fromTo(n, {opacity: 0, y: 8}, {opacity: 1, y: 0, duration: .5}, 25.6 + ((k * 29) % others.length) * .018);
+  tl.to(n, {opacity: 0, filter: "blur(4px)", duration: .6}, 27.6 + ((k * 17) % others.length) * .012);
+});
+tl.to(nlabel, {opacity: 0, duration: .4}, 27.4);
+const S = D.stretches, R2 = mul(29), oidx = Object.fromEntries(others.map((f, k) => [f.id, k])), parts = S.map(s => {
+  const home = nameBox[s.home] || [nx - 10, ny - 10, 20, 20, rgb(pf.peak)];
+  const x0 = home[0] + R2() * home[2], y0 = home[1] + R2() * home[3] + 4, x1 = PX(s.x), y1 = PY(s.y), bend = (R2() - .5) * .5;
+  return {x0, y0, x1, y1, mx: (x0 + x1) / 2 - (y1 - y0) * bend, my: (y0 + y1) / 2 + (x1 - x0) * bend, t0: .1 + ((oidx[s.home] ?? 0) % 30) * .03 + R2() * .5, d: 1.2 + R2() * .5, c0: home[4], c: rgb(s.w)};
+});
+const sc2 = $("scatter").getContext("2d");
+const drawScatter = t => {
+  sc2.clearRect(0, 0, W, H);
+  for (const p of parts) { if (t < p.t0) continue; const u = ease3(Math.min(1, (t - p.t0) / p.d));
+    const x = (1 - u) * (1 - u) * p.x0 + 2 * (1 - u) * u * p.mx + u * u * p.x1, y = (1 - u) * (1 - u) * p.y0 + 2 * (1 - u) * u * p.my + u * u * p.y1;
+    const c = [0, 1, 2].map(j => Math.round(p.c0[j] + (p.c[j] - p.c0[j]) * u));  // from the name's tint to the stretch's colour
+    sc2.fillStyle = `rgba(${c.join(",")},${.95 - .4 * u})`; sc2.beginPath(); sc2.arc(x, y, 2.6 - .4 * u, 0, 6.283); sc2.fill(); }
+};
+tl.fromTo(painter(drawScatter), {t: 0}, {t: 2.6, duration: 2.6, ease: "none", immediateRender: true}, 27.6);
+tl.fromTo("#scatter", {opacity: 1}, {opacity: 0, duration: .4, immediateRender: false}, 30.3);
+
+// ---------------------------------------------------------------- 5 the behaviours over time (map from 28.8, playback 31.0 - 40.0, speeding up)
+const map = $("map"), gTr = el("g", {}, map), gSt = el("g", {}, map), gDot = el("g", {}, map), gLbl = el("g", {}, map);
+// playback time is shared out by phase, so each phase of the storyline can be read where it happens; within a phase
+// time follows the work done, and the main event (the longest share) speeds up towards its end
+const phases = D.arc.phases, dw = D.day_work, T0 = 31.0;
+const ALLOT = phases.map((p, i) => [.8, 1.6, 3.4, 1.1, 1.3, .8][i] ?? 1);
+let PD = ALLOT.reduce((x, y) => x + y, 0), PLAY_END = T0 + PD;
+const firstBin = date => { const k = D.bins.findIndex(b => b >= date); return k < 0 ? D.bins.length - 1 : k; };
+const BRK = phases.map((p, i) => i ? dw[firstBin(p.start)] : 0).concat([1]), TB = ALLOT.reduce((acc, x) => (acc.push(acc[acc.length - 1] + x), acc), [0]);
+const MAIN = ALLOT.indexOf(Math.max(...ALLOT)), PD0 = PD;
+const baseTau = w => { w = Math.max(0, Math.min(1, w)); let i = 0; while (i < ALLOT.length - 1 && w >= BRK[i + 1]) i++;
+  const u = Math.max(0, Math.min(1, (w - BRK[i]) / Math.max(1e-9, BRK[i + 1] - BRK[i]))); return TB[i] + ALLOT[i] * (i === MAIN ? Math.pow(u, 1 / 1.7) : u); };
+// playback pauses briefly on a turning point whose phase would leave too little time to read it there
+const tpW = D.arc.tps.map(x => dw[firstBin(x.date)]), phaseEndOf = tau => { const j = TB.findIndex((v, k) => k > 0 && tau < v - 1e-6); return j < 0 ? PD0 : TB[j]; };
+const DWL = tpW.map((w, i) => { const at = baseTau(w), nx = Math.min(i + 1 < tpW.length ? baseTau(tpW[i + 1]) : PD0 + 1.2, phaseEndOf(at)); return Math.max(0, .7 - (nx - at)); });
+const tauBefore = w => baseTau(w) + tpW.reduce((acc, x, j) => acc + (x < w ? DWL[j] : 0), 0);   // a day starts here
+const tauAfter = w => baseTau(w) + tpW.reduce((acc, x, j) => acc + (x <= w ? DWL[j] : 0), 0);   // its work plays from here
+PD = PD0 + DWL.reduce((x, y) => x + y, 0); PLAY_END = T0 + PD;
+const wt = w => T0 + tauAfter(w);
+const dayStart = k => T0 + tauBefore(dw[k]), dayEnd = k => k + 1 < dw.length ? dayStart(k + 1) : PLAY_END;
+tl.fromTo(gDot, {opacity: 0}, {opacity: .45, duration: .8}, 23.4).to(gDot, {opacity: .14, duration: .5}, 25.4).to(gDot, {opacity: 1, duration: .8}, 28.8);
+D.features.forEach((f, i) => {
+  const c = el("circle", {cx: PX(f.x), cy: PY(f.y), r: 4 + 30 * Math.sqrt(f.all), fill: grad(f.peak, .34)}, gDot);
+  const rs = f.daily.map(v => 4 + 34 * Math.sqrt(v));
+  tl.to(c, {keyframes: rs.map((r, k) => ({attr: {r}, duration: Math.max(.001, dayEnd(k) - dayStart(k)), ease: "none"})), immediateRender: false}, T0);
+  tl.to(c, {attr: {r: 4 + 30 * Math.sqrt(f.all)}, duration: .8}, PLAY_END + .1);
+});
+tl.to(node, {opacity: 0, duration: .6}, 29.0).to(nring, {opacity: 0, duration: .6}, 29.0);  // on the map it is one behaviour among the others
+S.forEach(s => {
+  const c = el("circle", {cx: PX(s.x), cy: PY(s.y), r: 2.2, fill: grad(s.w)}, gSt), t = wt(s.w);
+  tl.fromTo(c, {opacity: 0}, {opacity: .38, duration: .4, immediateRender: true}, 30.1);
+  tl.fromTo(c, {opacity: .38, attr: {r: 9}}, {opacity: 1, attr: {r: 2.6}, duration: .3, ease: "power2.out", immediateRender: false}, t).to(c, {opacity: .55, duration: .8}, t + .3);
+});
+D.traces.forEach(e => {
+  const s = S[e.s], d = S[e.d], x1 = PX(s.x), y1 = PY(s.y), x2 = PX(d.x), y2 = PY(d.y);
+  const p = el("path", {d: `M${x1},${y1} Q${(x1 + x2) / 2 - (y2 - y1) * .22},${(y1 + y2) / 2 + (x2 - x1) * .22} ${x2},${y2}`, fill: "none", stroke: grad(d.w), "stroke-width": 1.8}, gTr);
+  const len = p.getTotalLength(); p.setAttribute("stroke-dasharray", `${len} ${len}`);
+  tl.fromTo(p, {attr: {"stroke-dashoffset": len}, opacity: .85}, {attr: {"stroke-dashoffset": 0}, duration: .55, ease: "power1.inOut", immediateRender: true}, wt(d.w))
+    .to(p, {opacity: .12, duration: 1.4}, wt(d.w) + .6);
+});
+const bidx = Object.fromEntries(D.bins.map((x, k) => [x, k]));
+const nameAt = (id, t0, t1, strong) => { const f = F[id], t = el("text", {x: PX(f.x) + 32, y: PY(f.y) + 6, class: "lbl"}, gLbl); t.textContent = f.name;
+  tl.fromTo(t, {opacity: 0}, {opacity: strong ? .9 : .55, duration: .45}, t0).to(t, {opacity: 0, duration: .45}, t1); };
+phases.forEach((ph, i) => {
+  const a0 = bidx[ph.start] ?? 0, b0 = bidx[ph.end] ?? D.bins.length - 1, t0 = Math.max(T0, dayStart(a0)), t1 = i === phases.length - 1 ? PLAY_END + 1.2 : dayEnd(b0);
+  if (t1 - t0 < .5) return;
+  const share = id => { let c = 0, n = 0; for (let k = a0; k <= b0; k++) { c += F[id].daily[k] * D.n_bin[k]; n += D.n_bin[k]; } return n ? c / n : 0; };
+  D.features.map(f => [f.id, share(f.id)]).sort((x, y) => y[1] - x[1]).slice(0, 4).forEach(([id]) => nameAt(id, t0 + .1, t1 - .1, false));
+});
+// the timeline strip: days as bars, phases as bands (the current one lit), the date over the playhead
+const strip = $("strip"), SX = 150, SW = 1620, SY = 890, SH = 74, mx = Math.max(...D.n_bin), sxAt = w => SX + baseTau(w) / PD0 * SW;  // the strip shares its width the way playback shares time
+D.bins.forEach((x, k) => { const x0 = sxAt(dw[k]), x1 = sxAt(k + 1 < dw.length ? dw[k + 1] : 1), h = Math.max(3, SH * Math.sqrt(D.n_bin[k] / mx));
+  el("rect", {x: x0 + .5, y: SY + SH - h, width: Math.max(1, x1 - x0 - 1), height: h, fill: grad(dw[k], .8)}, strip);
+  const dt = el("text", {x: Math.min(x0, SX + SW - 120), y: SY - 14, "font-size": 20, fill: "#cfcdc6"}, strip); dt.textContent = day(x);
+  tl.fromTo(dt, {opacity: 0}, {opacity: 1, duration: .01, immediateRender: true}, dayStart(k)); if (k < D.bins.length - 1) tl.to(dt, {opacity: 0, duration: .01}, dayEnd(k)); });
+phases.forEach(ph => { const a0 = bidx[ph.start] ?? 0, b0 = bidx[ph.end] ?? D.bins.length - 1, x0 = sxAt(dw[a0]), x1 = sxAt(b0 + 1 < dw.length ? dw[b0 + 1] : 1);
+  const band = el("rect", {x: x0, y: SY + SH + 8, width: Math.max(2, x1 - x0 - 3), height: 34, rx: 7, fill: "#7c9cf5", opacity: .1}, strip);
+  const on = Math.max(T0, dayStart(a0)), off = Math.min(PLAY_END + 1.0, dayEnd(b0));
+  tl.fromTo(band, {opacity: .1}, {opacity: .42, duration: .3, immediateRender: false}, on).to(band, {opacity: .1, duration: .3}, off);
+  if (x1 - x0 > ph.name.length * 9.5 + 16) { /* only where the name fits */ const t = el("text", {x: (x0 + x1) / 2, y: SY + SH + 31, "text-anchor": "middle", "font-size": 18, fill: "#eeede7", opacity: .45}, strip); t.textContent = ph.name;
+    tl.fromTo(t, {opacity: .45}, {opacity: 1, duration: .3, immediateRender: false}, on).to(t, {opacity: .45, duration: .3}, off); } });
+const head = el("rect", {x: SX, y: SY - 4, width: 3, height: SH + 50, fill: "#eeede7"}, strip);
+tl.fromTo("#strip", {opacity: 0}, {opacity: 1, duration: .6}, 29.2);
+const hk = [[0, SX]];
+tpW.forEach((w, j) => { if (!DWL[j]) return; const tb = tauBefore(w), x = sxAt(w); hk.push([tb, x], [tb + DWL[j], x]); });
+hk.push([PD, SX + SW]);
+tl.set(head, {attr: {x: SX}}, T0);
+hk.slice(1).forEach(([t1, x1], j) => tl.to(head, {attr: {x: x1}, duration: Math.max(.001, t1 - hk[j][0]), ease: "none"}, T0 + hk[j][0]));
+// the storyline: the arc's title as the map forms, then each phase as playback enters it, and each turning point on its day
+const wordsOf = t => t.split(" ").map(w => `<span class="w">${esc(w)}</span>`).join(" ");
+const st = $("story"), arcT = div("arcT", `<small>THE ARC OF THE RECORD</small>${wordsOf(D.arc.title)}`, st);
+tl.fromTo(arcT.querySelectorAll(".w"), {opacity: 0, y: 14}, {opacity: 1, y: 0, duration: .45, stagger: .05, ease: "power3.out"}, 29.3)
+  .fromTo(arcT.querySelector("small"), {opacity: 0}, {opacity: 1, duration: .4}, 29.2).to(arcT, {opacity: 0, y: -12, duration: .35}, T0 - .1);
+phases.forEach((ph, i) => {
+  const on = T0 + tauBefore(BRK[i]), off = i + 1 < phases.length ? T0 + tauBefore(BRK[i + 1]) : PLAY_END, col = grad((BRK[i] + BRK[i + 1]) / 2), last = i === phases.length - 1;
+  const b = div("sp", `<div class="k">PHASE ${i + 1} / ${phases.length}<i><b style="background:${col}"></b></i></div><div class="n">${wordsOf(ph.name)}</div>`, st);
+  tl.fromTo(b, {opacity: 0}, {opacity: 1, duration: .01, immediateRender: true}, on)
+    .fromTo(b.querySelectorAll(".w"), {opacity: 0, y: 16}, {opacity: 1, y: 0, duration: .4, stagger: .045, ease: "power3.out", immediateRender: true}, on)
+    .fromTo(b.querySelector(".k"), {opacity: 0, x: -10}, {opacity: 1, x: 0, duration: .35, immediateRender: true}, on)
+    .fromTo(b.querySelector("b"), {scaleX: 0}, {scaleX: 1, duration: off - on, ease: "none", immediateRender: true}, on);
+  tl.to(b, {opacity: 0, y: -10, duration: .3}, last ? PLAY_END + 1.2 : off - .28);
+});
+const pOn = phases.map((p, i) => T0 + tauBefore(BRK[i])).concat([PLAY_END + 1.2]);
+const tps = D.arc.tps.map((x, j) => ({...x, at: T0 + tauBefore(tpW[j])}));
+tps.forEach((x, i) => {
+  const phaseEnd = pOn.find(v => v > x.at + 1e-6) ?? PLAY_END + 1.2;
+  const next = Math.min(i + 1 < tps.length ? tps[i + 1].at : PLAY_END + 1.2, phaseEnd);  // a turning point leaves with its phase
+  const b = div("beat", `<em>${esc(day(x.date))}</em>${esc(x.title)}`, st);
+  tl.fromTo(b, {opacity: 0, x: -18}, {opacity: 1, x: 0, duration: .3, ease: "power2.out", immediateRender: true}, x.at + .02)
+    .to(b, {opacity: 0, x: 12, duration: .2}, Math.max(x.at + .35, next - .2));
+});
+tl.to(["#map", "#strip", "#nodeov", "#story"], {opacity: 0, duration: .6}, PLAY_END + 1.4);
+
+const END = PLAY_END + 2.4;
+tl.set({}, {}, END);
+
+window.__timelines = window.__timelines || {};
+// everything plays 1.2x faster: an outer timeline drives the composed one (clip times below are outer times)
+const SPEED = 1.2, main = gsap.timeline({paused: true});
+main.add(tl.tweenFromTo(0, END, {duration: END / SPEED, ease: "none"}), 0);
+window.__timelines.demo = main;
+// preview only (never called by the renderer): fit to the window, show the clips at t and seek
+if (/[?&]fit\b/.test(location.search)) { const r = $("root"); r.style.transformOrigin = "0 0"; r.style.transform = `scale(${innerWidth / W})`; }
+window.__seek = t => { document.querySelectorAll(".clip").forEach(c => { const s = +c.dataset.start, d = +c.dataset.duration; c.style.visibility = t >= s && t < s + d ? "visible" : "hidden"; }); main.seek(t); };
+})();
+</script>
+</body>
+</html>

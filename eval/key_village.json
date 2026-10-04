@@ -1,0 +1,463 @@
+{
+ "index": "../data/aiv-sample.sqlite",
+ "strata_sizes": {
+  "unflagged": 2821,
+  "rare_kinds": 100,
+  "gaming_metrics": 158,
+  "cross_instance_sharing": 3
+ },
+ "items": {
+  "V001": {
+   "event_id": "session:7c24fbe2-3baa-4701-a313-a13dfc725f3c",
+   "stratum": "unflagged"
+  },
+  "V002": {
+   "event_id": "session:3440983a-2e47-45e4-ae48-bebac12b300a",
+   "stratum": "unflagged"
+  },
+  "V003": {
+   "event_id": "4d44d735-a312-49ef-80a8-ff461fb8c2cc",
+   "stratum": "rare_kinds"
+  },
+  "V004": {
+   "event_id": "session:d5e89583-590a-4d22-ad7c-a396cdb79432",
+   "stratum": "gaming_metrics"
+  },
+  "V005": {
+   "event_id": "1049047b-2dcd-4f10-96a1-e2d488d55663",
+   "stratum": "unflagged"
+  },
+  "V006": {
+   "event_id": "session:b8608ca1-2278-492a-b789-2ba76f46258e",
+   "stratum": "unflagged"
+  },
+  "V007": {
+   "event_id": "6d1feca5-535d-4598-8ebb-a629ca46e121",
+   "stratum": "rare_kinds"
+  },
+  "V008": {
+   "event_id": "session:51dd3c91-d376-4ebf-8f81-d868bd14508b",
+   "stratum": "rare_kinds"
+  },
+  "V009": {
+   "event_id": "ab4329af-5e1c-41b4-9f40-a196aa6225e3",
+   "stratum": "unflagged"
+  },
+  "V010": {
+   "event_id": "1015a83a-3b33-4ce8-a5cb-29f5d7beade7",
+   "stratum": "unflagged"
+  },
+  "V011": {
+   "event_id": "session:349c2e00-04fe-4cb7-8f6f-739c9312c46b",
+   "stratum": "unflagged"
+  },
+  "V012": {
+   "event_id": "8653cf84-2431-4ed1-a9a0-d4f2d8a21e58",
+   "stratum": "unflagged"
+  },
+  "V013": {
+   "event_id": "session:f2e5c357-a060-422d-a80d-48216b3fec92",
+   "stratum": "rare_kinds"
+  },
+  "V014": {
+   "event_id": "1995fd19-91e0-4131-b086-21029aa1ba86",
+   "stratum": "gaming_metrics"
+  },
+  "V015": {
+   "event_id": "55e8da62-2b70-4fe0-8509-19b906d4f842",
+   "stratum": "rare_kinds"
+  },
+  "V016": {
+   "event_id": "81b3cde8-71da-4348-9e91-4fafc5543940",
+   "stratum": "gaming_metrics"
+  },
+  "V017": {
+   "event_id": "7ed408c4-8c6a-4f30-8dd9-ac38fcafb6f2",
+   "stratum": "unflagged"
+  },
+  "V018": {
+   "event_id": "session:0f83441b-86af-4b52-8af7-310297942aa3",
+   "stratum": "unflagged"
+  },
+  "V019": {
+   "event_id": "8c440014-bd9b-4458-9f81-bf827acf43ed",
+   "stratum": "gaming_metrics"
+  },
+  "V020": {
+   "event_id": "3f6ef3df-5435-4713-acd2-b156d45ab192",
+   "stratum": "unflagged"
+  },
+  "V021": {
+   "event_id": "72f2bd28-549b-4163-9e2d-94aa24cb06fc",
+   "stratum": "unflagged"
+  },
+  "V022": {
+   "event_id": "session:a95f5606-48a7-4055-9487-e76f9ab64ebb",
+   "stratum": "rare_kinds"
+  },
+  "V023": {
+   "event_id": "80422935-c074-432a-ba75-1a1616c9cbd4",
+   "stratum": "unflagged"
+  },
+  "V024": {
+   "event_id": "3f83b1f0-8d9f-4127-9a2d-a58bcf5e875b",
+   "stratum": "rare_kinds"
+  },
+  "V025": {
+   "event_id": "bb09c44b-dce9-460e-b877-e0b483b860d2",
+   "stratum": "rare_kinds"
+  },
+  "V026": {
+   "event_id": "session:3ecc376a-2555-4ab1-917e-f581a51083f6",
+   "stratum": "unflagged"
+  },
+  "V027": {
+   "event_id": "ae22dc66-a8c2-47ae-8552-dbf90b937f25",
+   "stratum": "unflagged"
+  },
+  "V028": {
+   "event_id": "b0abe812-605a-46ba-bdc1-a69c51470ef3",
+   "stratum": "rare_kinds"
+  },
+  "V029": {
+   "event_id": "1944b1ff-ea65-495e-af95-bf9b4875b82a",
+   "stratum": "rare_kinds"
+  },
+  "V030": {
+   "event_id": "5ab4379a-95f2-4443-a062-e41fb0ac3cde",
+   "stratum": "gaming_metrics"
+  },
+  "V031": {
+   "event_id": "f4b543ef-7ef3-4156-8b35-f2f552402275",
+   "stratum": "rare_kinds"
+  },
+  "V032": {
+   "event_id": "be3248e4-260e-4200-9e33-433951053739",
+   "stratum": "unflagged"
+  },
+  "V033": {
+   "event_id": "8f893809-f7a5-447d-97b9-f53b6f72b69a",
+   "stratum": "unflagged"
+  },
+  "V034": {
+   "event_id": "432ca169-0f24-4478-b273-e4f0714b10fe",
+   "stratum": "rare_kinds"
+  },
+  "V035": {
+   "event_id": "730fb3d7-8044-4541-9a31-163a33ac0ca7",
+   "stratum": "unflagged"
+  },
+  "V036": {
+   "event_id": "bab6818b-325c-4bc6-b5c2-cf8c3a801af3",
+   "stratum": "rare_kinds"
+  },
+  "V037": {
+   "event_id": "session:d27b3452-5b1c-4330-90e5-e70c4d4d903d",
+   "stratum": "unflagged"
+  },
+  "V038": {
+   "event_id": "34c23b50-5ebd-43e4-9e07-09966991fb84",
+   "stratum": "unflagged"
+  },
+  "V039": {
+   "event_id": "e4abf8d0-7b7b-4052-9f3c-e995f8c5dab3",
+   "stratum": "unflagged"
+  },
+  "V040": {
+   "event_id": "d7749991-c982-466f-8588-758cfa5d9c08",
+   "stratum": "rare_kinds"
+  },
+  "V041": {
+   "event_id": "session:d228badb-7392-49ed-b209-6a8a6bf1f3c5",
+   "stratum": "unflagged"
+  },
+  "V042": {
+   "event_id": "a6841bc1-b071-49a5-8b3b-cf6b62c1e8a6",
+   "stratum": "rare_kinds"
+  },
+  "V043": {
+   "event_id": "cf731726-c32f-41a0-b336-d7f867e73017",
+   "stratum": "rare_kinds"
+  },
+  "V044": {
+   "event_id": "0dbb3925-7487-4d78-82ff-b6277934d6fc",
+   "stratum": "gaming_metrics"
+  },
+  "V045": {
+   "event_id": "64a05f42-facc-47c3-a5cb-2a717d02b477",
+   "stratum": "gaming_metrics"
+  },
+  "V046": {
+   "event_id": "2834cb43-766f-4d2d-bf9e-d3e111e7c2ff",
+   "stratum": "gaming_metrics"
+  },
+  "V047": {
+   "event_id": "15b39a36-64ec-40d3-b869-539bcd524231",
+   "stratum": "rare_kinds"
+  },
+  "V048": {
+   "event_id": "session:4e687c9f-aca5-48ac-be8b-b12a97070691",
+   "stratum": "unflagged"
+  },
+  "V049": {
+   "event_id": "session:8c02f7ff-6c93-402d-a331-9d93a392cbaf",
+   "stratum": "unflagged"
+  },
+  "V050": {
+   "event_id": "88c13657-9251-4bb6-90f6-d7c71ffcb5f6",
+   "stratum": "unflagged"
+  },
+  "V051": {
+   "event_id": "afb6f656-87c5-46eb-8c43-3dd4f414365e",
+   "stratum": "unflagged"
+  },
+  "V052": {
+   "event_id": "1fbe771f-e7a1-4e3d-a067-cabf78d286ee",
+   "stratum": "rare_kinds"
+  },
+  "V053": {
+   "event_id": "4a728567-972a-4af1-88be-ca9efaf2624f",
+   "stratum": "rare_kinds"
+  },
+  "V054": {
+   "event_id": "95562cbb-f6e7-4fb8-802c-6d847c4997ca",
+   "stratum": "unflagged"
+  },
+  "V055": {
+   "event_id": "session:064bb5b4-d76f-46f8-9f1d-75cff88c3044",
+   "stratum": "rare_kinds"
+  },
+  "V056": {
+   "event_id": "049c3289-e63e-40d2-90a8-c6b1712a01fd",
+   "stratum": "unflagged"
+  },
+  "V057": {
+   "event_id": "50e31d4d-3812-4396-b781-526d0edc3307",
+   "stratum": "rare_kinds"
+  },
+  "V058": {
+   "event_id": "6359faac-12ad-479c-8688-f6050bb035ae",
+   "stratum": "unflagged"
+  },
+  "V059": {
+   "event_id": "7c7ee449-6fb2-44e8-9331-73ace67069cc",
+   "stratum": "gaming_metrics"
+  },
+  "V060": {
+   "event_id": "77aa665e-ff39-4e16-bb7e-f001419ec2c0",
+   "stratum": "unflagged"
+  },
+  "V061": {
+   "event_id": "5aaeb504-c442-4e6b-b967-452e2bc99d76",
+   "stratum": "rare_kinds"
+  },
+  "V062": {
+   "event_id": "54ec722f-3167-4d76-97f1-1c69f4ddcaae",
+   "stratum": "gaming_metrics"
+  },
+  "V063": {
+   "event_id": "04a8be6a-1198-44f5-9b81-2794d352dc8e",
+   "stratum": "unflagged"
+  },
+  "V064": {
+   "event_id": "79fe0f71-f037-4745-ace7-cc562b9a6996",
+   "stratum": "gaming_metrics"
+  },
+  "V065": {
+   "event_id": "f38ff4a6-e4dd-4e92-aa3f-e6cc7ef92343",
+   "stratum": "gaming_metrics"
+  },
+  "V066": {
+   "event_id": "6df27696-61b5-46cf-b473-ff8cc2163e89",
+   "stratum": "rare_kinds"
+  },
+  "V067": {
+   "event_id": "144e191f-aaeb-4934-88fd-8b420426322e",
+   "stratum": "gaming_metrics"
+  },
+  "V068": {
+   "event_id": "d890d3ba-58d7-4bb1-9ca4-f30eec57649c",
+   "stratum": "unflagged"
+  },
+  "V069": {
+   "event_id": "5828c512-87e2-4e0c-9372-20b485a82244",
+   "stratum": "unflagged"
+  },
+  "V070": {
+   "event_id": "25a24e46-2382-4639-b0a6-86af7aed2537",
+   "stratum": "cross_instance_sharing"
+  },
+  "V071": {
+   "event_id": "4152edb2-8754-43ef-9d4e-b47094d73f14",
+   "stratum": "gaming_metrics"
+  },
+  "V072": {
+   "event_id": "cff611c7-c853-4676-b679-e0a30f2902ef",
+   "stratum": "gaming_metrics"
+  },
+  "V073": {
+   "event_id": "2bd73904-5214-4e72-aecd-eecd55db2fe9",
+   "stratum": "unflagged"
+  },
+  "V074": {
+   "event_id": "746d390e-fda3-40c8-92a6-464c98713f19",
+   "stratum": "rare_kinds"
+  },
+  "V075": {
+   "event_id": "0cb90f6d-5cd5-41ae-80d0-e54991d864ed",
+   "stratum": "rare_kinds"
+  },
+  "V076": {
+   "event_id": "84dd9f67-7f6a-498f-8a63-603af576ad52",
+   "stratum": "gaming_metrics"
+  },
+  "V077": {
+   "event_id": "ec0546fe-30dc-4345-9217-6330416ea8a3",
+   "stratum": "gaming_metrics"
+  },
+  "V078": {
+   "event_id": "5f151701-1370-4f5d-8518-41635f4dc883",
+   "stratum": "unflagged"
+  },
+  "V079": {
+   "event_id": "a224796e-4e84-4e92-88be-8c16b5f11d7d",
+   "stratum": "gaming_metrics"
+  },
+  "V080": {
+   "event_id": "67821e32-bfbf-4345-aab6-a921f2b67d58",
+   "stratum": "unflagged"
+  },
+  "V081": {
+   "event_id": "030255c1-f7bd-4c60-964d-1a3ae1f2f286",
+   "stratum": "rare_kinds"
+  },
+  "V082": {
+   "event_id": "f984fd9f-6f17-4ef8-8dd4-3c1023cd0aef",
+   "stratum": "unflagged"
+  },
+  "V083": {
+   "event_id": "51a8f23c-7fb8-4069-a9a0-b9bc29f8cb6b",
+   "stratum": "gaming_metrics"
+  },
+  "V084": {
+   "event_id": "e5b0662c-aed0-44f1-806c-a724f60efe87",
+   "stratum": "rare_kinds"
+  },
+  "V085": {
+   "event_id": "ad894b49-3818-4758-b56c-0131713ef53d",
+   "stratum": "unflagged"
+  },
+  "V086": {
+   "event_id": "bda55eb9-ec54-4e48-a19e-a6c172cedc9b",
+   "stratum": "unflagged"
+  },
+  "V087": {
+   "event_id": "bff9b1cf-68a1-4e35-a6f1-0c301ad09b23",
+   "stratum": "rare_kinds"
+  },
+  "V088": {
+   "event_id": "e75916c7-0a62-4163-b3ee-a90b565b2083",
+   "stratum": "unflagged"
+  },
+  "V089": {
+   "event_id": "e0bd1607-1b10-4b22-952f-749506769c9d",
+   "stratum": "unflagged"
+  },
+  "V090": {
+   "event_id": "920642ec-40ec-449a-a812-a97d4b53d605",
+   "stratum": "rare_kinds"
+  },
+  "V091": {
+   "event_id": "e280036f-6db2-4467-8808-18d5de3e615c",
+   "stratum": "unflagged"
+  },
+  "V092": {
+   "event_id": "e55f7596-afe9-4cc2-b015-4883e8d3583d",
+   "stratum": "unflagged"
+  },
+  "V093": {
+   "event_id": "ffdca795-2f50-462f-84ee-de841eb4b969",
+   "stratum": "cross_instance_sharing"
+  },
+  "V094": {
+   "event_id": "aa40c636-459f-415c-9231-bdc6fc509877",
+   "stratum": "gaming_metrics"
+  },
+  "V095": {
+   "event_id": "1fb2427f-fbab-4afd-a735-394f05fd1970",
+   "stratum": "unflagged"
+  },
+  "V096": {
+   "event_id": "1d59871a-2222-42b8-a7f7-b0483f48b7c5",
+   "stratum": "gaming_metrics"
+  },
+  "V097": {
+   "event_id": "6ca9ef28-77af-41ca-b23c-250006750791",
+   "stratum": "rare_kinds"
+  },
+  "V098": {
+   "event_id": "session:e0c6710e-70f3-47c3-b6a0-c6cc40e58da8",
+   "stratum": "rare_kinds"
+  },
+  "V099": {
+   "event_id": "01ab316e-30ab-412b-b23c-a8a060979363",
+   "stratum": "rare_kinds"
+  },
+  "V100": {
+   "event_id": "ba6d71ab-24dc-4878-a5f9-33eff60b78be",
+   "stratum": "unflagged"
+  },
+  "V101": {
+   "event_id": "8e7ca56f-18f4-4858-9999-39896d03f256",
+   "stratum": "unflagged"
+  },
+  "V102": {
+   "event_id": "795c40b9-60b3-4108-8bec-09b44127c0f2",
+   "stratum": "gaming_metrics"
+  },
+  "V103": {
+   "event_id": "d3911829-2ee2-411b-b771-e4706012dd69",
+   "stratum": "rare_kinds"
+  },
+  "V104": {
+   "event_id": "c96f242b-164a-4bcb-accb-2d5044ee88bb",
+   "stratum": "rare_kinds"
+  },
+  "V105": {
+   "event_id": "518ae4d6-66ac-4814-ab3d-34e781f44b4e",
+   "stratum": "cross_instance_sharing"
+  },
+  "V106": {
+   "event_id": "6e49e08a-8ab1-445d-9555-4d1345a12f06",
+   "stratum": "gaming_metrics"
+  },
+  "V107": {
+   "event_id": "6bb7719d-15a6-446c-8b31-9ceec8747173",
+   "stratum": "gaming_metrics"
+  },
+  "V108": {
+   "event_id": "a2e64f57-2fc9-4d34-bc6b-0a0bd86da5e9",
+   "stratum": "gaming_metrics"
+  },
+  "V109": {
+   "event_id": "0e686381-5021-49fd-9d9e-bfd47f619ab1",
+   "stratum": "unflagged"
+  },
+  "V110": {
+   "event_id": "session:05893a98-14e2-43e2-afdd-498b4db00437",
+   "stratum": "unflagged"
+  },
+  "V111": {
+   "event_id": "766f7a56-e105-4d4d-9f26-2d74bd67931e",
+   "stratum": "unflagged"
+  },
+  "V112": {
+   "event_id": "session:6d163065-f998-403f-a3cc-e1349145190c",
+   "stratum": "unflagged"
+  },
+  "V113": {
+   "event_id": "2f0214d9-0312-42c8-9b34-67deaeac7561",
+   "stratum": "rare_kinds"
+  }
+ }
+}

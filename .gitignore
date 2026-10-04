@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.db
+*.db.llm
+*.sqlite
+examples/*.html
+examples/forum/raw/
+examples/forum/dataset/
+.venv/
+.claude/
+dist/
+demo/node_modules/
+demo/renders/
+demo/*.mp4
+demo/bin/

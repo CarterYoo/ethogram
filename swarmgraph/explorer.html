@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SwarmScope Explorer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{--bg:#f7f6f2;--panel:#ffffff;--fg:#1c1c1a;--muted:#6d6c66;--line:#e2e0d8;--edge:#9a988f;
+--low:#d9722b;--mid:#b9a33a;--high:#1f8a70;--sel:#2d5bd7;
+--Claude:#c96f4a;--GPT:#3f8f6b;--Gemini:#4a77d4;--DeepSeek:#6b5bd2;--GLM:#b1497c;--Kimi:#2a9bb5;--Grok:#6f6f6f;--Other:#a08a58}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;
+--line:#33322f;--edge:#77756d;--low:#e8894a;--mid:#cdb850;--high:#3db38f;--sel:#6f93f2;
+--Claude:#e08b66;--GPT:#5fb58c;--Gemini:#7098ec;--DeepSeek:#8f81ea;--GLM:#d56a9e;--Kimi:#4fbdd6;--Grok:#a3a3a3;--Other:#c4ab72}}
+:root[data-theme="dark"]{--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;--line:#33322f;--edge:#77756d;
+--low:#e8894a;--mid:#cdb850;--high:#3db38f;--sel:#6f93f2;--Claude:#e08b66;--GPT:#5fb58c;--Gemini:#7098ec;
+--DeepSeek:#8f81ea;--GLM:#d56a9e;--Kimi:#4fbdd6;--Grok:#a3a3a3;--Other:#c4ab72}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--fg);
+font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;display:flex;flex-direction:column}
+header{padding:12px 16px 8px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+h1{font-size:16px;margin:0}select,button,input{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);
+border-radius:7px;padding:4px 8px}button{cursor:pointer}select{max-width:420px}
+.ctl{display:flex;gap:6px;align-items:center}.muted{color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);padding:6px 16px;border-bottom:1px solid var(--line)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.bar{display:inline-block;width:16px;height:3px;margin-right:4px;vertical-align:3px}
+main{flex:1;display:flex;min-height:0}#graph{flex:1;min-width:0;position:relative}#graph svg{width:100%;height:100%;display:block}
+#stats{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--muted);background:var(--panel);
+border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+aside{width:420px;max-width:45vw;border-left:1px solid var(--line);background:var(--panel);overflow:auto;padding:14px 16px}
+aside h2{font-size:15px;margin:0 0 2px}aside h3{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:16px 0 6px}
+.facts{white-space:pre-wrap;font-size:12px;color:var(--fg);background:var(--bg);border-radius:8px;padding:8px 10px}
+.claim{margin:0 0 7px}.kind{font-size:10px;border-radius:4px;padding:1px 5px;margin-right:5px;border:1px solid var(--line)}
+.kind.observed{color:var(--high);border-color:var(--high)}.kind.self_report{color:var(--low);border-color:var(--low)}
+.cite{color:var(--sel);cursor:pointer;font-size:11px;margin-left:3px}.cite:hover{text-decoration:underline}
+.ev{border-top:1px solid var(--line);padding:7px 0}.ev .meta{font-size:11px;color:var(--muted)}
+.tags{margin:3px 0;font-size:11px}.tag{display:inline-block;padding:1px 6px;margin:0 4px 2px 0;border-radius:8px;background:var(--line)}.tag.free{font-style:italic}
+.bar{display:grid;grid-template-columns:110px 1fr 40px;gap:6px;align-items:center;font-size:11px;margin:2px 0}.bar i{display:block;height:8px;background:var(--sel);border-radius:2px}.bar b{font-weight:400;text-align:right}
+a{color:var(--sel)}.quote{background:var(--bg);border-left:3px solid var(--sel);padding:8px 10px;border-radius:6px;white-space:pre-wrap;font-size:12px}
+.lab{font-size:11px;font-weight:600;fill:var(--fg);pointer-events:none;paint-order:stroke;stroke:var(--bg);stroke-width:3px}
+.lab.sub{font-size:9.5px;font-weight:400;fill:var(--muted)}
+.node{cursor:pointer;stroke:var(--bg);stroke-width:1.5}.node.llm{stroke:var(--fg);stroke-width:1.2;stroke-dasharray:2 1.5}
+.edge{fill:none;cursor:pointer}.faded{opacity:.08}.selected{stroke:var(--sel)!important}
+#timeline{flex:1;min-width:0;position:relative;overflow:auto}#timeline canvas{display:block;cursor:crosshair}
+.tlstats{position:sticky;left:0;bottom:0;font-size:12px;color:var(--muted);background:var(--panel);border-top:1px solid var(--line);padding:6px 10px}
+.band{position:absolute;top:0;display:none;background:var(--sel);opacity:.12;pointer-events:none}
+.seg button{border-radius:0}.seg button:first-child{border-radius:7px 0 0 7px}.seg button:last-child{border-radius:0 7px 7px 0;margin-left:-1px}
+.seg button.on{background:var(--sel);color:#fff;border-color:var(--sel)}[hidden]{display:none!important}
+@media (max-width:760px){main{flex-direction:column}aside{width:auto;max-width:none;border-left:0;border-top:1px solid var(--line);height:45%}}
+</style></head><body>
+<header>
+  <h1>SwarmScope Explorer</h1>
+  <div class="ctl"><button id="prev" title="previous period">‹</button><select id="period"></select><button id="next" title="next period">›</button></div>
+  <div class="ctl"><span class="muted">edges</span><select id="etype"><option value="addressed">addressed</option>
+    <option value="replied">replied</option><option value="invoked">invoked (calls / subagents)</option><option value="returned">returned results</option></select></div>
+  <div class="ctl seg"><button id="vNet" class="on">Network</button><button id="vTime">Timeline</button></div>
+  <div class="ctl" id="minctl"><span class="muted">min</span><input id="min" type="range" min="1" max="60" value="5"><span id="minv">5</span></div>
+</header>
+<div class="legend" id="legend"></div>
+<main><div id="graph"><div id="stats"></div></div><div id="timeline" hidden></div>
+<aside id="panel"><h2>Agent interaction graph</h2><p class="muted">Nodes are agents in the selected time segment
+(title = the role the agent was pursuing, with its name underneath; size = events; colour = model family; dashed ring = has an LLM summary). Edges point from the agent who addressed to the agent addressed;
+width = count, colour = share of addresses answered by an address back within the reply window.</p>
+<p class="muted">Click a node for its episode card, an edge for the messages behind it. Drag to move, scroll to zoom.</p></aside></main>
+<script>
+const $ = s => document.querySelector(s), api = p => fetch(p).then(r => r.json());
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const FAM = ["Claude","GPT","Gemini","DeepSeek","GLM","Kimi","Grok","Other"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let periods = [], graph = null, sim = null, selected = null;
+const who = n => n.role ? `${n.role} (${n.label})` : n.label;  // role first; model name only disambiguates
+$("#legend").innerHTML = FAM.map(f => `<span><i class="dot" style="background:var(--${f})"></i>${f}</span>`).join("") +
+  `<span style="margin-left:10px"><i class="bar" style="background:var(--low)"></i>&lt;35% answered</span>` +
+  `<span><i class="bar" style="background:var(--mid)"></i>35–65%</span><span><i class="bar" style="background:var(--high)"></i>&gt;65%</span>`;
+
+async function init() {
+  periods = await api("/api/periods");
+  $("#period").innerHTML = periods.filter(p => p.agents).map(p =>
+    `<option value="${p.id}">#${p.id} ${esc(p.start_ts.slice(0,10))} · ${esc(p.goal.slice(0,60))} (${p.agents} actors)</option>`).join("");
+  $("#period").value = String(periods.filter(p => p.agents).at(-1).id);
+  ["#period","#etype"].forEach(s => $(s).addEventListener("change", load));
+  $("#vNet").onclick = () => setView("net"); $("#vTime").onclick = () => setView("time");
+  $("#min").addEventListener("input", () => { $("#minv").textContent = $("#min").value; render(); });
+  $("#prev").onclick = () => step(-1); $("#next").onclick = () => step(1);
+  load();
+}
+function step(d) { const o = [...$("#period").options], i = o.findIndex(x => x.selected) + d;
+  if (i >= 0 && i < o.length) { $("#period").value = o[i].value; load(); } }
+async function load() {
+  graph = await api(`/api/graph?period=${$("#period").value}&type=${$("#etype").value}`);
+  const counts = graph.edges.map(e => e.n).sort((a, b) => b - a);
+  const auto = counts.length > 120 ? counts[119] : 1;  // keep the picture readable by default
+  $("#min").max = Math.max(10, Math.min(200, counts[0] || 10)); $("#min").value = auto; $("#minv").textContent = auto;
+  render();
+}
+function render() { return view === "time" ? renderTime() : renderNet(); }
+function renderNet() {
+  const min = +$("#min").value, svgBox = $("#graph");
+  svgBox.querySelectorAll("svg").forEach(s => s.remove()); if (sim) sim.stop();
+  const W = svgBox.clientWidth, H = svgBox.clientHeight;
+  const nodes = graph.nodes.map(n => ({...n})), byId = new Map(nodes.map(n => [n.id, n]));
+  const edges = graph.edges.filter(e => e.n >= min).map(e => ({...e, source: e.src, target: e.dst}));
+  const pair = new Set(edges.map(e => e.src + ">" + e.dst));
+  const total = graph.edges.reduce((s, e) => s + e.n, 0), recip = edges.filter(e => pair.has(e.dst + ">" + e.src)).length;
+  $("#stats").textContent = `${nodes.length} agents · ${edges.length}/${graph.edges.length} edges shown (≥${min}) · ` +
+    `${total.toLocaleString()} ${graph.type} observations · ${edges.length ? Math.round(100 * recip / edges.length) : 0}% of shown edges reciprocated`;
+  const r = n => 4 + Math.min(26, Math.sqrt(n.msgs) * 0.45);
+  const wScale = n => 0.6 + Math.log2(n) * 0.75;
+  const rate = e => e.n ? e.replied / e.n : 0;
+  const col = e => graph.type !== "addressed" ? css("--edge") : rate(e) < .35 ? css("--low") : rate(e) < .65 ? css("--mid") : css("--high");
+  const svg = d3.select(svgBox).append("svg").attr("viewBox", [0, 0, W, H]);
+  const defs = svg.append("defs");
+  ["low","mid","high","edge","sel"].forEach(k => defs.append("marker").attr("id", "a-" + k).attr("viewBox", "0 -4 8 8")
+    .attr("refX", 8).attr("markerUnits", "userSpaceOnUse").attr("markerWidth", 9).attr("markerHeight", 9).attr("orient", "auto")
+    .append("path").attr("d", "M0,-4L8,0L0,4").attr("fill", css("--" + k)));
+  const mk = e => "url(#a-" + (graph.type !== "addressed" ? "edge" : rate(e) < .35 ? "low" : rate(e) < .65 ? "mid" : "high") + ")";
+  const g = svg.append("g");
+  const zoom = d3.zoom().scaleExtent([.2, 4]).on("zoom", ev => g.attr("transform", ev.transform));
+  svg.call(zoom).on("dblclick.zoom", null);
+  const link = g.append("g").selectAll("path").data(edges).join("path").attr("class", "edge")
+    .attr("stroke", col).attr("stroke-width", e => wScale(e.n)).attr("stroke-opacity", .6).attr("marker-end", mk)
+    .on("click", (ev, e) => { ev.stopPropagation(); showEdge(e); });
+  link.append("title").text(e => `${who(byId.get(e.src))} → ${who(byId.get(e.dst))}: ${e.n}` +
+    (graph.type === "addressed" ? ` (${Math.round(100 * rate(e))}% answered)` : ""));
+  const node = g.append("g").selectAll("circle").data(nodes).join("circle")
+    .attr("class", n => "node" + (n.llm ? " llm" : "")).attr("r", r).attr("fill", n => css("--" + n.family))
+    .on("click", (ev, n) => { ev.stopPropagation(); selected = n.id; focus(n.id); showNode(n); })
+    .on("mouseenter", (ev, n) => focus(n.id)).on("mouseleave", () => focus(selected))
+    .call(d3.drag().on("start", (ev, d) => { if (!ev.active) sim.alphaTarget(.2).restart(); d.fx = d.x; d.fy = d.y; })
+      .on("drag", (ev, d) => { d.fx = ev.x; d.fy = ev.y; }).on("end", (ev, d) => { if (!ev.active) sim.alphaTarget(0); }));
+  node.append("title").text(n => `${who(n)} · ${n.msgs} events · addressed others ${n.sessions}×` + (n.goal ? `\nGoal: ${n.goal}` : ""));
+  const label = g.append("g").selectAll("g").data(nodes).join("g").attr("class", "labg");
+  label.append("text").attr("class", "lab").text(n => n.role || n.label);
+  label.filter(n => n.role).append("text").attr("class", "lab sub").attr("dy", 12).text(n => n.label);
+  svg.on("click", () => { selected = null; focus(null); });
+  function focus(id) {
+    const near = new Set([id]); edges.forEach(e => { if (e.source.id === id) near.add(e.target.id); if (e.target.id === id) near.add(e.source.id); });
+    node.classed("faded", n => id && !near.has(n.id)); label.classed("faded", n => id && !near.has(n.id));
+    link.classed("faded", e => id && e.source.id !== id && e.target.id !== id);
+  }
+  sim = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(edges).id(n => n.id).distance(e => 200 - Math.min(90, wScale(e.n) * 10)).strength(.08))
+    .force("charge", d3.forceManyBody().strength(-700)).force("center", d3.forceCenter(W / 2, H / 2))
+    .force("collide", d3.forceCollide().radius(n => r(n) + 16)).force("x", d3.forceX(W / 2).strength(.04)).force("y", d3.forceY(H / 2).strength(.05))
+    .on("end", fit)
+    .on("tick", () => {
+      link.attr("d", e => { const dx = e.target.x - e.source.x, dy = e.target.y - e.source.y, d = Math.hypot(dx, dy) || 1;
+        const tx = e.target.x - dx / d * (r(e.target) + 3), ty = e.target.y - dy / d * (r(e.target) + 3);
+        return `M${e.source.x},${e.source.y}A${d * 1.6},${d * 1.6} 0 0,1 ${tx},${ty}`; });
+      node.attr("cx", n => n.x).attr("cy", n => n.y);
+      label.attr("transform", n => `translate(${n.x + r(n) + 3},${n.y + (n.role ? -1 : 4)})`);
+    });
+  function fit() {  // frame all nodes once the layout settles
+    const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y), m = 60;
+    const x0 = Math.min(...xs) - m, x1 = Math.max(...xs) + 150, y0 = Math.min(...ys) - m, y1 = Math.max(...ys) + m;
+    const k = Math.min(1.4, W / (x1 - x0), H / (y1 - y0));
+    svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate((W - k * (x0 + x1)) / 2, (H - k * (y0 + y1)) / 2).scale(k));
+  }
+  svg.on("dblclick", fit);
+  if (selected) focus(selected);
+}
+function peersHtml(id) {
+  const lab = new Map(graph.nodes.map(n => [n.id, who(n)]));
+  const out = graph.edges.filter(e => e.src === id).sort((a, b) => b.n - a.n).slice(0, 6);
+  const inc = graph.edges.filter(e => e.dst === id).sort((a, b) => b.n - a.n).slice(0, 6);
+  const fmt = l => l.map(e => `${esc(lab.get(e.src === id ? e.dst : e.src))} ${e.n}`).join(", ") || "–";
+  return `<h3>${esc(graph.type)} peers this period</h3><div>→ ${fmt(out)}</div><div>← ${fmt(inc)}</div>`;
+}
+const tagChips = b => b ? `<div class="tags">${b.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}` +
+  `${b.other ? `<span class="tag free">${esc(b.other)}</span>` : ""}<span class="muted"> LLM: ${esc(b.summary)}</span></div>` : "";
+const uiLink = (u, text) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${text || "open original ↗"}</a>` : "";
+function profileHtml(b) {
+  if (!b || !b.tagged) return "";
+  const rows = Object.entries(b.tags).slice(0, 8).map(([t, x]) =>
+    `<div class="bar"><span>${esc(t)}</span><i style="width:${Math.round(100 * x.share)}%"></i><b>${x.n}</b></div>`).join("");
+  const free = b.free_labels.length ? `<div class="muted">free labels: ${b.free_labels.map(f => `${esc(f.label)} (${f.n})`).join(", ")}</div>` : "";
+  return `<h3>Behaviour this period · ${b.tagged} tagged events</h3>${rows}${free}`;
+}
+async function showNode(n) {
+  selected = n.id; $("#panel").innerHTML = `<h2>${esc(n.role || n.label)}</h2><p class="muted">loading…</p>`;
+  const d = await api(`/api/episode?agent=${n.id}&period=${graph.period.id}`);
+  if (d.error) { $("#panel").innerHTML += `<p>${esc(d.error)}</p>`; return; }
+  const p = d.pointers, llm = d.llm_summary;
+  let h = `<h2>${esc(n.role || n.label)}</h2>` + (n.goal ? `<div>${esc(n.goal)}</div>` : "") +
+    `<div class="muted">agent: ${esc(n.label)} · period #${d.period_id}: ${esc(d.period_goal)}</div>`;
+  if (llm) {
+    const R = llm.result, cite = ids => ids.map(i => `<span class="cite" data-ref="${esc(llm.refs[i] || "")}" data-kind="${i[0]}">${esc(i)}</span>`).join("");
+    h += `<h3>LLM summary · ${Math.round(100 * llm.grounded)}% of claims cite evidence</h3><p><b>${esc(R.role)}</b></p><p>${esc(R.summary)}</p>` +
+      `<h3>Claims</h3>` + R.claims.map(c => `<p class="claim"><span class="kind ${esc(c.kind)}">${c.kind === "observed" ? "observed" : "self-report"}</span>${esc(c.text)}${cite(c.evidence)}</p>`).join("") +
+      `<h3>Key interactions</h3>` + R.key_interactions.map(k => `<p class="claim"><b>${esc(k.peer)}</b> — ${esc(k.nature)}${cite(k.evidence)}</p>`).join("") +
+      (R.open_questions.length ? `<h3>Open questions</h3>` + R.open_questions.map(q => `<p class="claim">${esc(q)}</p>`).join("") : "");
+  } else if (!d.behaviour) h += `<p class="muted">No LLM summary yet — run <code>swarmgraph summarize --segment ${d.period_id}</code>.</p>`;
+  h += profileHtml(d.behaviour) + `<div id="quote"></div>` + peersHtml(n.id) + `<h3>Index facts (deterministic)</h3><div class="facts">${esc(d.summary)}</div>` +
+    `<h3>Pointers</h3><div class="facts">first message ${esc(p.first_message?.id || "–")}\nlast message ${esc(p.last_message?.id || "–")}\n` +
+    `events ${p.sessions} · latest self-report ${esc(p.last_memory_snapshot.id || "–")}</div>` +
+    `<p>${uiLink(p.ui_first, "first activity ↗")}${p.ui_last ? " · " + uiLink(p.ui_last, "last ↗") : ""}</p>`;
+  $("#panel").innerHTML = h;
+  document.querySelectorAll(".cite").forEach(c => c.onclick = () => quote(c.dataset.ref, c.dataset.kind));
+}
+async function quote(id, kind) {
+  const box = $("#quote"); if (!box) return;
+  if (kind === "s") { box.innerHTML = `<h3>Self-report</h3><div class="quote">Memory snapshot ${esc(id)} — the agent's own memory (see pointers).</div>`; return; }
+  const m = await api(`/api/msg?id=${id}`);
+  box.innerHTML = m.error ? `<p>${esc(m.error)}</p>` : `<h3>Cited message</h3>${tagChips(m.behaviour)}<div class="quote"><b>${esc(m.label)}</b> · ${esc(m.ts.slice(0,16))} · #${esc(m.room)}\n\n${esc(m.text.slice(0, 1600))}</div>` +
+    `<p>${uiLink(m.ui)}</p>`;
+  box.scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+async function showEdge(e) {
+  const a = {...e.source, label: who(e.source)}, b = {...e.target, label: who(e.target)};
+  const back = graph.edges.find(x => x.src === b.id && x.dst === a.id);
+  const line = (x, y, s) => s ? `${esc(x)} → ${esc(y)}: ${s.n}` + (graph.type === "addressed" ? ` · ${Math.round(100 * s.replied / s.n)}% answered` : "") : `${esc(x)} → ${esc(y)}: none`;
+  $("#panel").innerHTML = `<h2>${esc(a.label)} ↔ ${esc(b.label)}</h2><div>${line(a.label, b.label, e)}</div><div>${line(b.label, a.label, back)}</div><p class="muted">loading evidence…</p>`;
+  const d = await api(`/api/edge?a=${a.id}&b=${b.id}&period=${graph.period.id}&type=${graph.type}&limit=40`);
+  const rows = (d.evidence || []).slice().reverse();
+  $("#panel").innerHTML = `<h2>${esc(a.label)} ↔ ${esc(b.label)}</h2><div>${line(a.label, b.label, e)}</div><div>${line(b.label, a.label, back)}</div>` +
+    `<h3>Latest ${rows.length} of ${d.total} observations (newest first)</h3>` +
+    rows.map(r => `<div class="ev"><div class="meta">${esc(r.ts.slice(0,16))} · ${esc(r.src)} → ${esc(r.dst)} · ${esc(r.method)}${r.response_id ? " · answered" : ""} ` +
+      `${uiLink(r.ui, "↗")}</div>${tagChips(r.behaviour)}${esc(r.snippet)}</div>`).join("");
+}
+
+// ---------------------------------------------------------------- timeline (x = time, y = agent lanes)
+let view = "net", tl = null, tlKey = null, tlRange = null, tlFocus = null;
+function setView(v) {
+  view = v; $("#vNet").classList.toggle("on", v === "net"); $("#vTime").classList.toggle("on", v === "time");
+  $("#graph").hidden = v !== "net"; $("#timeline").hidden = v !== "time"; $("#minctl").style.visibility = v === "net" ? "" : "hidden";
+  render();
+}
+async function renderTime() {
+  const key = graph.period.id + ":" + graph.type;
+  if (tlKey !== key) {
+    $("#timeline").innerHTML = '<p class="muted" style="padding:16px">loading interactions…</p>';
+    tl = await api(`/api/timeline?period=${graph.period.id}&type=${graph.type}`); tlKey = key; tlFocus = null;
+    const ts = tl.ticks.map(t => t[0]).concat(tl.events.map(e => e[0]));
+    tlRange = ts.length ? [Math.min(...ts), Math.max(...ts)] : [0, 1]; tl.full = tlRange.slice();
+  }
+  drawTime();
+}
+function drawTime() {
+  const box = $("#timeline"); box.innerHTML = "";
+  const n = tl.lanes.length, labW = 200, axisH = 28, W = box.clientWidth;
+  const laneH = Math.max(16, Math.min(30, (box.clientHeight - axisH - 12) / Math.max(1, n))), H = axisH + n * laneH + 12;
+  const plotW = W - labW - 18, [t0, t1] = tlRange, dpr = devicePixelRatio || 1;
+  const c = document.createElement("canvas"); c.width = W * dpr; c.height = H * dpr; c.style.width = W + "px"; c.style.height = H + "px";
+  box.appendChild(c); const x = c.getContext("2d"); x.scale(dpr, dpr);
+  const X = t => labW + (t - t0) / (t1 - t0) * plotW, Y = i => axisH + i * laneH + laneH / 2;
+  const C = k => css(k), day = 864e5, span = t1 - t0;
+  const step = span > 60 * day ? 7 * day : span > 12 * day ? 2 * day : span > 3 * day ? day : span > 12 * 36e5 ? 6 * 36e5 : span > 2 * 36e5 ? 36e5 : 15 * 6e4;
+  x.font = "11px -apple-system,Segoe UI,Helvetica,sans-serif"; x.textBaseline = "middle";
+  for (let t = Math.ceil(t0 / step) * step; t <= t1; t += step) {  // time grid
+    x.strokeStyle = C("--line"); x.lineWidth = 1; x.beginPath(); x.moveTo(X(t), axisH - 6); x.lineTo(X(t), H - 8); x.stroke();
+    x.fillStyle = C("--muted"); const d = new Date(t).toISOString();
+    x.fillText(step >= day ? d.slice(5, 10) : d.slice(5, 16).replace("T", " "), X(t) + 3, 12);
+  }
+  tl.lanes.forEach((l, i) => {  // lanes and labels: role first, model underneath
+    const dim = tlFocus != null && tlFocus !== i;
+    x.strokeStyle = C("--line"); x.beginPath(); x.moveTo(labW, Y(i)); x.lineTo(W - 18, Y(i)); x.stroke();
+    x.globalAlpha = dim ? .35 : 1; x.fillStyle = C("--" + l.family); x.beginPath(); x.arc(10, Y(i), 4, 0, 7); x.fill();
+    x.fillStyle = C("--fg"); x.font = "600 11px -apple-system,Segoe UI,Helvetica,sans-serif";
+    x.fillText((l.role || l.label).slice(0, 24), 20, Y(i) - (l.role && laneH >= 22 ? 5 : 0));
+    if (l.role && laneH >= 22) { x.fillStyle = C("--muted"); x.font = "10px -apple-system,Segoe UI,Helvetica,sans-serif"; x.fillText(l.label.slice(0, 28), 20, Y(i) + 7); }
+    x.globalAlpha = 1;
+  });
+  const vis = tl.events.filter(e => e[0] >= t0 && e[0] <= t1);
+  const alpha = Math.min(.85, Math.max(.05, 300 / Math.max(1, vis.length)));
+  x.globalAlpha = Math.min(.5, alpha * 1.5); x.strokeStyle = C("--muted");  // message ticks on each lane
+  tl.ticks.forEach(([t, i]) => { if (t >= t0 && t <= t1 && (tlFocus == null || tlFocus === i)) { x.beginPath(); x.moveTo(X(t), Y(i) - 3); x.lineTo(X(t), Y(i) + 3); x.stroke(); } });
+  const arrows = vis.length < 2500;
+  const drawEv = (e, a) => {
+    const xx = X(e[0]), ys = Y(e[1]), yd = Y(e[2]), dir = yd > ys ? 1 : -1;
+    x.globalAlpha = a; x.strokeStyle = e[3] ? C("--high") : C("--low"); x.lineWidth = arrows ? 1.4 : 1;
+    x.beginPath(); x.moveTo(xx, ys); x.lineTo(xx, yd - dir * (arrows ? 4 : 0)); x.stroke();
+    if (arrows) { x.fillStyle = x.strokeStyle; x.beginPath(); x.moveTo(xx, yd); x.lineTo(xx - 3, yd - dir * 6); x.lineTo(xx + 3, yd - dir * 6); x.fill(); }
+  };
+  if (tlFocus == null) vis.forEach(e => drawEv(e, alpha));
+  else { vis.forEach(e => { if (e[1] !== tlFocus && e[2] !== tlFocus) drawEv(e, .02); });
+         vis.forEach(e => { if (e[1] === tlFocus || e[2] === tlFocus) drawEv(e, Math.min(.9, alpha * 4)); }); }
+  x.globalAlpha = 1; x.lineWidth = 1;
+  const answered = vis.filter(e => e[3]).length;
+  $("#timeline").insertAdjacentHTML("beforeend", `<div class="tlstats">${vis.length.toLocaleString()} ${graph.type} in view · ` +
+    `${vis.length ? Math.round(100 * answered / vis.length) : 0}% answered · ${new Date(t0).toISOString().slice(0, 16).replace("T", " ")} → ` +
+    `${new Date(t1).toISOString().slice(0, 16).replace("T", " ")} UTC · drag to zoom, double-click to reset, click a lane name to focus</div>`);
+  // interaction: brush zoom, lane focus, click an arrow for its message
+  let down = null; const band = document.createElement("div"); band.className = "band"; box.appendChild(band);
+  const pos = ev => { const b = c.getBoundingClientRect(); return [ev.clientX - b.left, ev.clientY - b.top]; };
+  c.onmousedown = ev => { down = pos(ev); };
+  c.onmousemove = ev => { if (!down) return; const [px] = pos(ev); band.style.display = "block";
+    band.style.left = Math.min(px, down[0]) + "px"; band.style.width = Math.abs(px - down[0]) + "px"; band.style.height = H + "px"; };
+  c.onmouseup = ev => {
+    const [px, py] = pos(ev), start = down; down = null; band.style.display = "none"; if (!start) return;
+    const inv = v => t0 + (Math.max(v, labW) - labW) / plotW * (t1 - t0);
+    if (Math.abs(px - start[0]) > 6 && start[0] > labW) { tlRange = [inv(Math.min(px, start[0])), inv(Math.max(px, start[0]))]; return drawTime(); }
+    const lane = Math.floor((py - axisH) / laneH);
+    if (px < labW) { if (lane >= 0 && lane < n) { tlFocus = tlFocus === lane ? null : lane; drawTime(); } return; }
+    let best = null, bd = 6;  // nearest arrow under the cursor
+    vis.forEach(e => { const dx = Math.abs(X(e[0]) - px), lo = Math.min(Y(e[1]), Y(e[2])) - 3, hi = Math.max(Y(e[1]), Y(e[2])) + 3;
+      if (dx < bd && py >= lo && py <= hi && (tlFocus == null || e[1] === tlFocus || e[2] === tlFocus)) { bd = dx; best = e; } });
+    if (best) showEvent(best);
+  };
+  c.ondblclick = () => { tlRange = tl.full.slice(); drawTime(); };
+}
+async function showEvent(e) {
+  const s = tl.lanes[e[1]], d = tl.lanes[e[2]];
+  $("#panel").innerHTML = `<h2>${esc(who(s))} → ${esc(who(d))}</h2><div class="muted">${esc(new Date(e[0]).toISOString().slice(0, 19).replace("T", " "))} UTC · ` +
+    `${e[3] ? "answered by an explicit address back within 15 min" : "no explicit address back within 15 min"}</div><div id="quote"></div>`;
+  const m = await api(`/api/msg?id=${e[4]}`);
+  $("#quote").innerHTML = m.error ? `<p>${esc(m.error)}</p>` : `<h3>Event</h3>${tagChips(m.behaviour)}<div class="quote"><b>${esc(m.label)}</b> · #${esc(m.room)}\n\n${esc(m.text.slice(0, 2500))}</div>` +
+    `<p>${uiLink(m.ui)}${m.ui ? " · " : ""}<span class="cite" id="openCard">open ${esc(s.role || s.label)}'s episode card</span></p>`;
+  const oc = $("#openCard"); if (oc) oc.onclick = () => showNode(s);
+}
+addEventListener("resize", () => graph && render());
+init();
+</script></body></html>

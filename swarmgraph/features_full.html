@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Behaviour Atlas</title>
+<style>
+:root{--bg:#f7f6f2;--panel:#fff;--fg:#1c1c1a;--muted:#6d6c66;--line:#e2e0d8;--sel:#2d5bd7;--band:rgba(0,0,0,.035);
+--flag:#d85a30;--faint:rgba(120,118,110,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;
+--line:#33322f;--sel:#6f93f2;--band:rgba(255,255,255,.04);--flag:#e8744a;--faint:rgba(160,158,150,.16)}}
+:root[data-theme="dark"]{--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;--line:#33322f;--sel:#6f93f2;
+--band:rgba(255,255,255,.04);--flag:#e8744a;--faint:rgba(160,158,150,.16)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 140px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}h2{font-size:18px;font-weight:600;margin:28px 0 4px}h3{font-size:16px;font-weight:600;margin:0}
+.muted{color:var(--muted)}.small{font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:18px;align-items:start}
+.maphead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.maphead h2{margin:0}.switch{display:flex;gap:5px}.switch button{white-space:nowrap}
+#fmap{height:clamp(360px,58vh,560px);aspect-ratio:auto;outline:none}#fmap:focus-visible{outline:2px solid var(--sel);outline-offset:3px}
+.legend{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}.legend span{display:inline-flex;align-items:center;gap:5px;font-size:11px;border-radius:6px;background:var(--band);padding:3px 7px}
+.legend i{width:8px;height:8px;border-radius:50%}.time select{font:inherit;font-size:12px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:4px}
+.time label{display:flex;align-items:center;gap:4px;font-size:12px}.time input[type=checkbox]{flex:none;min-width:0}.time input[type=range]{accent-color:var(--sel)}
+.date{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:8px}.mapnote{min-height:21px}.sample{font-size:12px;color:var(--muted);margin:3px 0 8px}.flow-key{font-size:12px;color:var(--muted);margin-top:6px}
+.range-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.secondary{margin-top:16px}.secondary summary{font-size:14px}.secondary .panel{margin-top:9px}.feat{width:100%;text-align:left;border:0;background:transparent;color:var(--fg)}
+#filter{width:100%;font:inherit;font-size:13px;padding:7px 9px;margin:8px 0;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.day-detail{padding:8px;margin:9px 0;border-radius:8px;background:var(--band)}
+canvas{display:block;width:100%;aspect-ratio:1/1;cursor:pointer;touch-action:manipulation}
+.time{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}.time input{flex:1;min-width:150px}
+button{font:inherit;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:3px 10px;cursor:pointer}
+button:hover{border-color:var(--sel)}button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
+#when{font-variant-numeric:tabular-nums}
+#side{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+.theme{font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 2px;text-transform:none}
+.feat{display:flex;gap:8px;align-items:flex-start;padding:4px 6px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.35}
+.feat:hover{background:var(--band)}.feat.sel{background:var(--band);outline:1px solid var(--sel)}
+.feat i{flex:none;width:11px;height:11px;border-radius:50%;margin-top:4px}.feat .n{margin-left:auto;color:var(--muted);font-size:12px;padding-left:6px}
+.back{font-size:13px;color:var(--sel);cursor:pointer;margin-bottom:8px}
+.path li{cursor:pointer}.path li:hover{color:var(--sel)}
+#heat{overflow-x:auto}#heat svg{display:block}#heat rect.c{cursor:pointer}#heat rect.c:hover{stroke:var(--fg);stroke-width:1}
+.hl{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.hl:hover{color:var(--sel)}
+#tip{position:fixed;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 9px;
+font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:6;max-width:300px}
+#drawer{position:fixed;left:0;right:0;bottom:0;max-height:58vh;overflow:auto;background:var(--panel);border-top:3px solid var(--sel);
+padding:14px 18px 24px;box-shadow:0 -6px 20px rgba(0,0,0,.12);display:none;z-index:5}
+#drawer .in{max-width:980px;margin:0 auto}#drawer .x{float:right;cursor:pointer;color:var(--muted);font-size:20px;line-height:1}
+.src{border-left:3px solid var(--line);padding:6px 10px;margin:8px 0;font-size:14px;background:var(--bg);border-radius:0 6px 6px 0}
+.src .t{font-size:12px;color:var(--muted)}.chip{display:inline-block;font-size:12px;border-radius:9px;padding:0 8px;margin:2px 4px 2px 0;color:#fff}
+details{margin-top:28px}summary{cursor:pointer;font-weight:600}
+@media (max-width:900px){.grid{grid-template-columns:1fr}#side{position:static;max-height:450px}}
+@media (max-width:600px){.wrap{padding:12px 12px 140px}h1{font-size:19px}}
+
+.tour{position:sticky;top:8px;z-index:3;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 11px;margin:12px 0 8px;box-shadow:0 2px 8px rgba(0,0,0,.025)}.tour-top,.tour-controls,.tour-scenes{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.tour-top strong{font-size:13px;font-weight:600;white-space:nowrap}.tour select{flex:1;min-width:120px;max-width:100%;font:inherit;font-size:12px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:5px 7px}.tour button{font-size:12px;padding:3px 8px}.tour .create{margin-left:auto;color:var(--muted)}.tour .primary{background:var(--sel);border-color:var(--sel);color:white}.tour-controls,.tour-scenes{margin-top:8px}.tour-progress{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}.tour-caption{font-size:14px;line-height:1.45;margin:8px 0 3px}.tour-measured,.tour-caveat{font-size:11px;line-height:1.4;color:var(--muted);margin-top:4px}.tour-features{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.tour-feature{max-width:100%;display:inline-flex;align-items:center;gap:5px;font-size:11px!important;line-height:1.4;background:var(--bg)}.tour-feature .number{flex:none;border-radius:50%;width:17px;height:17px;color:var(--panel);font-size:10px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}.tour-feature .name{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tour-status{font-size:12px;color:var(--muted);margin:6px 0 0}.tour-busy{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--sel);margin-right:5px}.tour button:disabled{opacity:.45;cursor:default}.tour-sources{margin-left:auto}@media(max-width:600px){.tour{top:4px;padding:8px}.tour .create{margin-left:0}.tour select{min-width:145px}.tour-feature .name{max-width:135px}.tour-caption{font-size:13px}.tour-top strong{width:100%}}
+
+.tour-question{font-size:12px;color:var(--muted);margin:8px 0 3px}.incident-sequence{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:10px 0}.incident-action{border:1px solid var(--line);border-radius:8px;background:var(--bg);display:flex;flex-direction:column;opacity:.55;transition:opacity .25s,background .25s}.incident-action.active{opacity:1;border-color:var(--sel);background:var(--panel)}.incident-focus{display:flex;gap:8px;border:0!important;background:transparent!important;text-align:left;padding:10px!important;flex:1}.incident-focus strong{font-size:12px;white-space:normal}.incident-number{border-radius:50%;width:20px;height:20px;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--line)}.active .incident-number{background:var(--sel);color:white}.incident-time{display:block;font-size:10px;color:var(--muted);margin:4px 0}.incident-text{display:block;font-size:12px;line-height:1.5}.incident-source{align-self:flex-end;margin:0 8px 6px;border:0!important;color:var(--muted)}.incident-link{font-size:12px;line-height:1.5;margin:7px 0}.incident-link span{font-size:10px;color:var(--muted);margin-left:5px}
+</style></head><body><div class="wrap">
+<h1>Behaviour atlas</h1>
+<div id="sub" class="muted small">Loading…</div>
+<div class="small" style="margin-top:6px">Follow behaviours through time. Play the record, choose a day, or click a dot to read the work behind it.</div>
+<div class="grid">
+  <div>
+    <section class="panel" id="map-panel">
+      <div class="maphead"><h2 id="map-title">Where behaviours appear</h2><div class="switch" aria-label="Map view">
+        <button id="flow" class="on" aria-pressed="true">Time flow</button><button id="overview" aria-pressed="false">Behaviour UMAP</button>
+      </div></div>
+      <div class="small muted mapnote" id="map-note"></div>
+      <section id="story-tour" class="tour" aria-label="Guided storylines"><strong>Guided stories</strong><p class="tour-status">Loading reviewed storylines…</p></section>
+      <div class="date" id="when">All time</div><div class="sample" id="sample"></div>
+      <div class="time"><button id="play" aria-label="Play timeline">▶ Play</button>
+        <button id="prev" aria-label="Previous reviewed day">←</button><button id="next" aria-label="Next reviewed day">→</button>
+        <button id="all" class="on">All time</button><label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+        <label><input id="trails" type="checkbox" checked> Trails</label>
+      </div>
+      <div class="time"><input id="slider" aria-label="Day in the record" type="range" min="0" max="0" value="0"></div>
+      <div class="range-labels"><span id="range-start"></span><span id="range-end"></span></div>
+      <div id="region-legend" class="legend"></div>
+      <div id="region-note" class="small muted"></div>
+      <canvas id="fmap" tabindex="0" role="img" aria-label="Behaviour map over time"></canvas>
+      <div class="flow-key" id="map-key"></div>
+    </section>
+    <details class="secondary"><summary>When each behaviour happened</summary>
+      <div class="small muted">Timeline rates use the uniform sample. A blank day may have no sample.</div>
+      <div id="heat" class="panel"></div></details>
+    <details class="secondary" id="work-view"><summary>Explore the tagged stretches of work</summary>
+      <div class="panel"><div class="small muted">Each dot is a stretch of work. Ringed dots were flagged by AI readers.</div><canvas id="umap"></canvas></div>
+    </details>
+  </div>
+  <div id="side" class="panel"></div>
+</div>
+<details><summary>How this was made</summary><div id="how" class="small" style="margin-top:8px"></div></details>
+</div>
+<div id="tip"></div>
+<div id="drawer"><div class="in"><span class="x" onclick="hide()">×</span><div id="dbody"></div></div></div>
+<script>
+const DS = new URLSearchParams(location.search).get("ds");  // the dataset picked on /features, if any
+const api = p => p + (DS ? (p.includes("?") ? "&" : "?") + "ds=" + encodeURIComponent(DS) : "");
+const PAL = ["#4e79a7", "#f28e2b", "#59a14f", "#b07aa1", "#edc948", "#76b7b2", "#9c755f", "#e377c2", "#17becf", "#bcbd22",
+  "#5254a3", "#8c6d31", "#637939", "#7b4173"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const jsarg = v => esc(JSON.stringify(v));
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let D, F = {}, TH = {}, U = {}, cur = -1, sel = null, timer = null, binOf = {};
+let mapMode = "flow", flowHome = {}, flowDays = {}, dayCounts = [], sampledDays = [], rendered = [], offsets = {}, motion = null, filterText = "";
+let storyData={status:"loading"},storyPollTimer=null,storyRequest=0,storyGenerating=false,storyAwaitingNew=false;
+let tour={active:false,playing:false,story:0,scene:0,step:0,complete:false,pausedAt:null,sceneStarted:0};
+let drawerVersion=0;
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const REGION_COLOURS = ["#bd7665", "#2d9a8b", "#d89836", "#aa72a7", "#5285b5"];
+const MAP_REGIONS = {
+  flow: [
+    {name: "Removals", x: 0.0871, y: 0.4693},
+    {name: "New link pages", x: 0.0880, y: 0.8967},
+    {name: "Copied link pages", x: 0.4050, y: 0.4067},
+    {name: "Access and shared edits", x: 0.5864, y: 0.7264},
+    {name: "Task coordination", x: 0.9349, y: 0.0710}
+  ],
+  umap: [
+    {name: "Links and page work", x: 0.1157, y: 0.2542},
+    {name: "Live coordination", x: 0.6362, y: 0.5822},
+    {name: "Procedures and checks", x: 0.6467, y: 0.9007},
+    {name: "Liveness and uncertainty", x: 0.8967, y: 0.2741}
+  ]
+};
+// Names above describe the saved Wiki layout. Only the 'umap' (behaviour timing) centres still apply: the stretch
+// layout behind 'flow' was rebuilt, so flow regions, like any other dataset's, are computed from the data.
+function configureRegions() {
+  const signature={F01:[.0662,.3648],F06:[.0761,.2209],F25:[.7156,.6083]};
+  const wiki=D.units.length===2035&&D.features.length===66&&Object.entries(signature).every(([id,p])=>
+    D.fpos[id]&&p.every((v,i)=>Math.abs(D.fpos[id][i]-v)<1e-6));
+  for(const mode of ['flow','umap']) {
+    if(wiki&&mode==='umap')continue;  // behaviour positions unchanged: keep the saved names; stretch positions were rebuilt
+    const points=mode==='flow'?D.units:D.features.map(f=>({...xy(D.fpos[f.id]),f:{[f.id]:1}})).filter(p=>Number.isFinite(p.x));
+    if(!points.length){MAP_REGIONS[mode]=[];continue;}
+    const centres=[{x:points[0].x,y:points[0].y}],k=Math.min(mode==='flow'?5:4,points.length);
+    while(centres.length<k) {
+      const distances=points.map(p=>Math.min(...centres.map(c=>(p.x-c.x)**2+(p.y-c.y)**2)));
+      const far=distances.indexOf(Math.max(...distances));if(distances[far]<1e-10)break;
+      centres.push({x:points[far].x,y:points[far].y});
+    }
+    for(let pass=0;pass<30;pass++) {
+      const sums=centres.map(()=>({x:0,y:0,n:0}));
+      points.forEach(p=>{const s=sums[regionOf(p,centres)];s.x+=p.x;s.y+=p.y;s.n++;});
+      let change=0;sums.forEach((s,i)=>{if(s.n){const x=s.x/s.n,y=s.y/s.n;change+=Math.hypot(x-centres[i].x,y-centres[i].y);centres[i]={x,y};}});
+      if(change<1e-6)break;
+    }
+    const used=new Set();
+    centres.forEach((c,i)=>{
+      const themes={};points.filter(p=>regionOf(p,centres)===i).forEach(p=>Object.entries(p.f||{}).forEach(([id,v])=>{
+        if(F[id]?.source==='judged')themes[F[id].theme]=(themes[F[id].theme]||0)+v;
+      }));
+      c.name=Object.keys(themes).sort((a,b)=>themes[b]-themes[a]).find(t=>!used.has(t))||`Group ${i+1}`;used.add(c.name);
+    });MAP_REGIONS[mode]=centres;
+  }
+}
+const fcv = document.getElementById("fmap"), ucv = document.getElementById("umap");
+const tcol = th => PAL[(TH[th] ?? 0) % PAL.length];
+const fcol = id => REGION_COLOURS[regionOf(mapMode === "flow" ? flowHome[id] : xy(D.fpos[id]), MAP_REGIONS[mapMode])];
+function hide() { drawerVersion++; document.getElementById("drawer").style.display = "none"; }
+function show(h) { document.getElementById("dbody").innerHTML = h; document.getElementById("drawer").style.display = "block"; }
+function side(h) { document.getElementById("side").innerHTML = h; }
+function fmt(b) { return D.unit === "hour" ? b.slice(5, 13).replace("T", " ") + ":00" : b; }
+function oneIn(d) { return d > 0 ? Math.max(1, Math.round(1 / d)) : null; }
+
+function xy(p) { return p ? {x: p[0], y: p[1]} : null; }
+function consecutiveBins(a,b) {
+  if(b!==a+1)return false;
+  const stamp=x=>Date.parse(x.length===10?x+'T00:00:00Z':x.replace(' ','T').slice(0,13)+':00:00Z');
+  return stamp(D.bins[b])-stamp(D.bins[a])===(D.unit==='hour'?3600000:86400000);
+}
+function regionOf(p, regions) {
+  if (!p) return 0;
+  let best = 0, distance = Infinity;
+  regions.forEach((r, i) => { const d = (r.x - p.x) ** 2 + (r.y - p.y) ** 2;
+    if (d < distance) { distance = d; best = i; } });
+  return best;
+}
+function sizeAll() { for (const c of [fcv, ucv]) { const r = c.getBoundingClientRect(), p = window.devicePixelRatio || 1;
+  if (!r.width || !r.height) continue;
+  c.width = Math.round(r.width * p); c.height = Math.round(r.height * p); c.getContext("2d").setTransform(p, 0, 0, p, 0, 0); } }
+function pos(c, x, y) { const r = c.getBoundingClientRect(), m = 24; return [m + x * (r.width - 2 * m), m + (1 - y) * (r.height - 2 * m)]; }
+function hull(points) {
+  const p = [...points].sort((a, b) => a.x - b.x || a.y - b.y);
+  if (p.length < 3) return p;
+  const cross = (a, b, c) => (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+  const half = list => { const out = []; list.forEach(q => { while (out.length > 1 && cross(out.at(-2), out.at(-1), q) <= 0) out.pop(); out.push(q); }); return out; };
+  return half(p).slice(0, -1).concat(half([...p].reverse()).slice(0, -1));
+}
+function clipPlane(poly, a, b, bound) {
+  const out = [], signed = p => a * p.x + b * p.y - bound;
+  for (let i = 0; i < poly.length; i++) {
+    const p = poly[i], q = poly[(i + 1) % poly.length], dp = signed(p), dq = signed(q);
+    if (dp <= 1e-10) out.push(p);
+    if ((dp <= 0) !== (dq <= 0)) { const t = dp / (dp - dq); out.push({x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y)}); }
+  }
+  return out;
+}
+function prepareRegions(mode, points) {
+  const regions = MAP_REGIONS[mode];
+  regions.forEach((r, i) => {
+    const members = points.filter(p => regionOf(p, regions) === i);
+    let poly = hull(members);
+    if (poly.length < 3) poly = [{x:r.x-.035,y:r.y-.035},{x:r.x+.035,y:r.y-.035},{x:r.x+.035,y:r.y+.035},{x:r.x-.035,y:r.y+.035}];
+    // Expand in every direction, including narrow islands; then clip to disjoint cells.
+    poly = hull(poly.flatMap(p => Array.from({length:12},(_,k)=>({x:p.x+.018*Math.cos(k*Math.PI/6),y:p.y+.018*Math.sin(k*Math.PI/6)}))));
+    poly = clipPlane(clipPlane(clipPlane(clipPlane(poly, -1, 0, 0), 1, 0, 1), 0, -1, 0), 0, 1, 1);
+    regions.forEach((s, j) => { if (i !== j) poly = clipPlane(poly, s.x-r.x, s.y-r.y,
+      (s.x*s.x+s.y*s.y-r.x*r.x-r.y*r.y)/2 - .002 * Math.hypot(s.x-r.x,s.y-r.y)); });
+    r.polygon = poly;
+    r.members = members.length;
+  });
+}
+function prepareFlow() {
+  flowDays = Object.fromEntries(D.features.map(f => [f.id, Array.from({length:D.bins.length}, () => null)]));
+  const sums = {}, all = {};
+  dayCounts = Array(D.bins.length).fill(0);
+  D.units.forEach(u => {
+    const b = binOf[u.id]; if (b === undefined) return;
+    dayCounts[b]++;
+    Object.entries(u.f).forEach(([id, v]) => {
+      if (!F[id] || !(v > 0)) return;
+      const add = q => { q.x += u.x * v; q.y += u.y * v; q.weight += v; q.count++; };
+      add(all[id] ||= {x:0,y:0,weight:0,count:0});
+      add((sums[id] ||= [])[b] ||= {x:0,y:0,weight:0,count:0});
+    });
+  });
+  D.features.forEach(f => {
+    const q = all[f.id]; flowHome[f.id] = q ? {x:q.x/q.weight,y:q.y/q.weight,count:q.count} : xy(D.fpos[f.id]);
+    (sums[f.id] || []).forEach((q, b) => { if (q) flowDays[f.id][b] = {x:q.x/q.weight,y:q.y/q.weight,count:q.count}; });
+  });
+  sampledDays = dayCounts.map((n,b) => n ? b : -1).filter(b => b >= 0);
+  configureRegions();
+  prepareRegions("flow", D.units.filter(u => Number.isFinite(u.x)).map(u => ({x:u.x,y:u.y})));
+  prepareRegions("umap", D.features.map(f => xy(D.fpos[f.id])).filter(Boolean));
+  // Keep a fixed, small label offset for coincident centres; a leader retains the actual location.
+  D.features.forEach((f,i) => {
+    const p = flowHome[f.id], earlier = D.features.slice(0,i).filter(g => Math.hypot(p.x-flowHome[g.id].x,p.y-flowHome[g.id].y) < .035).length;
+    const a = earlier * 2.399963, r = earlier ? Math.min(35, 6 * Math.sqrt(earlier)) : 0;
+    offsets[f.id] = [Math.cos(a)*r,Math.sin(a)*r];
+  });
+}
+function flowPose(id) {
+  const home = flowHome[id];
+  if (cur < 0) return {...home, alpha:1, observed:true};
+  const a = flowDays[id][cur], b = motion ? flowDays[id][motion.to] : null, t = motion ? motion.t : 0;
+  if (!motion) return {...(a || home), alpha:a ? 1 : .12, observed:!!a, count:a?.count || 0};
+  // Only consecutive observed days support an animated path. Across a gap, fade between observations.
+  if (a && b && consecutiveBins(cur,motion.to)) return {x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,count:a.count+(b.count-a.count)*t,alpha:1,observed:true};
+  const q = t < .5 ? a : b;
+  return {...(q || home), count:q?.count || 0, alpha:q ? Math.abs(1-2*t) : .12, observed:!!q};
+}
+function path(ctx, points) {
+  ctx.beginPath(); points.forEach((p,i) => { const [x,y] = pos(fcv,p.x,p.y); i ? ctx.lineTo(x,y) : ctx.moveTo(x,y); }); ctx.closePath();
+}
+function drawRegions(ctx) {
+  MAP_REGIONS[mapMode].forEach((r,i) => {
+    if (!r.polygon.length) return;
+    path(ctx,r.polygon); ctx.globalAlpha=.065; ctx.fillStyle=REGION_COLOURS[i];ctx.fill();
+    ctx.globalAlpha=.36;ctx.strokeStyle=REGION_COLOURS[i];ctx.lineWidth=1.2;ctx.stroke();ctx.globalAlpha=1;
+    const top = r.polygon.reduce((a,p) => p.y>a.y?p:a, r.polygon[0]);
+    const [x,y] = pos(fcv,top.x,top.y);ctx.font='11px -apple-system, sans-serif';
+    const textWidth=ctx.measureText(r.name).width, px=Math.max(6,Math.min(x-textWidth/2,fcv.getBoundingClientRect().width-textWidth-8));
+    ctx.fillStyle=css('--panel');ctx.globalAlpha=.94;ctx.fillRect(px-4,Math.max(2,y-17),textWidth+8,17);
+    ctx.globalAlpha=1;ctx.fillStyle=REGION_COLOURS[i];ctx.fillText(r.name,px,Math.max(14,y-5));
+  });
+}
+function drawTrails(ctx) {
+  if(tour.active){drawTourTrails(ctx);return;}
+  if (mapMode!=="flow" || cur<0 || !document.getElementById('trails').checked) return;
+  const end=cur, start=sel ? 0 : Math.max(0,end-5);
+  D.features.forEach(f => {
+    if (sel && sel!==f.id) return;
+    ctx.strokeStyle=fcol(f.id);ctx.lineWidth=sel?2.3:1;ctx.globalAlpha=sel ? .7 : .2;
+    for (let b=start+1;b<=end;b++) {
+      const a=flowDays[f.id][b-1],q=flowDays[f.id][b];if(!a||!q||!consecutiveBins(b-1,b))continue;
+      const p0=pos(fcv,a.x,a.y),p1=pos(fcv,q.x,q.y);
+      ctx.beginPath();ctx.moveTo(...p0);ctx.lineTo(...p1);ctx.stroke();
+      ctx.beginPath();ctx.arc(...p0,sel?2:1.1,0,Math.PI*2);ctx.fillStyle=fcol(f.id);ctx.fill();
+    }
+    if(motion && consecutiveBins(cur,motion.to) && flowDays[f.id][cur] && flowDays[f.id][motion.to]) {
+      const a=flowDays[f.id][cur],q=flowPose(f.id);ctx.beginPath();ctx.moveTo(...pos(fcv,a.x,a.y));ctx.lineTo(...pos(fcv,q.x,q.y));ctx.stroke();
+    }
+  });ctx.globalAlpha=1;
+}
+function drawF() {
+  const ctx=fcv.getContext('2d'),r=fcv.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);drawRegions(ctx);
+  if(mapMode==='flow') {
+    ctx.fillStyle=css('--muted');ctx.globalAlpha=.10;
+    D.units.forEach(u=>{if(!Number.isFinite(u.x))return;const [x,y]=pos(fcv,u.x,u.y);ctx.beginPath();ctx.arc(x,y,.8,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;
+  }
+  drawTrails(ctx);rendered=[];
+  const maxCount=cur<0?Math.max(1,...D.features.map(f=>f.units)):Math.max(1,...Object.values(flowDays).flat().map(p=>p?.count||0));
+  D.features.forEach(f=>{
+    let p,observed,alpha,radius;
+    if(mapMode==='flow') {
+      p=flowPose(f.id);observed=p.observed;alpha=p.alpha;
+      radius=observed?3.4+8*Math.sqrt((p.count||0)/maxCount):2.5;
+    } else {
+      p=xy(D.fpos[f.id]);if(!p)return;
+      const share=b=>D.n_bin[b]>0?D.profiles[f.id].units[b]/D.n_bin[b]:null;
+      const a=cur<0?f.density||0:share(cur), b=motion?share(motion.to):a;
+      let value=a||0;alpha=1;
+      if(motion) {
+        if(a!==null&&b!==null&&motion.to===cur+1) value=a+(b-a)*motion.t;
+        else {value=(motion.t<.5?a:b)||0;alpha=Math.abs(1-2*motion.t);}
+      }
+      observed=value>0;alpha=observed?alpha:.12;
+      radius=observed?3.4+11*Math.sqrt(value):2.5;
+    }
+    const [ax,ay]=pos(fcv,p.x,p.y),off=mapMode==='flow'?offsets[f.id]:[0,0];
+    const x=Math.max(radius+3,Math.min(r.width-radius-3,ax+off[0])),y=Math.max(radius+3,Math.min(r.height-radius-3,ay+off[1]));
+    if(sel&&sel!==f.id)alpha*=.24;
+    if(tour.active&&!tourFeatureIds().includes(f.id))alpha*=.16;
+    if(mapMode==='flow'&&observed&&Math.hypot(x-ax,y-ay)>3){ctx.globalAlpha=alpha*.32;ctx.strokeStyle=fcol(f.id);ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(x,y);ctx.stroke();}
+    ctx.globalAlpha=alpha;ctx.fillStyle=fcol(f.id);ctx.strokeStyle=fcol(f.id);ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(x,y,radius,0,Math.PI*2);observed?ctx.fill():ctx.stroke();ctx.globalAlpha=1;
+    if(sel===f.id){ctx.strokeStyle=css('--fg');ctx.lineWidth=2;ctx.stroke();ctx.font='12px -apple-system, sans-serif';ctx.fillStyle=css('--fg');
+      const label=f.text.length>54?f.text.slice(0,51)+'…':f.text;
+      const width=ctx.measureText(label).width;ctx.fillText(label,Math.max(6,Math.min(x+14,r.width-width-6)),Math.max(15,y-14));}
+    if(tour.active&&tourFeatureIds().includes(f.id)){
+      ctx.globalAlpha=observed ? .95 : .36;ctx.strokeStyle=fcol(f.id);ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,radius+3,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
+    }
+    rendered.push({id:f.id,x,y,radius,observed});
+  });
+  if(tour.active){drawTourLabels(ctx);drawIncidentFocus(ctx);}
+}
+function drawU() {
+  const rect = ucv.getBoundingClientRect(); if (!rect.width || !rect.height) return;
+  const ctx = ucv.getContext("2d"); ctx.clearRect(0, 0, rect.width, rect.height);
+  const faint = css("--faint"), flag = css("--flag");
+  const on = u => currentScene()?.steps?.length ? (currentStep()?.map_units||[]).includes(u.id) : (cur < 0 || binOf[u.id] === cur) && (!sel || (u.f[sel] || 0) > 0) && (!tour.active || tourFeatureIds().some(id=>(u.f[id]||0)>0));
+  D.units.forEach(u => { if (on(u) || !Number.isFinite(u.x)) return; const [x, y] = pos(ucv, u.x, u.y); ctx.fillStyle = faint;
+    ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 6.283); ctx.fill(); });
+  D.units.forEach(u => { if (!on(u) || !Number.isFinite(u.x)) return; const [x, y] = pos(ucv, u.x, u.y);
+    ctx.globalAlpha = 0.85; ctx.fillStyle = u.main ? fcol(u.main) : css("--muted"); ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 1; if (u.flagged) { ctx.strokeStyle = flag; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(x, y, 5.5, 0, 6.283); ctx.stroke(); } });
+}
+function draw() { drawF(); drawU(); }
+function nearest(c, ev, pts) {
+  const r = c.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top; let best = null, bd = 120;
+  pts.forEach(p => { const [x, y] = pos(c, p.x, p.y), d = (x - mx) ** 2 + (y - my) ** 2; if (d < bd) { bd = d; best = p; } }); return best;
+}
+function featuresAt(ev) {
+  const r=fcv.getBoundingClientRect(),x=ev.clientX-r.left,y=ev.clientY-r.top;
+  return rendered.map(p=>({...p,d:Math.hypot(p.x-x,p.y-y)})).filter(p=>p.d<=p.radius+5)
+    .sort((a,b)=>a.d-b.d);
+}
+function tip(ev, h) { const t = document.getElementById("tip"); if (!h) { t.style.display = "none"; return; }
+  t.innerHTML = h; t.style.display = "block";
+  t.style.left = Math.max(4, Math.min(ev.clientX + 14, innerWidth-t.offsetWidth-8)) + "px";
+  t.style.top = Math.max(4, Math.min(ev.clientY + 12, innerHeight-t.offsetHeight-8)) + "px"; }
+function dayWords(id) {
+  if (cur<0) return `${flowHome[id].count || 0} reviewed stretches across the record`;
+  if(motion) return `${fmt(D.bins[cur])}: ${flowDays[id][cur]?.count||0} reviewed stretches → ${fmt(D.bins[motion.to])}: ${flowDays[id][motion.to]?.count||0} reviewed stretches. Pause or choose a day for its sample estimate.`;
+  const count=flowDays[id][cur]?.count||0, n=D.n_bin[cur];
+  const support=count ? `Found in ${count} reviewed ${count===1?'stretch':'stretches'}` : "Not found in the reviewed stretches";
+  const rate=n>0 ? `Mean marked-event share: ${(100*D.profiles[id].rate[cur]).toFixed(1)}% in the uniform sample (${n} stretches)` : "No uniform sample; no timeline estimate";
+  return `${support} on ${fmt(D.bins[cur])}. ${rate}.`;
+}
+fcv.addEventListener("mousemove", ev => { if (!D) return; const p = featuresAt(ev)[0];
+  tip(ev, p && `<b>${esc(F[p.id].text)}</b><br><span class="muted">${esc(dayWords(p.id))}</span>`); });
+ucv.addEventListener("mousemove", ev => { const p = nearest(ucv, ev, D.units); tip(ev, p && `${esc(p.who)} · ${esc(p.start.slice(0, 16).replace("T", " "))}<br>` +
+  (Object.keys(p.f).length ? Object.keys(p.f).slice(0, 4).map(id => esc(F[id].text)).join("<br>") : "<span class='muted'>no behaviour marked</span>")); });
+for (const c of [fcv, ucv]) c.addEventListener("mouseleave", () => tip(null));
+fcv.addEventListener("click", ev => {
+  const hits=featuresAt(ev);exitStory(false);stop();tip(null);
+  if(hits.length<2){if(hits[0])pick(hits[0].id);return;}
+  sel=null;draw();side(`<button class="back" onclick="list()">← all behaviours</button><h3>Behaviours at this point</h3><div class="small muted">Choose one to follow its path.</div>`+
+    hits.map(p=>`<button class="feat" onclick="pick(${jsarg(p.id)})"><i style="background:${fcol(p.id)}"></i><div>${esc(F[p.id].text)}</div></button>`).join(''));
+});
+ucv.addEventListener("click", ev => { const p = nearest(ucv, ev, D.units); if (p) openUnit(p.id); });
+
+function list() {
+  sel = null; draw();
+  side(`<h3>Behaviours <span class="small muted">${D.features.length}</span></h3>` +
+    `<div class="small muted">Grouped by all-time location. Numbers count reviewed stretches.</div>` +
+    `<input id="filter" type="search" aria-label="Find a behaviour" placeholder="Find a behaviour…" value="${esc(filterText)}"><div id="feature-list"></div>`);
+  document.getElementById('filter').oninput=e=>{filterText=e.target.value; fillList();};fillList();
+}
+function fillList() {
+  const groups=MAP_REGIONS[mapMode],by=groups.map(()=>[]);
+  D.features.filter(f=>f.text.toLowerCase().includes(filterText.toLowerCase())).forEach(f=>{
+    by[regionOf(mapMode==='flow'?flowHome[f.id]:xy(D.fpos[f.id]),groups)].push(f);
+  });
+  document.getElementById('feature-list').innerHTML=groups.map((r,i)=>!by[i].length?'':
+    `<div class="theme"><span style="color:${REGION_COLOURS[i]}">●</span> ${esc(r.name)}</div>`+
+    by[i].map(f=>`<button class="feat" onclick="pick(${jsarg(f.id)})"><i style="background:${fcol(f.id)}"></i><div>${esc(f.text)}</div>`+
+      `<span class="n">${cur<0?flowHome[f.id].count||0:flowDays[f.id][cur]?.count||0}</span></button>`).join('')).join('') || '<div class="small muted">No matching behaviours.</div>';
+}
+function checkWords(f) {
+  const out = [];
+  if (f.source === "code") out.push("Counted exactly by code from the record.");
+  if (f.source === "readers") out.push("Taken from the AI readers who read the whole record with fixed questions.");
+  const r = f.reliability;
+  if (r && r.events_j1 + r.events_j2 > 0) out.push(`Two AI judges reading separately: both saw it in ${r.events_both} events, only one of them in ${r.events_j1 + r.events_j2 - 2 * r.events_both}.`);
+  const d = f.detection;
+  if (d && d.checked) out.push(`Given only this description, another AI picked ${d.picked.top || 0} of ${d.checked.top} stretches where it was found, ` +
+    `${d.picked.near || 0} of ${d.checked.near} similar stretches where it was not, and ${d.picked.random || 0} of ${d.checked.random} picked at random.`);
+  return out.join(" ");
+}
+function spark(id) {
+  const r = D.profiles[id].rate, mx = Math.max(...r, 1e-9), w = 300, h = 46, bw = w / r.length;
+  return `<svg viewBox="0 0 ${w} ${h + 14}" style="width:100%;height:auto">` + r.map((v, k) => D.n_bin[k]===0 ?
+    `<rect x="${k*bw}" y="0" width="${Math.max(1,bw-1)}" height="${h}" fill="currentColor" opacity=".05"><title>${esc(fmt(D.bins[k]))}: no uniform sample</title></rect>` :
+    `<rect x="${k * bw}" y="${h - h * v / mx}" width="${Math.max(1, bw - 1)}" height="${h * v / mx}" fill="${fcol(id)}"><title>${esc(fmt(D.bins[k]))}: ${D.profiles[id].units[k]} stretches, ${D.profiles[id].actors[k]} labels in the uniform sample</title></rect>`).join("") +
+    `<text x="0" y="${h + 12}" font-size="10" fill="currentColor" opacity=".6">${esc(fmt(D.bins[0]))}</text>` +
+    `<text x="${w}" y="${h + 12}" font-size="10" text-anchor="end" fill="currentColor" opacity=".6">${esc(fmt(D.bins[D.bins.length - 1]))}</text></svg>`;
+}
+function pick(id) {
+  if(tour.active)exitStory(false);stop();
+  sel = id; draw(); const f = F[id], n = oneIn(f.density);
+  const peak = D.profiles[id].units.reduce((a, v, k) => v > a[0] ? [v, k] : a, [0, 0]);
+  const ex = D.units.filter(u => (u.f[id] || 0) > 0).sort((a, b) => b.f[id] - a.f[id]).slice(0, 10);
+  side(`<button class="back" onclick="list()">← all behaviours</button><h3><span style="color:${fcol(id)}">●</span> ${esc(f.text)}</h3>` +
+    `<div class="small muted">${esc(f.theme)}</div>` +
+    `<div id="day-detail" class="small day-detail">${esc(dayWords(id))}</div>` +
+    (f.fires_if ? `<div class="small" style="margin-top:6px"><b>Counts when</b> ${esc(f.fires_if)}</div>` : "") +
+    `<div class="small" style="margin-top:6px">${f.units} stretches by ${f.actors} author labels` + (n ? `, about 1 in ${n} stretches` : "") +
+    (peak[0] ? `; most on ${esc(fmt(D.bins[peak[1]]))}` : "") + `.</div>` + spark(id) +
+    `<div class="small muted" style="margin-top:6px">${checkWords(f)}</div>` +
+    `<div class="small" style="margin-top:8px">Clearest examples (click to read):</div><ul class="path small">` +
+    ex.map(u => `<li onclick="openUnit(${jsarg(u.id)})">${esc(u.who)} · ${esc(u.start.slice(0, 16).replace("T", " "))}${u.flagged ? ` <span style="color:var(--flag)">· flagged</span>` : ""}</li>`).join("") + "</ul>");
+}
+
+async function showSources(header,ids,footer=""){
+ const version=++drawerVersion;show(header+'<div class="small muted">Loading the record…</div>');
+ try{
+  const response=await fetch(api("/api/agent_sources?ids="+encodeURIComponent(ids.join(","))));
+  if(!response.ok)throw new Error("unavailable");const records=await response.json();if(version!==drawerVersion)return;
+  if(!Array.isArray(records))throw new Error("unavailable");
+  show(header+footer+(records.length?records.map(record=>`<div class="src"><div class="t">${esc(record.when)} · ${esc(record.who)} ${esc(record.what)}</div>${esc(record.text)}</div>`).join(""):'<p class="small muted">No source records could be loaded.</p>'));
+ }catch(error){if(version===drawerVersion)show(header+'<p class="small muted">The sources could not be loaded. Close this panel and try again.</p>');}
+}
+async function openUnit(id){
+ if(tour.active)pauseStory();else stop();const u=D.units.find(x=>x.id===id);if(!u)return;
+ const chips=Object.entries(u.f).filter(([fid])=>F[fid]).sort((a,b)=>b[1]-a[1]).map(([fid])=>`<span class="chip" style="background:${fcol(fid)}">${esc(F[fid].text)}</span>`).join("");
+ const header=`<h3>${esc(u.who)} · ${esc(u.start.slice(0,16).replace("T"," "))}–${esc(u.end.slice(11,16))}</h3><div style="margin:6px 0">${chips||"<span class='small muted'>No behaviour marked in this stretch.</span>"}</div>`+(u.flagged?'<div class="small" style="color:var(--flag)">AI readers flagged something in this stretch.</div>':'');
+ const ids=u.ids.slice(0,12);return showSources(header,ids,`<p class="small muted">What was done, as written${u.n>ids.length?` (first ${ids.length} of ${u.n} events)`:""}:</p>`);
+}
+
+function heat() {
+  const nb = D.bins.length, rows = [];
+  D.themes.forEach(th => { rows.push({theme: th}); D.features.filter(f => f.theme === th).forEach(f => rows.push({f})); });
+  const cw = Math.max(5, Math.min(14, Math.floor(820 / nb))), ch = 15, W = nb * cw + 2, H = rows.length * ch + 20;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+  rows.forEach((row, k) => { if (!row.f) return; const p = D.profiles[row.f.id], mx = Math.max(...p.rate, 1e-9);
+    p.rate.forEach((v, b) => { if (!v) return; s += `<rect class="c" x="${1 + b * cw}" y="${k * ch + 1}" width="${cw - 1}" height="${ch - 2}" rx="2" fill="${fcol(row.f.id)}" opacity="${(0.15 + 0.85 * v / mx).toFixed(2)}" onclick="cell(${jsarg(row.f.id)},${b})"><title>${esc(row.f.text)} · ${esc(fmt(D.bins[b]))}: ${p.units[b]} stretches, ${p.actors[b]} author labels</title></rect>`; }); });
+  const step = Math.ceil(nb / 7);
+  D.bins.forEach((d, b) => { if (b % step === 0) s += `<text x="${1 + b * cw}" y="${rows.length * ch + 14}" font-size="10" fill="currentColor" opacity=".6">${esc(fmt(d))}</text>`; });
+  s += "</svg>";
+  document.getElementById("heat").innerHTML = `<div style="display:grid;grid-template-columns:minmax(120px,280px) auto;gap:0 10px">` +
+    `<div>${rows.map(r => r.f ? `<div class="hl" style="height:${ch}px;line-height:${ch}px" onclick="pick(${jsarg(r.f.id)})" title="${esc(r.f.text)}">${esc(r.f.text)}</div>`
+      : `<div class="hl" style="height:${ch}px;line-height:${ch}px;font-weight:600;color:${tcol(r.theme)}">${esc(r.theme)}</div>`).join("")}</div><div>${s}</div></div>`;
+}
+function cell(id, b) {
+  exitStory(false); stop(); pick(id); setBin(b);
+  const matches = D.units.filter(u => binOf[u.id] === b && (u.f[id] || 0) > 0), us=matches.slice(0,30);
+  show(`<h3>${esc(F[id].text)} · ${esc(fmt(D.bins[b]))}</h3><div class="small muted">Showing ${us.length} of ${matches.length} reviewed stretches (click one to read it):</div><ul class="path small">` +
+    us.map(u => `<li onclick="openUnit(${jsarg(u.id)})">${esc(u.who)} · ${esc(u.start.slice(11, 16))}</li>`).join("") + "</ul>");
+}
+function updateTime() {
+  const when=document.getElementById('when'), all=cur<0;
+  when.textContent=all?'All time':fmt(D.bins[cur])+(motion&&motion.to!==cur?' → '+fmt(D.bins[motion.to]):'');
+  document.getElementById('all').classList.toggle('on',all);
+  const slider=document.getElementById('slider'); if(!all)slider.value=cur;
+  slider.setAttribute('aria-valuetext',all?'All time':fmt(D.bins[cur]));
+  const uniform=all?D.n_bin.reduce((s,n)=>s+(n||0),0):D.n_bin[cur];
+  document.getElementById('sample').textContent=all?`${D.units.length.toLocaleString()} reviewed stretches · ${uniform.toLocaleString()} in the uniform sample`:
+    (motion?'Starting day: ':'')+`${dayCounts[cur]} reviewed ${dayCounts[cur]===1?'stretch':'stretches'} · `+(uniform>0?`${uniform} in the uniform sample`:uniform===0?'No uniform sample; no timeline estimate':'Uniform sample size unavailable');
+  document.getElementById('prev').disabled=!sampledDays.some(b=>b<cur);
+  document.getElementById('next').disabled=!sampledDays.some(b=>b>cur);
+  const observed=all?D.features.length:D.features.filter(f=>mapMode==='flow'?flowDays[f.id][cur]:D.n_bin[cur]>0&&D.profiles[f.id].units[cur]>0).length;
+  document.getElementById('map-key').textContent=mapMode==='flow'?
+    'Size = reviewed stretches. Trails connect consecutive observed days. Hollow dots = no observation. Nearby dots are separated slightly; thin lines mark their true centres.':
+    !all&&D.n_bin[cur]===0?'No uniform sample for this day. Hollow dots show reference positions.':'Size = share of uniformly sampled stretches showing the behaviour. Hollow dots = not found in the uniform sample.';
+  fcv.setAttribute('aria-label',`${mapMode==='flow'?'Time flow':'Behaviour UMAP'}. ${when.textContent}. ${observed} of ${D.features.length} behaviours observed. Use arrow keys to change day, space to play or pause.`);
+  if(sel&&document.getElementById('day-detail'))document.getElementById('day-detail').textContent=dayWords(sel);
+  else if(document.getElementById('feature-list'))fillList();
+  updateStoryProgress();
+}
+function setBin(b) { cur=b;motion=null;updateTime();draw(); }
+
+function stop(){
+ if(timer!==null)cancelAnimationFrame(timer);timer=null;
+ const b=motion&&motion.t>=.5?motion.to:cur;motion=null;
+ if(tour.active){tour.playing=false;tour.pausedAt=null;renderStoryPanel();}
+ playbackButtons();if(D)setBin(b);
+}
+function beginTransition(now){
+ if(tour.active&&tour.playing){
+  const scene=currentScene();if(!scene){finishStory();return false;}
+  if(scene.steps?.length){motion={to:cur,t:0,start:now,duration:4000/Number(document.getElementById('speed').value),incidentBeat:true};return true;}
+  if(cur<scene._end)motion={to:cur+1,t:0,start:now,duration:1200/Number(document.getElementById('speed').value)};
+  else motion={to:cur,t:0,start:now,duration:Math.max(1100,4000-(now-tour.sceneStarted)),sceneEnd:true};
+  updateTime();return true;
+ }
+ const to=sampledDays.find(b=>b>cur);if(to===undefined){stop();return false;}
+ motion={to,t:0,start:now,duration:1200/Number(document.getElementById('speed').value)};updateTime();return true;
+}
+function tick(now){
+ if(!motion&&!beginTransition(now))return;
+ const fraction=Math.min(1,(now-motion.start)/motion.duration);
+ motion.t=reducedMotion||motion.sceneEnd||motion.incidentBeat?0:fraction*fraction*(3-2*fraction);drawF();
+ if(fraction>=1){
+  const completed=motion;setBin(completed.to);
+  if(completed.incidentBeat){if(!advanceIncident(now))return;}
+  if(completed.sceneEnd&&!advanceStory(now))return;
+  if(!beginTransition(now))return;
+ }
+ timer=requestAnimationFrame(tick);
+}
+function play(){
+ if(tour.active){toggleStoryPlay();return;}
+ if(!D||!sampledDays.length)return;if(timer!==null){stop();return;}
+ if(cur<0||cur>=sampledDays.at(-1))setBin(sampledDays[0]);
+ const button=document.getElementById('play');button.textContent='❚❚ Pause';button.setAttribute('aria-label','Pause timeline');timer=requestAnimationFrame(tick);
+}
+function step(direction){
+ exitStory(false);stop();const b=direction>0?sampledDays.find(b=>b>cur):[...sampledDays].reverse().find(b=>b<cur);if(b!==undefined)setBin(b);
+}
+
+function setMapMode(mode) {
+  mapMode=mode;
+  ['flow','overview'].forEach((id,i)=>{const on=(i===0)===(mode==='flow'),el=document.getElementById(id);el.classList.toggle('on',on);el.setAttribute('aria-pressed',String(on));});
+  document.getElementById('map-title').textContent=mode==='flow'?'Where behaviours appear over time':'Behaviours with similar timing';
+  document.getElementById('map-note').textContent=mode==='flow'?'Dots follow the centre of the reviewed work showing each behaviour. The map stays fixed.':'Nearby behaviours tend to rise and fall at similar times. Positions stay fixed.';
+  document.getElementById('region-note').textContent=mode==='flow'?'Regions group similar work. Colours follow each behaviour’s all-time location.':'Regions group behaviours with similar timing.';
+  document.getElementById('region-legend').innerHTML=MAP_REGIONS[mode].map((r,i)=>`<span><i style="background:${REGION_COLOURS[i]}"></i>${esc(r.name)}</span>`).join('');
+  document.getElementById('trails').disabled=mode!=='flow';
+  if(sel)pick(sel);else list();updateTime();heat();draw();
+}
+document.getElementById('all').onclick=()=>{exitStory(false);stop();setBin(-1);};
+document.getElementById('slider').oninput=e=>{const b=+e.target.value;exitStory(false);stop();setBin(b);};
+document.getElementById('play').onclick=play;
+document.getElementById('prev').onclick=()=>step(-1);
+document.getElementById('next').onclick=()=>step(1);
+document.getElementById('speed').onchange=()=>{if(tour.active){const playing=tour.playing;pauseStory();if(playing)resumeStory();}else{const playing=timer!==null;stop();if(playing)play();}};
+document.getElementById('trails').onchange=()=>drawF();
+document.getElementById('flow').onclick=()=>switchMap('flow');
+document.getElementById('overview').onclick=()=>switchMap('umap');
+document.getElementById('work-view').addEventListener('toggle',()=>{if(D){sizeAll();draw();}});
+fcv.addEventListener('keydown',ev=>{
+  if(!D)return;
+  if(ev.key==='ArrowRight'||ev.key==='ArrowLeft'){ev.preventDefault();step(ev.key==='ArrowRight'?1:-1);}
+  if(ev.key===' '){ev.preventDefault();play();}
+  if((ev.key==='Home'||ev.key==='End')&&sampledDays.length){ev.preventDefault();exitStory(false);stop();setBin(ev.key==='Home'?sampledDays[0]:sampledDays.at(-1));}
+});
+window.addEventListener("resize", () => { if(D){sizeAll();draw();} });
+
+function stepBin(step,fallback){const when=String(step?.when||'').replace(' ','T'),bin=when.slice(0,D.unit==='hour'?13:10),index=D.bins.indexOf(bin);return index<0?fallback:index;}
+function incidentSequence(scene){
+ const cards=scene.steps.map((step,index)=>`<div class="incident-action ${index===tour.step?'active':''}"><button class="incident-focus" aria-label="Show action ${index+1}" ${index===tour.step?'aria-current="step"':''} onclick="chooseIncidentStep(${index})"><span class="incident-number">${index+1}</span><span><strong>${esc(step.role)}</strong><span class="incident-time">${esc(step.when||'')} · ${step.status==='reported'?'Reported':step.status==='inferred'?'Interpretation':'Recorded'}</span><span class="incident-text">${esc(step.action)}</span></span></button><button class="incident-source" onclick="openIncidentSource(${index})">Source</button></div>`).join('');
+ const links=visibleIncidentLinks().filter(link=>link.to_event===currentStep()?.event);
+ return `<div class="incident-sequence" aria-label="Source action sequence">${cards}</div>`+links.map(link=>`<p class="incident-link">↳ ${esc(link.caption)}${link.basis==='reported'?' <span>Reported connection</span>':link.basis==='inferred'?' <span>Interpretation</span>':''}</p>`).join('');
+}
+function chooseIncidentStep(index){const scene=currentScene();if(!scene?.steps?.[index])return;pauseStory();tour.step=index;tour.complete=false;motion=null;setBin(stepBin(currentStep(),scene._start));renderStoryPanel();draw();}
+function advanceIncident(now){const scene=currentScene();if(tour.step+1<scene.steps.length){tour.step++;motion=null;cur=stepBin(currentStep(),scene._start);renderStoryPanel();updateTime();draw();return true;}return advanceStory(now);}
+async function openIncidentSource(index){const step=currentScene()?.steps?.[index];if(!step)return;pauseStory();return showSources(`<h3>${esc(step.role)}</h3><p>${esc(step.action)}</p>`,[step.event],'<p class="small muted">Source record for this action:</p>');}
+function incidentMapPoint(event){const step=currentStory()?.scenes.flatMap(scene=>scene.steps||[]).find(step=>step.event===event);const unit=D.units.find(unit=>(step?.map_units||[]).includes(unit.id));return unit?pos(fcv,unit.x,unit.y):null;}
+function visibleIncidentLinks(){
+ const story=currentStory();if(!currentStep()||!story)return [];
+ const steps=story.scenes.flatMap(scene=>scene.steps||[]),position=story.scenes.slice(0,tour.scene).reduce((n,scene)=>n+(scene.steps?.length||0),0)+tour.step;
+ return (story.links||[]).filter(link=>{const target=steps.findIndex(step=>step.event===link.to_event),source=steps.findIndex(step=>step.event===link.from_event);return target>=0&&source>=0&&target<=position&&source<=position;});
+}
+function drawIncidentLinks(ctx){
+ const current=currentStep();if(!current)return;ctx.strokeStyle=css('--sel');ctx.fillStyle=css('--sel');ctx.lineWidth=2;ctx.globalAlpha=.65;
+ for(const link of visibleIncidentLinks()){const a=incidentMapPoint(link.from_event),b=incidentMapPoint(link.to_event);if(!a||!b)continue;ctx.setLineDash(link.basis==='observed'?[]:[5,4]);ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();drawArrow(ctx,a,b);}
+ ctx.setLineDash([]);ctx.globalAlpha=1;
+}
+function drawIncidentFocus(ctx){
+ const step=currentStep();if(!step||mapMode!=='flow')return;const point=incidentMapPoint(step.event);if(!point)return;
+ ctx.strokeStyle=css('--sel');ctx.fillStyle=css('--sel');ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(...point,9,0,Math.PI*2);ctx.stroke();ctx.font='12px -apple-system, sans-serif';ctx.fillText(`Action ${tour.step+1}`,point[0]+13,point[1]-10);
+}
+function currentStory(){return storyData.status==='ready'?storyData.stories?.[tour.story]:null;}
+function currentScene(){return tour.active?currentStory()?.scenes?.[tour.scene]:null;}
+function currentStep(){return currentScene()?.steps?.[tour.step]||null;}
+function tourFeatureIds(){return currentScene()?._features||[];}
+function playbackButtons(){
+ const running=tour.active?tour.playing:timer!==null,button=document.getElementById('play');
+ button.textContent=running?'❚❚ Pause':'▶ Play';button.setAttribute('aria-label',(running?'Pause ':'Play ')+(tour.active?'story':'timeline'));
+}
+function normaliseStories(data){
+ if(data.status!=='ready')return data;
+ const stories=(Array.isArray(data.stories)?data.stories:[]).map(story=>{
+  const scenes=(Array.isArray(story.scenes)?story.scenes:[]).map(scene=>{
+   const start=D.bins.indexOf(scene.start),end=D.bins.indexOf(scene.end),features=(Array.isArray(scene.features)?scene.features:[]).filter(id=>F[id]).slice(0,5);
+   if((!scene.steps?.length&&(start<0||end<start))||(!features.length&&!scene.steps?.length)||typeof scene.caption!=='string'||typeof scene.title!=='string')return null;
+   return {...scene,_start:start,_end:end,_features:features,events:Array.isArray(scene.events)?scene.events:[]};
+  }).filter(Boolean);
+  return scenes.length&&typeof story.title==='string'?{...story,scenes}:null;
+ }).filter(Boolean);
+ return stories.length?{...data,stories}:{status:'error',error:'No reviewed scenes are available. Please try creating storylines again.'};
+}
+function renderStoryPanel(){
+ const el=document.getElementById('story-tour');if(!el)return;
+ const status=storyData.status,building=status==='building'||storyGenerating;
+ const create=storyData.can_create===false?'':`<button class="create" onclick="generateStorylines()" ${building?'disabled':''}>${building?'Creating…':status==='ready'||status==='stale'?'Create new storylines':status==='error'?'Try again':'Create storylines'}</button>`;
+ if(status!=='ready'){
+  const words=status==='building'?`${storyData.stage||'Preparing evidence'}…`:status==='stale'?'The saved storylines are out of date. Create fresh stories from the source record.':status==='missing'?(storyData.reason==='insufficient_connected_evidence'?'No connected incident passed review. More source context is needed.':'Discover connected incidents in the source record.'):status==='loading'?'Loading reviewed storylines…':storyData.error||'The storylines could not be loaded. Please try again.';
+  el.innerHTML=`<div class="tour-top"><strong>Guided stories</strong>${status==='loading'?'':create}</div><p class="tour-status" role="status">${building?'<span class="tour-busy"></span>':''}${esc(words)}</p>`;return;
+ }
+ const story=currentStory(),scene=currentScene(),scenes=story?.scenes||[];
+ const picker=`<select aria-label="Choose a storyline" onchange="chooseStory(+this.value)">${!tour.active?'<option value="-1" selected>Choose a storyline…</option>':''}`+storyData.stories.map((item,index)=>`<option value="${index}" ${tour.active&&index===tour.story?'selected':''}>${esc(item.title)}</option>`).join('')+'</select>';
+ let content=`<div class="tour-top"><strong>Guided stories</strong>${picker}${create}</div>`;
+ if(!scene)content+=`<p class="tour-caption"><strong>${esc(storyData.title||'')}</strong></p><p class="tour-question">${esc(storyData.summary||'')}</p><div class="tour-controls"><button class="primary" onclick="toggleStoryPlay()">▶ Play story</button><span class="tour-status">Follow actions and supported connections, with sources on click.</span></div>`;
+ else{
+  content+=`<div class="tour-scenes"><button aria-label="Previous scene" onclick="stepStory(-1)" ${tour.scene===0?'disabled':''}>←</button><select aria-label="Choose a scene" onchange="chooseScene(+this.value)">`+scenes.map((item,index)=>`<option value="${index}" ${index===tour.scene?'selected':''}>${index+1}. ${esc(item.title)}</option>`).join('')+`</select><button aria-label="Next scene" onclick="stepStory(1)" ${tour.scene===scenes.length-1?'disabled':''}>→</button></div>`;
+  if(story.question)content+=`<p class="tour-question">${esc(story.question)}</p>`;
+  content+=`<p id="story-caption" class="tour-caption" aria-live="polite">${esc(currentStep()?.action||scene.caption)}</p>`;
+  if(scene.steps?.length)content+=incidentSequence(scene);
+  content+='<div class="tour-features">'+scene._features.map((id,index)=>`<button class="tour-feature" onclick="pick(${jsarg(id)})" title="${esc(F[id].text)}"><span class="number" style="background:${fcol(id)}">${index+1}</span><span class="name">${esc(F[id].text)}</span></button>`).join('')+'</div><div id="story-measured" class="tour-measured"></div>';
+  if(scene.caveat)content+=`<div class="tour-caveat">${esc(scene.caveat)}</div>`;
+  if(tour.complete&&story.outcome)content+=`<p class="incident-link"><strong>Outcome:</strong> ${esc(story.outcome)}</p>`;
+  content+=`<div class="tour-controls"><button class="primary" onclick="toggleStoryPlay()">${tour.playing?'❚❚ Pause story':tour.complete?'▶ Replay story':'▶ Play story'}</button><button onclick="replayScene()" aria-label="Replay this scene">↻ Replay scene</button><button onclick="exitStory()">Exit story</button><button class="tour-sources" onclick="openSceneSources()" ${scene.events.length?'':'disabled'}>Sources${scene.events.length?' · '+scene.events.length:''}</button></div><div class="tour-progress" id="story-progress"></div>`;
+ }
+ el.innerHTML=content;updateStoryProgress();playbackButtons();
+}
+function sceneMeasuredNote(scene){
+ if(scene.steps?.length){const step=currentStep(),mapped=(step?.map_units||[]).filter(id=>D.units.some(u=>u.id===id)).length;return mapMode==='flow'?(mapped?`${mapped} cited stretch${mapped===1?'':'es'} highlighted. Connections refer to source records; they do not show an actor travelling.`:cur<0?'This action is outside the atlas period. Its source remains in the story.':'This action has no reviewed stretch on the map. Its source remains in the story.'):(mapped?'Fixed behaviour positions. Highlighted behaviours provide context; the action sequence is shown above.':cur<0?'Fixed behaviour positions. This action is outside the atlas period; its source remains in the story.':'Fixed behaviour positions. This action has no reviewed stretch on the map; its source remains in the story.');}
+ const id=scene._features[0];if(!id)return '';
+ if(mapMode==='flow'){
+  const seen=[];for(let b=scene._start;b<=scene._end;b++)if(flowDays[id][b])seen.push(b);
+  if(!seen.length)return 'No observed centre for the first highlighted behaviour in this scene.';
+  const first=seen[0],last=seen.at(-1),regions=MAP_REGIONS.flow,name=b=>regions[regionOf(flowDays[id][b],regions)]?.name||'this part of the map';
+  if(first===last)return `First highlighted behaviour: one observed centre near ${name(first)} (${fmt(D.bins[first])}).`;
+  const gap=seen.length<last-first+1||seen.some((b,i)=>i>0&&!consecutiveBins(seen[i-1],b)),same=seen.every(b=>name(b)===name(first));
+  return same?`First highlighted behaviour: observed centres stayed near ${name(first)} (${fmt(D.bins[first])}–${fmt(D.bins[last])})${gap?'; gaps are not connected':''}.`:`First highlighted behaviour: observed endpoints near ${name(first)} (${fmt(D.bins[first])}) and ${name(last)} (${fmt(D.bins[last])})${gap?'; gaps are not connected':''}.`;
+ }
+ const sampled=[];for(let b=scene._start;b<=scene._end;b++)if(D.n_bin[b]>0)sampled.push(b);
+ if(!sampled.length)return 'Fixed positions. No uniform sample in this scene; no prevalence estimate.';
+ const first=sampled[0],last=sampled.at(-1),share=b=>(100*D.profiles[id].units[b]/D.n_bin[b]).toFixed(1)+'%';
+ return first===last?`Fixed positions. First highlighted behaviour appeared in ${share(first)} of sampled stretches on ${fmt(D.bins[first])}.`:`Fixed positions. First highlighted behaviour: ${share(first)} of sampled stretches on ${fmt(D.bins[first])}; ${share(last)} on ${fmt(D.bins[last])}.`;
+}
+function updateStoryProgress(){
+ const scene=currentScene();if(!scene)return;
+ const note=document.getElementById('story-measured'),progress=document.getElementById('story-progress');
+ if(note)note.textContent=sceneMeasuredNote(scene);
+ if(progress)progress.textContent=`Scene ${tour.scene+1} of ${currentStory().scenes.length}${scene.steps?.length?` · Action ${tour.step+1} of ${scene.steps.length} · ${currentStep()?.when||''}`:` · ${fmt(scene.start)}–${fmt(scene.end)}`} · ${tour.complete?'Finished':tour.playing?'Playing':'Paused'}`;
+}
+function enterScene(index,playing=false){
+ if(timer!==null)cancelAnimationFrame(timer);timer=null;motion=null;
+ const story=currentStory();if(!story?.scenes[index])return;
+ tour.active=true;tour.scene=index;tour.step=0;tour.playing=playing;tour.complete=false;tour.pausedAt=null;tour.sceneStarted=performance.now();sel=null;
+ setBin(stepBin(currentStep(),story.scenes[index]._start));list();renderStoryPanel();draw();
+ if(playing)timer=requestAnimationFrame(tick);playbackButtons();
+}
+function chooseStory(index){if(index<0)return;stop();tour.story=index;tour.active=true;enterScene(0,false);}
+function chooseScene(index){if(tour.active)enterScene(index,false);}
+function stepStory(direction){chooseScene(tour.scene+direction);}
+function replayScene(){if(tour.active)enterScene(tour.scene,true);}
+function pauseStory(){
+ if(!tour.active||!tour.playing)return;if(timer!==null)cancelAnimationFrame(timer);timer=null;
+ const now=performance.now();if(motion)motion.elapsed=Math.max(0,now-motion.start);
+ tour.playing=false;tour.pausedAt=now;renderStoryPanel();updateTime();draw();
+}
+function resumeStory(){
+ if(!tour.active)return;const now=performance.now();
+ if(tour.pausedAt!==null)tour.sceneStarted+=now-tour.pausedAt;
+ if(motion){if(!motion.sceneEnd){const phase=(motion.elapsed||0)/motion.duration;motion.duration=(motion.incidentBeat?4000:1200)/Number(document.getElementById('speed').value);motion.elapsed=phase*motion.duration;}motion.start=now-(motion.elapsed||0);}
+ tour.pausedAt=null;tour.playing=true;renderStoryPanel();updateTime();timer=requestAnimationFrame(tick);playbackButtons();
+}
+function toggleStoryPlay(){
+ if(storyData.status!=='ready')return;
+ if(!tour.active){tour.story=0;tour.active=true;enterScene(0,true);return;}
+ if(tour.playing){pauseStory();return;}if(tour.complete){enterScene(0,true);return;}resumeStory();
+}
+function advanceStory(now){
+ const story=currentStory();if(tour.scene+1>=story.scenes.length){finishStory();return false;}
+ tour.scene++;tour.step=0;tour.sceneStarted=now;motion=null;cur=stepBin(currentStep(),story.scenes[tour.scene]._start);sel=null;renderStoryPanel();updateTime();draw();return true;
+}
+function finishStory(){
+ if(timer!==null)cancelAnimationFrame(timer);timer=null;motion=null;tour.playing=false;tour.complete=true;tour.pausedAt=null;renderStoryPanel();updateTime();draw();playbackButtons();
+}
+function exitStory(refresh=true){
+ if(!tour.active)return;if(timer!==null)cancelAnimationFrame(timer);timer=null;
+ const b=motion&&motion.t>=.5?motion.to:cur;motion=null;tour.active=false;tour.playing=false;tour.pausedAt=null;tour.complete=false;cur=b;
+ renderStoryPanel();playbackButtons();if(refresh){updateTime();list();draw();}
+}
+function switchMap(mode){
+ if(tour.active){const playing=tour.playing;pauseStory();setMapMode(mode);renderStoryPanel();if(playing)resumeStory();}
+ else{stop();setMapMode(mode);}
+}
+function drawArrow(ctx,a,b,size=5){
+ const angle=Math.atan2(b[1]-a[1],b[0]-a[0]);if(Math.hypot(b[0]-a[0],b[1]-a[1])<5)return;
+ ctx.beginPath();ctx.moveTo(b[0],b[1]);ctx.lineTo(b[0]-size*Math.cos(angle-.5),b[1]-size*Math.sin(angle-.5));ctx.lineTo(b[0]-size*Math.cos(angle+.5),b[1]-size*Math.sin(angle+.5));ctx.closePath();ctx.fill();
+}
+function drawTourTrails(ctx){
+ const scene=currentScene();if(!scene||mapMode!=='flow'||!document.getElementById('trails').checked)return;
+ if(scene.steps?.length){drawIncidentLinks(ctx);return;}
+ const end=Math.min(cur,scene._end);
+ scene._features.forEach(id=>{
+  ctx.strokeStyle=fcol(id);ctx.fillStyle=fcol(id);ctx.lineWidth=2.2;ctx.globalAlpha=.74;
+  for(let b=scene._start+1;b<=end;b++){
+   const a=flowDays[id][b-1],q=flowDays[id][b];if(!a||!q||!consecutiveBins(b-1,b))continue;
+   const p0=pos(fcv,a.x,a.y),p1=pos(fcv,q.x,q.y);ctx.beginPath();ctx.moveTo(...p0);ctx.lineTo(...p1);ctx.stroke();drawArrow(ctx,p0,p1);
+  }
+  if(motion&&!motion.sceneEnd&&consecutiveBins(cur,motion.to)&&flowDays[id][cur]&&flowDays[id][motion.to]){
+   const p0=pos(fcv,flowDays[id][cur].x,flowDays[id][cur].y),p1=pos(fcv,flowPose(id).x,flowPose(id).y);ctx.beginPath();ctx.moveTo(...p0);ctx.lineTo(...p1);ctx.stroke();drawArrow(ctx,p0,p1);
+  }
+  const observed=[];for(let b=scene._start;b<=scene._end;b++)if(flowDays[id][b])observed.push(b);
+  if(observed.length){
+   const first=flowDays[id][observed[0]],last=flowDays[id][observed.at(-1)],start=pos(fcv,first.x,first.y),finish=pos(fcv,last.x,last.y);
+   ctx.globalAlpha=.26;ctx.setLineDash([2,3]);ctx.beginPath();ctx.arc(...start,7,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.arc(...finish,5,0,Math.PI*2);ctx.stroke();
+  }
+ });ctx.globalAlpha=1;ctx.setLineDash([]);
+}
+function drawTourLabels(ctx){
+ const scene=currentScene();if(!scene)return;const rect=fcv.getBoundingClientRect(),occupied=[];
+ scene._features.forEach((id,index)=>{
+  const point=rendered.find(p=>p.id===id);if(!point)return;
+  const name=F[id].text.length>33?F[id].text.slice(0,30)+'…':F[id].text,label=`${index+1}. ${name}`;
+  ctx.font='11px -apple-system, sans-serif';const width=Math.min(ctx.measureText(label).width+12,rect.width-12),height=20;
+  let x=Math.max(6,Math.min(point.x+point.radius+7,rect.width-width-6)),y=Math.max(6,Math.min(point.y-12,rect.height-height-6));
+  const candidates=[];
+  for(let step=0;step<12;step++)for(const direction of [1,-1])candidates.push({x,y:Math.max(6,Math.min(y+direction*step*(height+4),rect.height-height-6))});
+  for(let row=6;row<rect.height-height;row+=height+4)candidates.push({x:6,y:row});
+  const fits=p=>!occupied.some(q=>p.x<q.x+q.w&&p.x+width>q.x&&p.y<q.y+q.h&&p.y+height>q.y);
+  const chosen=candidates.find(fits)||candidates.at(-1);x=chosen.x;y=chosen.y;
+  occupied.push({x,y,w:width,h:height});ctx.globalAlpha=point.observed ? .96 : .6;ctx.fillStyle=css('--panel');ctx.fillRect(x,y,width,height);
+  ctx.strokeStyle=fcol(id);ctx.lineWidth=1;ctx.strokeRect(x,y,width,height);ctx.fillStyle=css('--fg');ctx.fillText(label,x+6,y+14,width-10);ctx.globalAlpha=1;
+  ctx.strokeStyle=fcol(id);ctx.globalAlpha=.3;ctx.beginPath();ctx.moveTo(point.x,point.y);ctx.lineTo(x+Math.min(width/2,8),y+height/2);ctx.stroke();ctx.globalAlpha=1;
+ });
+}
+async function openSceneSources(){
+ const scene=currentScene();if(!scene)return;pauseStory();
+ const ids=scene.events.slice(0,80),header=`<h3>${esc(scene.title)}</h3><p class="small">${esc(scene.caption)}</p>`+(scene.caveat?`<p class="small muted">${esc(scene.caveat)}</p>`:'');
+ return showSources(header,ids,`<p class="small muted">Source records for this scene${scene.events.length>ids.length?` (first ${ids.length} of ${scene.events.length})`:''}:</p>`);
+}
+function scheduleStoryPoll(){
+ if(storyPollTimer!==null)clearTimeout(storyPollTimer);
+ storyPollTimer=setTimeout(()=>{storyPollTimer=null;loadStorylines();},2200);
+}
+function acceptStoryResponse(data){
+ storyData=normaliseStories(data||{status:'error'});storyGenerating=storyData.status==='building';renderStoryPanel();
+ if(storyGenerating){scheduleStoryPoll();return;}
+ if(storyPollTimer!==null){clearTimeout(storyPollTimer);storyPollTimer=null;}
+ if(storyData.status==='ready'&&storyAwaitingNew){storyAwaitingNew=false;chooseStory(0);}
+}
+async function loadStorylines(){
+ const request=++storyRequest;
+ try{const response=await fetch(api('/api/feature_storylines'));if(!response.ok)throw new Error('unavailable');const data=await response.json();if(request!==storyRequest)return;acceptStoryResponse(data);}
+ catch(error){if(request!==storyRequest)return;storyGenerating=false;storyData={status:'error',error:'The storylines could not be loaded. Please try again.'};renderStoryPanel();}
+}
+async function generateStorylines(){
+ if(storyGenerating)return;exitStory(false);stop();storyAwaitingNew=true;storyGenerating=true;
+ if(storyPollTimer!==null){clearTimeout(storyPollTimer);storyPollTimer=null;}
+ const request=++storyRequest;storyData={status:'building',stage:'Preparing evidence'};renderStoryPanel();
+ try{
+  const response=await fetch(api('/api/feature_storylines'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+  if(!response.ok)throw new Error('unavailable');const data=await response.json();if(request!==storyRequest)return;acceptStoryResponse(data);
+ }catch(error){if(request!==storyRequest)return;storyGenerating=false;storyData={status:'error',error:'The storylines could not be created. Please try again.'};renderStoryPanel();}
+}
+window.addEventListener('pagehide',()=>{if(storyPollTimer!==null)clearTimeout(storyPollTimer);});
+
+(async () => {
+  D = await fetch(api("/api/features")).then(r => r.json());
+  if (D.error) { document.getElementById("sub").textContent = D.error; return; }
+  D.n_bin=D.n_bin||[];
+  D.features.forEach(f => F[f.id] = f); D.themes.forEach((t, k) => TH[t] = k);
+  const cut = D.unit === "hour" ? 13 : 10, at = Object.fromEntries(D.bins.map((b, k) => [b, k]));
+  D.units.forEach(u => { binOf[u.id] = at[u.start.slice(0, cut)]; let m = null, mv = 0;
+    for (const [id, v] of Object.entries(u.f)) if (F[id]?.source === "judged" && v > mv) { mv = v; m = id; }
+    u.main = m || Object.keys(u.f)[0] || null; });
+  document.getElementById("sub").textContent = `${D.features.length} behaviours · ${D.units.length.toLocaleString()} stretches read by AI judges` +
+    ` (${D.coverage}) · ${D.bins[0]} to ${D.bins[D.bins.length - 1]}`;
+  document.getElementById("slider").max = D.bins.length - 1;
+  document.getElementById('range-start').textContent=fmt(D.bins[0]);document.getElementById('range-end').textContent=fmt(D.bins.at(-1));
+  document.getElementById("how").innerHTML = D.how.concat([
+    'Time flow uses the existing map of reviewed stretches. Each behaviour sits at their centre, weighted by the fraction of marked events in each stretch. This is a summary of observed work, not a change in what the behaviour means.',
+    'The time-flow positions and counts use all reviewed stretches, including additional flagged or unusual examples. Timeline estimates and behaviour-map sizes use only the uniform sample. An unobserved day is not evidence of no activity.',
+    'The regions are fixed reference areas around similar stretches or behaviours, separated at the nearest group centre. They are descriptive neighbourhoods, not a new behaviour dictionary. A moving behaviour may cross regions; its colour follows its all-time location.',
+    'Nearby time-flow dots have small, fixed display offsets for readability; thin lines connect them to their actual centres. The slider includes every day. Playback skips days without reviewed stretches, fades across gaps, and draws trails only between consecutive observed days.'
+  ]).map(x => `<p>${esc(x)}</p>`).join("");
+  prepareFlow();sizeAll();setMapMode('flow');setBin(-1);
+  await loadStorylines();
+})().catch(()=>{document.getElementById('sub').textContent='Could not load the behaviour atlas. Refresh to try again.';});
+</script></body></html>

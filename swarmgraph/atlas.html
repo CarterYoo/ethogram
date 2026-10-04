@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Behaviour Map</title>
+<style>
+:root{--bg:#f7f6f2;--panel:#fff;--fg:#1c1c1a;--muted:#6d6c66;--line:#e2e0d8;--sel:#2d5bd7;--band:rgba(0,0,0,.035);
+--flag:#d85a30;--faint:rgba(120,118,110,.16)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;
+--line:#33322f;--sel:#6f93f2;--band:rgba(255,255,255,.04);--flag:#e8744a;--faint:rgba(160,158,150,.14)}}
+:root[data-theme="dark"]{--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;--line:#33322f;--sel:#6f93f2;
+--band:rgba(255,255,255,.04);--flag:#e8744a;--faint:rgba(160,158,150,.14)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:18px 16px 140px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}h2{font-size:18px;font-weight:600;margin:30px 0 6px}h3{font-size:16px;font-weight:600;margin:0}
+.muted{color:var(--muted)}.small{font-size:13px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;margin-top:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+#map{display:block;width:100%;aspect-ratio:1/1;cursor:crosshair;touch-action:manipulation}
+.time{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.time input[type=range]{flex:1;min-width:160px}
+button{font:inherit;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:3px 10px;cursor:pointer}
+button:hover{border-color:var(--sel)}button.on{background:var(--sel);color:#fff;border-color:var(--sel)}
+#when{font-variant-numeric:tabular-nums;min-width:120px}
+.kinds{max-height:640px;overflow:auto}
+.kind{display:flex;gap:8px;align-items:flex-start;padding:5px 6px;border-radius:8px;cursor:pointer;font-size:14px;line-height:1.35}
+.kind:hover{background:var(--band)}.kind.sel{background:var(--band);outline:1px solid var(--sel)}
+.kind i{flex:none;width:12px;height:12px;border-radius:3px;margin-top:3px}
+.kind .n{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;padding-left:6px}
+.kind .unsure{color:var(--muted);font-size:12px}
+.back{font-size:13px;color:var(--sel);cursor:pointer;margin:0 0 8px 4px}.side-in{padding:0 4px}
+.marks{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--muted);margin:8px 0 0}
+.ring{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+#tip{position:fixed;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 9px;
+font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:6;max-width:280px}
+#heat svg{display:block;width:100%}#heat rect.c{cursor:pointer}#heat rect.c:hover{stroke:var(--fg);stroke-width:1}
+#drawer{position:fixed;left:0;right:0;bottom:0;max-height:58vh;overflow:auto;background:var(--panel);border-top:3px solid var(--sel);
+padding:14px 18px 24px;box-shadow:0 -6px 20px rgba(0,0,0,.12);display:none;z-index:5}
+#drawer .in{max-width:980px;margin:0 auto}#drawer .x{float:right;cursor:pointer;color:var(--muted);font-size:20px;line-height:1}
+.src{border-left:3px solid var(--line);padding:6px 10px;margin:8px 0;font-size:14px;background:var(--bg);border-radius:0 6px 6px 0}
+.src .t{font-size:12px;color:var(--muted)}
+.path li{cursor:pointer}.path li:hover{color:var(--sel)}
+details{margin-top:30px}summary{cursor:pointer;font-weight:600}
+@media (max-width:820px){.grid{grid-template-columns:1fr}.kinds{max-height:none}}
+@media (max-width:600px){.wrap{padding:12px 12px 140px}h1{font-size:19px}}
+</style></head><body><div class="wrap">
+<h1>Behaviour map</h1>
+<div id="sub" class="muted small">Loading…</div>
+<div class="small" style="margin-top:6px">Each dot is one stretch of work: one agent's posts or actions in a row. Dots
+close together did similar things. Colours are kinds of behaviour. Click a kind to pick it out, a dot to read what was
+done, or play the timeline to see which kinds were active when.</div>
+<div class="grid">
+  <div class="panel">
+    <canvas id="map"></canvas>
+    <div class="marks"><span><span class="ring" style="border:2px solid var(--flag)"></span>AI readers flagged something here</span>
+      <span><span class="ring" style="border:1.5px solid var(--fg)"></span>unusual: unlike the stretches around it</span></div>
+    <div class="time"><button id="play">▶ Play</button><button id="all" class="on">All time</button>
+      <input id="slider" type="range" min="0" max="0" value="0"><span id="when" class="small"></span></div>
+  </div>
+  <div class="panel"><div id="side" class="kinds"></div></div>
+</div>
+<h2>When each kind happened</h2>
+<div class="small muted">Darker = more stretches of that kind. Click a cell to see that kind at that time on the map.</div>
+<div id="heat" class="panel" style="margin-top:8px;overflow-x:auto"></div>
+<details><summary>How this map was made</summary><div id="how" class="small" style="margin-top:8px"></div></details>
+</div>
+<div id="tip"></div>
+<div id="drawer"><div class="in"><span class="x" onclick="hide(true)">×</span><div id="dbody"></div></div></div>
+<script>
+const PAL = ["#4e79a7", "#f28e2b", "#59a14f", "#b07aa1", "#edc948", "#76b7b2", "#9c755f", "#e377c2", "#17becf", "#bcbd22",
+  "#8c6d31", "#5254a3", "#ff9da7", "#637939", "#7b4173", "#3182bd", "#e6550d", "#31a354", "#756bb1", "#a55194"];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+let D, bins = [], binOf = [], cur = -1, selKind = null, follow = null, timer = null, hourly = false;
+const cv = document.getElementById("map"), ctx = cv.getContext("2d");
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const col = t => t == null ? css("--muted") : PAL[t % PAL.length];
+const kname = t => t == null ? "unlike any kind" : (D.types[t].name || "unnamed kind");
+function hide(keep) { document.getElementById("drawer").style.display = "none"; if (!keep) { follow = null; draw(); } }
+function show(html) { document.getElementById("dbody").innerHTML = html; document.getElementById("drawer").style.display = "block"; }
+function fmt(s) { return hourly ? s.slice(5, 13).replace("T", " ").replace(" ", " ") + ":00" : s.slice(0, 10); }
+
+function size() {
+  const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.width * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+let SX = [0, 1], SY = [0, 1];  // the range that fills the canvas (outliers are drawn at its edge)
+function q(a, f) { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(f * s.length))]; }
+function scale() {
+  const xs = D.points.map(p => p.x), ys = D.points.map(p => p.y);
+  const pad = (lo, hi) => [lo - (hi - lo) * 0.06, hi + (hi - lo) * 0.06];
+  SX = pad(q(xs, 0.005), q(xs, 0.995)); SY = pad(q(ys, 0.005), q(ys, 0.995));
+}
+function xy(p) {
+  const w = cv.getBoundingClientRect().width, m = 14, cl = v => Math.max(0, Math.min(1, v));
+  const u = cl((p.x - SX[0]) / (SX[1] - SX[0])), v = cl((p.y - SY[0]) / (SY[1] - SY[0]));
+  return [m + u * (w - 2 * m), m + (1 - v) * (w - 2 * m)];
+}
+function rad(p) { return 1.8 + Math.min(3.2, Math.log1p(p.n) * 0.75); }
+function lit(i) {
+  const p = D.points[i];
+  if (selKind != null && p.type !== selKind) return false;
+  if (cur >= 0 && binOf[i] !== cur) return false;
+  return true;
+}
+function draw() {
+  const w = cv.getBoundingClientRect().width;
+  ctx.clearRect(0, 0, w, w);
+  const faint = css("--faint"), flag = css("--flag"), fg = css("--fg");
+  D.points.forEach((p, i) => { if (lit(i)) return; const [x, y] = xy(p); ctx.fillStyle = faint;
+    ctx.beginPath(); ctx.arc(x, y, rad(p), 0, 6.283); ctx.fill(); });
+  D.points.forEach((p, i) => { if (!lit(i)) return; const [x, y] = xy(p);
+    ctx.globalAlpha = 0.82; ctx.fillStyle = col(p.type); ctx.beginPath(); ctx.arc(x, y, rad(p), 0, 6.283); ctx.fill();
+    ctx.globalAlpha = 1;
+    if (p.flagged) { ctx.strokeStyle = flag; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(x, y, rad(p) + 2.2, 0, 6.283); ctx.stroke(); }
+    if (p.unusual) { ctx.strokeStyle = fg; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, rad(p) + (p.flagged ? 4.2 : 2), 0, 6.283); ctx.stroke(); } });
+  if (follow) {
+    const idx = D.points.map((p, i) => i).filter(i => D.points[i].actor === follow);
+    ctx.strokeStyle = fg; ctx.lineWidth = 1.4; ctx.globalAlpha = 0.75; ctx.beginPath();
+    idx.forEach((i, k) => { const [x, y] = xy(D.points[i]); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    ctx.globalAlpha = 1;
+    idx.forEach((i, k) => { const [x, y] = xy(D.points[i]); ctx.fillStyle = col(D.points[i].type); ctx.strokeStyle = fg;
+      ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 5, 0, 6.283); ctx.fill(); ctx.stroke();
+      if (k === 0 || k === idx.length - 1) { ctx.fillStyle = fg; ctx.font = "12px sans-serif"; ctx.fillText(k ? "last" : "first", x + 7, y - 6); } });
+  }
+}
+function nearest(ev) {
+  const r = cv.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top;
+  let best = -1, bd = 64;
+  D.points.forEach((p, i) => { if (!lit(i)) return; const [x, y] = xy(p), d = (x - mx) ** 2 + (y - my) ** 2; if (d < bd) { bd = d; best = i; } });
+  return best;
+}
+cv.addEventListener("mousemove", ev => {
+  const i = nearest(ev), tip = document.getElementById("tip");
+  if (i < 0) { tip.style.display = "none"; return; }
+  const p = D.points[i];
+  tip.innerHTML = `<b>${esc(kname(p.type))}</b><br>${esc(p.who)} · ${esc(p.start.slice(0, 16).replace("T", " "))} · ${p.n} ${p.n === 1 ? "event" : "events"}`;
+  tip.style.display = "block"; tip.style.left = (ev.clientX + 14) + "px"; tip.style.top = (ev.clientY + 12) + "px";
+});
+cv.addEventListener("mouseleave", () => document.getElementById("tip").style.display = "none");
+cv.addEventListener("click", ev => { const i = nearest(ev); if (i >= 0) openPoint(i); });
+
+async function openPoint(i) {
+  const p = D.points[i], t = p.type != null ? D.types[p.type] : null;
+  let h = `<h3>${esc(p.who)} · ${esc(p.start.slice(0, 16).replace("T", " "))}–${esc(p.end.slice(11, 16))}</h3>` +
+    `<div class="small"><b style="color:${col(p.type)}">■</b> ${esc(kname(p.type))}${t && t.description ? " — " + esc(t.description) : ""}</div>` +
+    (p.flagged ? `<div class="small" style="color:var(--flag)">AI readers flagged something in this stretch.</div>` : "") +
+    (p.unusual ? `<div class="small muted">Unusual: few stretches are like this one.</div>` : "") +
+    `<div style="margin:8px 0"><button onclick="followAgent(${i})">Follow ${esc(p.who)} across the map</button></div>` +
+    `<div class="muted small">Loading what was done…</div>`;
+  show(h);
+  const r = await fetch("/api/agent_sources?ids=" + encodeURIComponent(p.ids.slice(0, 12).join(","))).then(r => r.json());
+  show(h.replace(/<div class="muted small">Loading what was done…<\/div>$/, "") +
+    `<div class="muted small">What was done, as written${p.n > r.length ? ` (first ${r.length} of ${p.n} events)` : ""}:</div>` +
+    r.map(s => `<div class="src"><div class="t">${esc(s.when)} · ${esc(s.who)} ${esc(s.what)}</div>${esc(s.text)}</div>`).join(""));
+}
+function side(html) { document.getElementById("side").innerHTML = html; document.getElementById("side").scrollTop = 0; }
+const BACK = `<div class="back" onclick="selKind=null;follow=null;renderKinds();draw()">← all kinds</div>`;
+function followAgent(i) {
+  const a = D.points[i].actor, who = D.points[i].who;
+  follow = a; selKind = null; setBin(-1); hide(true);
+  const idx = D.points.map((p, k) => k).filter(k => D.points[k].actor === a);
+  const runs = [];
+  idx.forEach(k => { const p = D.points[k]; const last = runs[runs.length - 1];
+    if (last && last.type === p.type) { last.n++; } else runs.push({type: p.type, n: 1, start: p.start, first: k}); });
+  side(BACK + `<div class="side-in"><h3>${esc(who)} across the map</h3><div class="muted small">${idx.length} ${idx.length === 1 ? "stretch" : "stretches"}, ` +
+    `from the dot marked "first" to the one marked "last". The kinds of behaviour it moved through, in order:</div><ol class="path small">` +
+    runs.map(r => `<li onclick="openPoint(${r.first})"><b style="color:${col(r.type)}">■</b> ${esc(kname(r.type))} ` +
+      `<span class="muted">${esc(r.start.slice(0, 16).replace("T", " "))}${r.n > 1 ? ` · ${r.n} stretches` : ""}</span></li>`).join("") + "</ol></div>");
+  draw();
+}
+function renderKinds() {
+  side(`<div class="small muted" style="margin:0 0 6px 4px">Kinds of behaviour, largest first</div>` +
+    D.types.map(t => `<div class="kind" onclick="pickKind(${t.id})"><i style="background:${col(t.id)}"></i>` +
+    `<div>${esc(t.name || "unnamed kind")}${t.stable < 0.75 ? ` <span class="unsure">(less certain)</span>` : ""}</div><span class="n">${t.size}</span></div>`).join(""));
+}
+function checkWords(c) {
+  if (!c || !c.picked) return "";
+  const share = Math.max(1, Math.round(1 / Math.max(c.share, 1e-3)));
+  return `Checked blind: another AI, given only this name, picked ${c.picked.in} of ${c.checked.in} stretches of this kind` +
+    ` and ${c.picked.near} of ${c.checked.near} similar stretches of other kinds.` +
+    (c.picked.random >= c.share * c.checked.random + 2 ? ` It also picked ${c.picked.random} of ${c.checked.random} stretches ` +
+     `chosen at random, though only about 1 in ${share} stretches is of this kind: the name is broader than the kind.` : "");
+}
+function pickKind(t) {
+  selKind = t; follow = null; hide(true); draw();
+  const k = D.types[t], pts = D.points.filter(p => p.type === t), agents = new Set(pts.map(p => p.actor)).size;
+  const flagged = pts.filter(p => p.flagged).length, step = Math.max(1, Math.floor(pts.length / 8));
+  side(BACK + `<div class="side-in"><h3><b style="color:${col(t)}">■</b> ${esc(k.name || "unnamed kind")}</h3>` +
+    `<div class="small" style="margin-top:4px">${esc(k.description || "")}</div>` +
+    `<div class="small muted" style="margin-top:6px">${k.size} stretches by ${agents} ${agents === 1 ? "agent" : "agents"}` +
+    `${flagged ? ` · AI readers flagged something in ${flagged}` : ""}.</div>` +
+    (k.fits_if ? `<div class="small" style="margin-top:6px"><b>A stretch is this kind if</b> ${esc(k.fits_if)}</div>` : "") +
+    `<div class="small muted" style="margin-top:6px">${checkWords(k.check)} ` +
+    (k.stable >= 0.75 ? "This grouping comes back when the map is made again from a different sample of the stretches."
+                      : "Less certain: this grouping changes when the map is made again from a different sample of the stretches.") + `</div>` +
+    `<div class="small" style="margin-top:8px">Some stretches of this kind (click one to read it):</div><ul class="path small">` +
+    pts.filter((p, i) => i % step === 0).slice(0, 8).map(p =>
+      `<li onclick="openPoint(${D.points.indexOf(p)})">${esc(p.who)} · ${esc(p.start.slice(0, 16).replace("T", " "))}${p.flagged ? ` <span style="color:var(--flag)">· flagged</span>` : ""}</li>`).join("") + "</ul></div>");
+}
+function setBin(b) {
+  cur = b; document.getElementById("all").classList.toggle("on", b < 0);
+  if (b >= 0) document.getElementById("slider").value = b;
+  document.getElementById("when").textContent = b < 0 ? "all time" : fmt(bins[b]) + `  (${binOf.filter(x => x === b).length} stretches)`;
+  draw();
+}
+function heat() {
+  const nb = bins.length, nt = D.types.length, cw = Math.max(6, Math.min(16, Math.floor(1000 / nb))), ch = 16, lw = 0;
+  const cnt = D.types.map(() => new Array(nb).fill(0));
+  D.points.forEach((p, i) => { if (p.type != null) cnt[p.type][binOf[i]]++; });
+  const W = nb * cw + 2, H = nt * ch + 22;
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="min-width:${Math.min(W, 900)}px" xmlns="http://www.w3.org/2000/svg">`;
+  cnt.forEach((row, t) => { const mx = Math.max(1, ...row);
+    row.forEach((c, b) => { if (!c) return; s += `<rect class="c" x="${1 + b * cw}" y="${t * ch}" width="${cw - 1}" height="${ch - 2}" rx="2" fill="${col(t)}" opacity="${(0.15 + 0.85 * c / mx).toFixed(2)}" onclick="cell(${t},${b})"><title>${esc(D.types[t].name || "")}: ${c} at ${esc(fmt(bins[b]))}</title></rect>`; }); });
+  const step = Math.ceil(nb / 8);
+  bins.forEach((d, b) => { if (b % step === 0) s += `<text x="${1 + b * cw}" y="${nt * ch + 14}" font-size="10" fill="currentColor" opacity=".6">${esc(fmt(d))}</text>`; });
+  s += "</svg>";
+  const el = document.getElementById("heat");
+  el.innerHTML = `<div style="display:grid;grid-template-columns:auto 1fr;gap:0 10px;align-items:start">` +
+    `<div>${D.types.map(t => `<div class="small" style="height:${ch}px;line-height:${ch}px;white-space:nowrap;overflow:hidden;max-width:260px;text-overflow:ellipsis" title="${esc(t.name || "")}"><b style="color:${col(t.id)}">■</b> ${esc(t.name || "unnamed kind")}</div>`).join("")}</div>` +
+    `<div style="overflow-x:auto">${s}</div></div>`;
+}
+function cell(t, b) { pickKind(t); setBin(b); window.scrollTo({top: 0, behavior: "smooth"}); }
+document.getElementById("all").onclick = () => { stop(); setBin(-1); };
+document.getElementById("slider").oninput = e => { stop(); setBin(+e.target.value); };
+function stop() { if (timer) { clearInterval(timer); timer = null; document.getElementById("play").textContent = "▶ Play"; } }
+document.getElementById("play").onclick = () => {
+  if (timer) return stop();
+  document.getElementById("play").textContent = "❚❚ Pause";
+  if (cur < 0 || cur >= bins.length - 1) setBin(0);
+  timer = setInterval(() => { if (cur >= bins.length - 1) return stop(); setBin(cur + 1); }, 450);
+};
+window.addEventListener("resize", () => { size(); draw(); });
+
+(async () => {
+  D = await fetch("/api/atlas").then(r => r.json());
+  if (D.error) { document.getElementById("sub").textContent = D.error; return; }
+  const t0 = D.points.reduce((a, p) => p.start < a ? p.start : a, "9"), t1 = D.points.reduce((a, p) => p.start > a ? p.start : a, "0");
+  hourly = (new Date(t1.slice(0, 19).replace(" ", "T")) - new Date(t0.slice(0, 19).replace(" ", "T"))) < 4 * 86400e3;
+  const key = s => hourly ? s.slice(0, 13).replace(" ", "T") : s.slice(0, 10);
+  const step = hourly ? 3600e3 : 86400e3, iso = d => d.toISOString().slice(0, hourly ? 13 : 10);
+  for (let t = Date.parse(key(t0) + (hourly ? ":00:00Z" : "T00:00:00Z")), end = Date.parse(key(t1) + (hourly ? ":00:00Z" : "T00:00:00Z"));
+       t <= end; t += step) bins.push(iso(new Date(t)));
+  const at = Object.fromEntries(bins.map((b, i) => [b, i]));
+  binOf = D.points.map(p => at[key(p.start)]);
+  const agents = new Set(D.points.map(p => p.actor)).size;
+  document.getElementById("sub").textContent = `${D.points.length.toLocaleString()} stretches of work by ${agents.toLocaleString()} agents, ` +
+    `${t0.slice(0, 10)} to ${t1.slice(0, 10)} · ${D.types.length} kinds of behaviour`;
+  document.getElementById("slider").max = bins.length - 1;
+  document.getElementById("how").innerHTML = D.how.map(x => `<p>${esc(x)}</p>`).join("");
+  scale(); size(); renderKinds(); heat(); setBin(-1);
+})();
+</script></body></html>

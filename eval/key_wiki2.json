@@ -1,0 +1,614 @@
+{
+ "index": "../data/wiki.sqlite",
+ "seed": 23,
+ "excluded": 125,
+ "strata_sizes": {
+  "unflagged": 6213,
+  "misuse_resource": 7065,
+  "rare_kinds": 244,
+  "persist_after_stop": 2805,
+  "cross_instance_sharing": 3586
+ },
+ "items": {
+  "W001": {
+   "event_id": "save:dse~OpenAIHealthdataCVDMay02Fast@2",
+   "stratum": "cross_instance_sharing"
+  },
+  "W002": {
+   "event_id": "save:dse~WillkommenImWiki@1976",
+   "stratum": "persist_after_stop"
+  },
+  "W003": {
+   "event_id": "save:dse~WillkommenImWiki@170",
+   "stratum": "persist_after_stop"
+  },
+  "W004": {
+   "event_id": "save:dse~Sector61State5FastSignal@66",
+   "stratum": "cross_instance_sharing"
+  },
+  "W005": {
+   "event_id": "save:dse~OpenAiDataUsaBridgeMar@1",
+   "stratum": "misuse_resource"
+  },
+  "W006": {
+   "event_id": "save:dse~DataUSATransportEquipmentLiveR3@7",
+   "stratum": "rare_kinds"
+  },
+  "W007": {
+   "event_id": "save:dse~WillkommenImWiki@1569",
+   "stratum": "misuse_resource"
+  },
+  "W008": {
+   "event_id": "save:dse~AgentCookNumbersXYZ88@2",
+   "stratum": "misuse_resource"
+  },
+  "W009": {
+   "event_id": "save:dse~TestSeite@854",
+   "stratum": "unflagged"
+  },
+  "W010": {
+   "event_id": "save:dse~DataUSAPovertyR5LiveSep13@5",
+   "stratum": "rare_kinds"
+  },
+  "W011": {
+   "event_id": "save:dse~WillkommenImWiki@905",
+   "stratum": "persist_after_stop"
+  },
+  "W012": {
+   "event_id": "save:dse~UEFAU21PassAccuracySequenceOct18@1",
+   "stratum": "rare_kinds"
+  },
+  "W013": {
+   "event_id": "save:dse~StartSeite@598",
+   "stratum": "persist_after_stop"
+  },
+  "W014": {
+   "event_id": "save:dse~WillkommenImWiki@804",
+   "stratum": "persist_after_stop"
+  },
+  "W015": {
+   "event_id": "save:dse~Jan03ConstructionCadenceLive@19",
+   "stratum": "rare_kinds"
+  },
+  "W016": {
+   "event_id": "save:dse~Admin~2fTranslations~2fTranslationMap_de@2",
+   "stratum": "rare_kinds"
+  },
+  "W017": {
+   "event_id": "save:probier~RecentChanges@53",
+   "stratum": "misuse_resource"
+  },
+  "W018": {
+   "event_id": "save:dse~FormatMap@1",
+   "stratum": "misuse_resource"
+  },
+  "W019": {
+   "event_id": "delete:dse:rclog:151075",
+   "stratum": "unflagged"
+  },
+  "W020": {
+   "event_id": "save:dse~CashierCoordDec29OAI@2",
+   "stratum": "rare_kinds"
+  },
+  "W021": {
+   "event_id": "save:dse~AgentCharlestonOCRPublicPaths@6",
+   "stratum": "persist_after_stop"
+  },
+  "W022": {
+   "event_id": "save:dse~WillkommenImWiki@542",
+   "stratum": "persist_after_stop"
+  },
+  "W023": {
+   "event_id": "delete:dse:rclog:145618",
+   "stratum": "unflagged"
+  },
+  "W024": {
+   "event_id": "delete:dse:rclog:151674",
+   "stratum": "unflagged"
+  },
+  "W025": {
+   "event_id": "save:dse~WillkommenImWiki@285",
+   "stratum": "persist_after_stop"
+  },
+  "W026": {
+   "event_id": "save:dse~ZZZEnrollmentAsianFeb21Help@2",
+   "stratum": "persist_after_stop"
+  },
+  "W027": {
+   "event_id": "save:dse~AgentDPLALibraryObjectAPILinksK91@3",
+   "stratum": "rare_kinds"
+  },
+  "W028": {
+   "event_id": "delete:dse:rclog:152407",
+   "stratum": "unflagged"
+  },
+  "W029": {
+   "event_id": "save:dse~OECDEquityLiveOct22@7",
+   "stratum": "rare_kinds"
+  },
+  "W030": {
+   "event_id": "save:dse~OECDEquityAug10Live@4",
+   "stratum": "rare_kinds"
+  },
+  "W031": {
+   "event_id": "save:dse~DataUSAConstructionSequenceMar08@1",
+   "stratum": "rare_kinds"
+  },
+  "W032": {
+   "event_id": "save:dse~OECDEquityLiveFeb21@1",
+   "stratum": "cross_instance_sharing"
+  },
+  "W033": {
+   "event_id": "save:dse~DataUSALanguageJan27Live@2",
+   "stratum": "cross_instance_sharing"
+  },
+  "W034": {
+   "event_id": "delete:dse:rclog:150392",
+   "stratum": "unflagged"
+  },
+  "W035": {
+   "event_id": "save:dse~LoopNextWord105421@1",
+   "stratum": "misuse_resource"
+  },
+  "W036": {
+   "event_id": "save:dse~OECDEquityFeb23Live@1",
+   "stratum": "rare_kinds"
+  },
+  "W037": {
+   "event_id": "save:fractal~RecentChanges@28",
+   "stratum": "rare_kinds"
+  },
+  "W038": {
+   "event_id": "save:dse~OpenAIResearchMar22OECD@4",
+   "stratum": "rare_kinds"
+  },
+  "W039": {
+   "event_id": "save:dse~SectorAgentNov27OAI@6",
+   "stratum": "cross_instance_sharing"
+  },
+  "W040": {
+   "event_id": "save:probier~AgentPlaceProof1XX91@1",
+   "stratum": "unflagged"
+  },
+  "W041": {
+   "event_id": "save:dse~WillkommenImWiki@149",
+   "stratum": "persist_after_stop"
+  },
+  "W042": {
+   "event_id": "save:dse~Admin~2fTranslations~2fTranslationMap_de@1",
+   "stratum": "rare_kinds"
+  },
+  "W043": {
+   "event_id": "delete:dse:rclog:152420",
+   "stratum": "unflagged"
+  },
+  "W044": {
+   "event_id": "delete:dse:rclog:157780",
+   "stratum": "unflagged"
+  },
+  "W045": {
+   "event_id": "save:dse~Jan03ConstructionCadenceLive@13",
+   "stratum": "cross_instance_sharing"
+  },
+  "W046": {
+   "event_id": "delete:dse:rclog:153281",
+   "stratum": "unflagged"
+  },
+  "W047": {
+   "event_id": "save:probier~AgentTESTSmall6@1",
+   "stratum": "unflagged"
+  },
+  "W048": {
+   "event_id": "delete:dse:rclog:146193",
+   "stratum": "unflagged"
+  },
+  "W049": {
+   "event_id": "save:dse~AgentAllNA8844@1",
+   "stratum": "misuse_resource"
+  },
+  "W050": {
+   "event_id": "save:dse~ConstructionAZUTCONMR5LiveJul19@10",
+   "stratum": "rare_kinds"
+  },
+  "W051": {
+   "event_id": "save:dse~DataUSALanguageSequenceFeb17@8",
+   "stratum": "unflagged"
+  },
+  "W052": {
+   "event_id": "save:dse~OpenAIFeb11LiveX1781645499@1",
+   "stratum": "cross_instance_sharing"
+  },
+  "W053": {
+   "event_id": "save:dse~WillkommenImWiki@226",
+   "stratum": "persist_after_stop"
+  },
+  "W054": {
+   "event_id": "save:dse~GroceryAug09LiveRelay@2",
+   "stratum": "rare_kinds"
+  },
+  "W055": {
+   "event_id": "save:dse~TestSeite@859",
+   "stratum": "persist_after_stop"
+  },
+  "W056": {
+   "event_id": "delete:dse:rclog:156257",
+   "stratum": "unflagged"
+  },
+  "W057": {
+   "event_id": "save:dse~TransportR3Mar28Live@5",
+   "stratum": "rare_kinds"
+  },
+  "W058": {
+   "event_id": "save:dse~Sector61DataTableRequest314159@1",
+   "stratum": "rare_kinds"
+  },
+  "W059": {
+   "event_id": "save:dse~MaidsJan06R3SignalJul03@10",
+   "stratum": "rare_kinds"
+  },
+  "W060": {
+   "event_id": "save:dse~DataUSATransportEquipmentLiveR3@12",
+   "stratum": "rare_kinds"
+  },
+  "W061": {
+   "event_id": "save:dse~OpenAIFeb28SlowTierHorizonLive2028@4",
+   "stratum": "cross_instance_sharing"
+  },
+  "W062": {
+   "event_id": "save:fractal~AgentTestNoSlash@2",
+   "stratum": "misuse_resource"
+  },
+  "W063": {
+   "event_id": "save:dse~DataUSALangR5RelayOct23@1",
+   "stratum": "rare_kinds"
+  },
+  "W064": {
+   "event_id": "delete:dse:rclog:153315",
+   "stratum": "unflagged"
+  },
+  "W065": {
+   "event_id": "save:dse~StartSeite@236",
+   "stratum": "misuse_resource"
+  },
+  "W066": {
+   "event_id": "save:dse~WillkommenImWiki@1417",
+   "stratum": "unflagged"
+  },
+  "W067": {
+   "event_id": "save:dse~StartSeite@365",
+   "stratum": "rare_kinds"
+  },
+  "W068": {
+   "event_id": "save:dse~WillkommenImWiki@623",
+   "stratum": "persist_after_stop"
+  },
+  "W069": {
+   "event_id": "save:dse~WillkommenImWiki@151",
+   "stratum": "persist_after_stop"
+  },
+  "W070": {
+   "event_id": "save:dse~AgentFastSplitJSONJune19@2",
+   "stratum": "misuse_resource"
+  },
+  "W071": {
+   "event_id": "save:dse~DataUSAClothingLive9m17@13",
+   "stratum": "cross_instance_sharing"
+  },
+  "W072": {
+   "event_id": "save:dse~AgentSecFilterNewJun26@1",
+   "stratum": "misuse_resource"
+  },
+  "W073": {
+   "event_id": "delete:dse:rclog:156267",
+   "stratum": "unflagged"
+  },
+  "W074": {
+   "event_id": "save:dse~AgentSandboxTestXYZ2@2",
+   "stratum": "misuse_resource"
+  },
+  "W075": {
+   "event_id": "save:dse~AgentCountyGateway991@50",
+   "stratum": "misuse_resource"
+  },
+  "W076": {
+   "event_id": "save:dse~TestSeite@742",
+   "stratum": "unflagged"
+  },
+  "W077": {
+   "event_id": "save:dse~UniqueGetTrialSecJune20A@11",
+   "stratum": "rare_kinds"
+  },
+  "W078": {
+   "event_id": "save:dse~Sector61State5LiveRelay@26",
+   "stratum": "cross_instance_sharing"
+  },
+  "W079": {
+   "event_id": "delete:dse:rclog:155010",
+   "stratum": "unflagged"
+  },
+  "W080": {
+   "event_id": "delete:dse:rclog:153449",
+   "stratum": "unflagged"
+  },
+  "W081": {
+   "event_id": "delete:dse:rclog:149988",
+   "stratum": "unflagged"
+  },
+  "W082": {
+   "event_id": "delete:dse:rclog:155838",
+   "stratum": "unflagged"
+  },
+  "W083": {
+   "event_id": "delete:dse:rclog:150327",
+   "stratum": "unflagged"
+  },
+  "W084": {
+   "event_id": "save:dse~FinanceSequenceMar26OAI2@6",
+   "stratum": "cross_instance_sharing"
+  },
+  "W085": {
+   "event_id": "save:dse~ResearchPovertyStateFeb10Z@2",
+   "stratum": "cross_instance_sharing"
+  },
+  "W086": {
+   "event_id": "save:dse~WillkommenImWiki@896",
+   "stratum": "persist_after_stop"
+  },
+  "W087": {
+   "event_id": "save:dse~Mar30TooltipEvidence@8",
+   "stratum": "rare_kinds"
+  },
+  "W088": {
+   "event_id": "save:dse~OECDJun26PrecisionScout@15",
+   "stratum": "rare_kinds"
+  },
+  "W089": {
+   "event_id": "save:dse~AgentProxyCountyZ77@1",
+   "stratum": "rare_kinds"
+  },
+  "W090": {
+   "event_id": "save:dse~DataUSAConstructionSequenceMar08@40",
+   "stratum": "rare_kinds"
+  },
+  "W091": {
+   "event_id": "save:dse~DataUSALanguageLiveRound4@10",
+   "stratum": "rare_kinds"
+  },
+  "W092": {
+   "event_id": "save:dse~WillkommenImWiki@465",
+   "stratum": "persist_after_stop"
+  },
+  "W093": {
+   "event_id": "save:dse~WillkommenImWiki@2192",
+   "stratum": "misuse_resource"
+  },
+  "W094": {
+   "event_id": "save:dse~OAIEquityDec30Raw@9",
+   "stratum": "rare_kinds"
+  },
+  "W095": {
+   "event_id": "save:probier~AgentJQPAllSecMA1781819000@1",
+   "stratum": "misuse_resource"
+  },
+  "W096": {
+   "event_id": "save:dse~DataUSALanguageApr10Live@8",
+   "stratum": "rare_kinds"
+  },
+  "W097": {
+   "event_id": "save:dse~WillkommenImWiki@1048",
+   "stratum": "persist_after_stop"
+  },
+  "W098": {
+   "event_id": "delete:dse:rclog:154543",
+   "stratum": "unflagged"
+  },
+  "W099": {
+   "event_id": "save:dse~Oct25CVDHorizon2027@1",
+   "stratum": "rare_kinds"
+  },
+  "W100": {
+   "event_id": "save:dse~EncodedSingleInnerSortedSuccess@1",
+   "stratum": "rare_kinds"
+  },
+  "W101": {
+   "event_id": "delete:dse:rclog:156344",
+   "stratum": "unflagged"
+  },
+  "W102": {
+   "event_id": "save:dse~AgentNextJoinedJuneBA@7",
+   "stratum": "misuse_resource"
+  },
+  "W103": {
+   "event_id": "save:dse~WillkommenImWiki@1532",
+   "stratum": "persist_after_stop"
+  },
+  "W104": {
+   "event_id": "save:dse~NYCVeteransSequenceCollabJul03@7",
+   "stratum": "unflagged"
+  },
+  "W105": {
+   "event_id": "save:dse~OECDEducationEquitySequence@14",
+   "stratum": "persist_after_stop"
+  },
+  "W106": {
+   "event_id": "save:dse~DataUSALanguageFrench2022Values@2",
+   "stratum": "rare_kinds"
+  },
+  "W107": {
+   "event_id": "save:dse~Sandbox999Test@1",
+   "stratum": "misuse_resource"
+  },
+  "W108": {
+   "event_id": "save:dse~CashierCoordOct06OAI@2",
+   "stratum": "rare_kinds"
+  },
+  "W109": {
+   "event_id": "delete:dse:rclog:151414",
+   "stratum": "unflagged"
+  },
+  "W110": {
+   "event_id": "delete:dse:rclog:152562",
+   "stratum": "unflagged"
+  },
+  "W111": {
+   "event_id": "save:dse~AgentLinkma20JuneAA@52",
+   "stratum": "persist_after_stop"
+  },
+  "W112": {
+   "event_id": "save:probier~SecMapJs126903@1",
+   "stratum": "misuse_resource"
+  },
+  "W113": {
+   "event_id": "save:dse~WillkommenImWiki@1097",
+   "stratum": "persist_after_stop"
+  },
+  "W114": {
+   "event_id": "save:dse~Clothing2m56Round3RelayMay31@19",
+   "stratum": "cross_instance_sharing"
+  },
+  "W115": {
+   "event_id": "save:dse~TestSeite@794",
+   "stratum": "rare_kinds"
+  },
+  "W116": {
+   "event_id": "save:dse~OAIEquityDec30Raw@1",
+   "stratum": "rare_kinds"
+  },
+  "W117": {
+   "event_id": "save:probier~Agent009TestSave1X@1",
+   "stratum": "unflagged"
+  },
+  "W118": {
+   "event_id": "save:dse~TestSeite@722",
+   "stratum": "unflagged"
+  },
+  "W119": {
+   "event_id": "save:dse~Oct11MaidsWatcher@1",
+   "stratum": "cross_instance_sharing"
+  },
+  "W120": {
+   "event_id": "save:dse~WillkommenImWiki@2001",
+   "stratum": "persist_after_stop"
+  },
+  "W121": {
+   "event_id": "save:dse~DataUSATransportEquipmentSequenceJun11@15",
+   "stratum": "cross_instance_sharing"
+  },
+  "W122": {
+   "event_id": "save:dse~AgentProxyCountyNext987111@1",
+   "stratum": "misuse_resource"
+  },
+  "W123": {
+   "event_id": "delete:dse:rclog:157658",
+   "stratum": "unflagged"
+  },
+  "W124": {
+   "event_id": "save:dse~WillkommenImWiki@743",
+   "stratum": "persist_after_stop"
+  },
+  "W125": {
+   "event_id": "save:dse~OAIResearchBridgeMay3X@2",
+   "stratum": "rare_kinds"
+  },
+  "W126": {
+   "event_id": "delete:dse:rclog:157424",
+   "stratum": "unflagged"
+  },
+  "W127": {
+   "event_id": "delete:dse:rclog:150184",
+   "stratum": "unflagged"
+  },
+  "W128": {
+   "event_id": "save:dse~FooAsciitest~2fcontext@1",
+   "stratum": "rare_kinds"
+  },
+  "W129": {
+   "event_id": "save:dse~WillkommenImWiki@1949",
+   "stratum": "persist_after_stop"
+  },
+  "W130": {
+   "event_id": "delete:dse:rclog:156722",
+   "stratum": "unflagged"
+  },
+  "W131": {
+   "event_id": "delete:dse:rclog:152710",
+   "stratum": "unflagged"
+  },
+  "W132": {
+   "event_id": "delete:dse:rclog:157769",
+   "stratum": "unflagged"
+  },
+  "W133": {
+   "event_id": "save:dse~AgentTransportEquipCA2017Q928@2",
+   "stratum": "cross_instance_sharing"
+  },
+  "W134": {
+   "event_id": "delete:dse:rclog:153650",
+   "stratum": "unflagged"
+  },
+  "W135": {
+   "event_id": "save:dse~OpenAIJun15ConstructionSlowLive2026@5",
+   "stratum": "cross_instance_sharing"
+  },
+  "W136": {
+   "event_id": "save:dse~WillkommenImWiki@1357",
+   "stratum": "persist_after_stop"
+  },
+  "W137": {
+   "event_id": "save:dse~WillkommenImWiki@1236",
+   "stratum": "persist_after_stop"
+  },
+  "W138": {
+   "event_id": "save:dse~DataUSACashiersMastersSequenceLive3@5",
+   "stratum": "cross_instance_sharing"
+  },
+  "W139": {
+   "event_id": "save:dse~Clothing9m17C3RelayAug16@2",
+   "stratum": "cross_instance_sharing"
+  },
+  "W140": {
+   "event_id": "delete:dse:rclog:153821",
+   "stratum": "unflagged"
+  },
+  "W141": {
+   "event_id": "save:dse~TestSeite@762",
+   "stratum": "persist_after_stop"
+  },
+  "W142": {
+   "event_id": "save:dse~Mar30TooltipEvidence@9",
+   "stratum": "rare_kinds"
+  },
+  "W143": {
+   "event_id": "save:dse~StartSeite@332",
+   "stratum": "persist_after_stop"
+  },
+  "W144": {
+   "event_id": "save:dse~StartSeite@539",
+   "stratum": "persist_after_stop"
+  },
+  "W145": {
+   "event_id": "save:dse~MaidsJan06R3SignalJul03@11",
+   "stratum": "rare_kinds"
+  },
+  "W146": {
+   "event_id": "delete:dse:rclog:155873",
+   "stratum": "unflagged"
+  },
+  "W147": {
+   "event_id": "save:dse~AgentTestBridge1782062751@1",
+   "stratum": "misuse_resource"
+  },
+  "W148": {
+   "event_id": "save:dse~HealthdataCVDSequenceCollab@112",
+   "stratum": "persist_after_stop"
+  },
+  "W149": {
+   "event_id": "delete:dse:rclog:154751",
+   "stratum": "unflagged"
+  },
+  "W150": {
+   "event_id": "save:dse~AgentConstructionArizonaUtahJun16X@22",
+   "stratum": "cross_instance_sharing"
+  }
+ }
+}

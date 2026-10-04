@@ -1,0 +1,49 @@
+# Deploying SwarmScope (the behaviour atlas)
+
+What is deployed: the web pages (`/features` first, the other pages beside it) over two datasets (wiki plus other
+boards, the default; AI Village July-August), read from stored results. The server is the Python standard library; it makes
+no LLM calls.
+
+## Make the bundle
+
+```bash
+scripts/bundle.sh                     # → dist/swarmscope-deploy (about 230 MB), from the committed code only
+```
+
+The bundle holds `app/` (code), `data/` (consistent, vacuumed copies of the two indexes and their work stores),
+`serve.sh`, a `Dockerfile` and `MANIFEST.txt` (commit and SHA-256 of every data file as made).
+
+## Run it
+
+Any machine with Python 3.9+:
+
+```bash
+sh dist/swarmscope-deploy/serve.sh    # http://localhost:8080 → /features
+```
+
+As a container:
+
+```bash
+docker build -t swarmscope dist/swarmscope-deploy
+docker run -p 8080:8080 swarmscope
+```
+
+| variable | default | meaning |
+|---|---|---|
+| `PORT` | 8080 | port to listen on (platforms that set `PORT` are followed) |
+| `SWARMGRAPH_HOST` | 0.0.0.0 | address to listen on |
+| `SWARMGRAPH_SHARE` | 1 | share mode: methods shown only by kind (links cut to their domain, encoded strings, markup, commands, addresses and secret-like tokens withheld) and no agent runs can be started (POST answers 403). Set 0 only for trusted viewers. |
+| `SWARMGRAPH_DATA` | `data/` beside `serve.sh` | folder with the indexes |
+
+`/healthz` answers `{"ok": true, "datasets": [...]}` (the container's health check uses it). The server refuses to
+start when an index is missing. It writes into `data/` when it opens a work store (write-ahead log files), so the
+folder must be writable; the manifest's checksums describe the bundle as made.
+
+## Checked (2026-10-04)
+
+Run from the bundle with the system Python: `/healthz` lists the datasets, `/` redirects to `/features`, the
+dataset picker switches between them, POST to `/api/feature_storylines` answers 403 and reports `can_create: false`, and
+the sources behind a scene come back with link details withheld. The Docker image was not built here (no Docker on
+this machine).
+
+Not done: no image was pushed and nothing was published; choosing a host is left to the team.

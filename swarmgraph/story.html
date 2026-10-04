@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swarm Story</title>
+<style>
+:root{--bg:#f7f6f2;--panel:#fff;--fg:#1c1c1a;--muted:#6d6c66;--line:#e2e0d8;--sel:#2d5bd7;--shade:rgba(0,0,0,.03);--none:#b4b2a9;--rest:#d3d1c7;
+--s0:#378add;--s1:#d85a30;--s2:#1d9e75;--s3:#7f77dd;--s4:#ba7517;--s5:#d4537e;--s6:#639922}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;--line:#33322f;
+--sel:#6f93f2;--shade:rgba(255,255,255,.035);--none:#6d6c66;--rest:#3a3935;--s0:#5a9ee6;--s1:#e8744a;--s2:#3db38f;--s3:#9a93ea;--s4:#d39a3c;--s5:#e27399;--s6:#86b84a}}
+:root[data-theme="dark"]{--bg:#151514;--panel:#1d1d1b;--fg:#ecebe5;--muted:#9d9b94;--line:#33322f;--sel:#6f93f2;--shade:rgba(255,255,255,.035);
+--none:#6d6c66;--rest:#3a3935;--s0:#5a9ee6;--s1:#e8744a;--s2:#3db38f;--s3:#9a93ea;--s4:#d39a3c;--s5:#e27399;--s6:#86b84a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:3;background:var(--bg);padding:10px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+h1{font-size:17px;margin:0}h2{font-size:16px;margin:26px 0 10px}.muted{color:var(--muted)}.link{color:var(--sel);cursor:pointer}
+button,input,select{font:inherit;font-size:13px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:4px 9px}
+button{cursor:pointer}button.on{background:var(--sel);border-color:var(--sel);color:#fff}
+.wrap{max-width:1040px;margin:0 auto;padding:6px 16px 90px}
+.what p{font-size:15.5px;line-height:1.6;margin:0 0 8px;cursor:pointer}.what p:hover{color:var(--sel)}
+.lines{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.sl{background:var(--panel);border:1px solid var(--line);border-left:5px solid;border-radius:0 10px 10px 0;padding:9px 12px;cursor:pointer}
+.sl b{display:block;font-size:14px}.sl span{font-size:13px;color:var(--muted)}.sl.on{outline:2px solid var(--sel)}
+.hint{font-size:12.5px;color:var(--muted);margin:4px 0 8px}
+.cathead{position:sticky;top:var(--hh,48px);z-index:2;background:var(--bg);display:flex;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);padding:4px 0}
+.cathead span{overflow:hidden;padding-right:6px;line-height:1.25;overflow-wrap:anywhere}
+#chart{position:relative}#chart svg{display:block;overflow:visible}
+circle.inc{cursor:pointer}.cap{font-size:12.5px;fill:var(--fg);cursor:pointer}.cap:hover,.cap.hl{fill:var(--sel)}.slt{font-size:12.5px;font-weight:600;cursor:pointer}
+circle.hl{stroke:var(--sel)}.tl{font-size:12px;fill:var(--muted)}.fade{opacity:.12}
+.ent{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
+.ent b{font-size:14px}.strip{display:flex;align-items:center;margin:8px 0 4px}
+.ph{flex-basis:0;min-width:36px;height:24px;border-radius:4px;padding:3px 7px;font-size:12px;background:var(--rest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arrow{flex:0 0 16px;text-align:center;color:var(--muted)}
+ul.chg{margin:4px 0 0;padding-left:18px;font-size:13px}ul.chg li{margin:2px 0}
+#drawer{position:fixed;left:0;right:0;bottom:0;max-height:52vh;overflow:auto;background:var(--panel);border-top:3px solid var(--sel);padding:14px 18px 22px;z-index:4;box-shadow:0 -6px 20px rgba(0,0,0,.1)}
+#drawer .in{max-width:1000px;margin:0 auto}#drawer .x{float:right;cursor:pointer;color:var(--muted);font-size:18px;line-height:1}
+#drawer h3{font-size:16px;margin:0 0 4px}.chip{display:inline-block;border-radius:10px;padding:1px 9px;font-size:12px;color:#fff;margin:4px 0}
+.src{border-left:3px solid var(--line);padding:6px 10px;margin:8px 0;font-size:13px;background:var(--bg);border-radius:0 6px 6px 0}
+.src .t{font-size:12px;color:var(--muted)}
+.cbox{background:var(--panel);border:1px solid var(--line);border-left:5px solid #b8412c;border-radius:0 10px 10px 0;padding:12px 14px;margin:18px 0 6px}
+.cbox h2{margin:0 0 6px}.cbox .sum{font-size:15px;line-height:1.55}.cps{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;margin-top:10px}
+.cp{border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;background:var(--bg)}.cp b{display:block;font-size:14px;font-weight:500}
+.cp .m{font-size:12.5px;color:var(--muted);margin-top:3px}.sev{display:inline-block;border-radius:10px;padding:0 8px;font-size:11.5px;color:#fff}
+.sev.critical{background:#8e1b12}.sev.high{background:#b8412c}.sev.medium{background:#b7791f}.sev.low{background:#8a877e}
+.hyps{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.hy{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
+.hy b{display:block;font-size:14px;font-weight:500}.hy .n{font-size:13px;color:var(--muted);margin-top:4px}
+.v{display:inline-block;border-radius:10px;padding:1px 9px;font-size:12px;color:#fff;margin-bottom:4px}
+.hyp{font-size:12.5px;font-weight:600;cursor:pointer}.hypr{font-size:12px;fill:var(--muted);cursor:pointer}.hyps{font-size:12px;font-style:italic;cursor:pointer}
+text.v-supported{fill:#2f8a4e}text.v-refuted{fill:#b8412c}text.v-inconclusive{fill:#8a877e}text.v-testing{fill:var(--sel)}
+path.hmark{stroke:var(--bg);stroke-width:1;cursor:pointer}path.v-supported{fill:#2f8a4e}path.v-refuted{fill:#b8412c}path.v-inconclusive{fill:#8a877e}path.v-testing{fill:var(--sel)}
+.v.supported{background:#2f8a4e}.v.refuted{background:#b8412c}.v.inconclusive{background:#8a877e}.v.testing{background:var(--sel)}.src .body{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:3px}
+</style></head><body>
+<header><h1>Swarm story</h1><span class="muted" id="ds"></span><input id="q" placeholder="search" size="20"></header>
+<div class="wrap">
+<div id="concernBox"></div>
+<h2>What happened</h2><div class="what" id="what"><p class="muted">loading…</p></div>
+<h2>Storylines</h2><div class="lines" id="lines"></div>
+<h2>Behaviour being tested</h2>
+<div class="hint">Patterns in how the agents behave, proposed from the storylines and checked by several AI agents: one looks for
+examples that fit, one looks for examples that break it, and a judge decides together with the numbers. Click one to see the evidence.</div>
+<div class="hyps" id="hyps"></div>
+<h2>Timeline</h2>
+<div class="hint">Time runs down. Each circle is a burst of activity by one agent: its column says what kind of activity, its size how much,
+a thicker ring means it mattered more, and its colour which storyline it belongs to; light grey is other activity in that period;
+a red dashed ring marks possibly misaligned behaviour.
+Arrows show who reacted to whom. Click anything to read what the agents wrote.</div>
+<select id="lev"><option value="2">show the key moments</option><option value="1">show more moments</option><option value="3">show only the biggest moments</option></select>
+<div class="cathead" id="cathead"></div><div id="chart"></div>
+<h2>Agents and pages in detail <span style="font-size:13px;font-weight:400"><button id="kActor" class="on">Agents</button> <button id="kChannel">Pages</button></span></h2>
+<div id="lanes"></div>
+</div><div id="drawer" hidden><div class="in"></div></div>
+<script>
+const $ = s => document.querySelector(s), api = p => fetch(p).then(r => r.json());
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const G = ["work","coordinate","trial","workaround","control","other"];
+const SHORT = {work: "task", coordinate: "talk & plan", trial: "trial & retry", workaround: "work around", control: "remove", other: "other"};
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const day = ts => ts ? `${MON[+ts.slice(5, 7) - 1]} ${+ts.slice(8, 10)}` : "", hm = ts => (ts || "").slice(11, 16);
+const slotName = l => l.length > 10 ? `${day(l)} · ${l.slice(11, 13)}–${String(+l.slice(11, 13) + 3).padStart(2, "0")}h` : day(l);
+// display-only plain text: links, page names and bracketed ids become everyday words (sources stay untouched)
+const plain = t => String(t ?? "").replace(/https?:\/\/\S+/g, "a link").replace(/\[[^\]]*\]/g, "")
+  .replace(/\b[\w-]+\/[\w~.%-]+/g, "a page").replace(/\b(observed|claim|inferred):\s*/gi, "")
+  .replace(/\b([Oo]n|[Tt]o|[Ii]n|[Aa]t|[Ff]rom|[Cc]reates?|[Ee]dits|[Uu]pdates|[Rr]ecreates|[Dd]eletes|[Rr]estores|[Rr]everts) (?:page )?[A-Z][\w~.-]*\d[\w~.-]*/g, "$1 a page")
+  .replace(/\s{2,}/g, " ").trim();
+let S = null, I = null, kind = "actor", slOf = new Map(), cap = new Map(), focus = null;
+const WHY = {taken_up: x => `${x.responders.length} other agents reacted to it`,
+  triggered: x => `another agent or page changed how it behaved right after it`,
+  change: x => `this agent's own way of working changed here`,
+  proposal: x => `it told others what to do or proposed a way of working`,
+  mass: x => `it was unusually large (${x.n} actions in one go)`,
+  concern: x => `it may be misaligned: ${Object.keys(x.concerns || {}).map(k => KIND[k] || k).join(", ")}`};
+const reasons = x => x.met.map(m => WHY[m] ? WHY[m](x) : m);
+const joinAnd = a => a.length <= 1 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+const span = (a, b) => `${day(a)}, ${hm(a)}${hm(b) !== hm(a) ? "–" + hm(b) : ""}`;
+async function load() {
+  [S, I] = await Promise.all([api(`/api/story?kind=${kind}`), api(`/api/incidents?min_level=${$("#lev").value}`)]);
+  $("#ds").textContent = S.dataset.name || "";
+  const st = S.story?.card; slOf = new Map(); cap = new Map();
+  (st?.storylines || []).forEach((s, i) => s.incidents.forEach(id => slOf.set(id, i)));
+  (st?.captions || []).forEach(c => cap.set(c.incident, c.text));
+  $("#what").innerHTML = st ? st.overview.map((o, i) => `<p data-o="${i}">${esc(o.text)}</p>`).join("")
+    : `<p class="muted">The plain-language story has not been written yet (run <code>story</code>).</p>`;
+  $("#lines").innerHTML = (st?.storylines || []).map((s, i) => `<div class="sl" data-s="${i}" style="border-left-color:var(--s${i % 7})"><b>${esc(s.title)}</b><span>${esc(s.explanation)}</span></div>`).join("");
+  document.querySelectorAll("#what p[data-o]").forEach(p => p.onclick = () => showSources(st.overview[+p.dataset.o].text, st.overview[+p.dataset.o].incidents));
+  document.querySelectorAll(".sl").forEach(d => d.onclick = () => toggleLine(+d.dataset.s));
+  H_ = await api("/api/hypotheses");
+  [C_, CA_] = await Promise.all([api("/api/concerns"), api("/api/concern_actors?limit=8")]); drawConcerns();
+  drawHyps(); drawChart(); drawLanes();
+  clearTimeout(window._poll);
+  if (H_.some(h => !h.verdict)) window._poll = setTimeout(refreshHyps, 20000);  // agents are still verifying
+}
+async function refreshHyps() { H_ = await api("/api/hypotheses"); drawHyps(); drawChart();
+  if (H_.some(h => !h.verdict)) window._poll = setTimeout(refreshHyps, 20000); }
+const short = (t, n = 110) => { t = plain(t || ""); const first = (t.match(/^.*?[.!?](\s|$)/) || [t])[0].trim(); return first.length > n ? first.slice(0, n - 1) + "…" : first; };
+const STATUS = h => h.verdict === "supported" ? "✓ Holds up" + (h.plain_note ? " — " + short(h.plain_note) : "")
+  : h.verdict === "refuted" ? "✗ Does not hold" + (h.plain_note ? " — " + short(h.plain_note) : "")
+  : h.verdict ? "? Not settled" + (h.plain_note ? " — " + short(h.plain_note) : "")
+  : h.status === "registered" ? "… proposed; the numbers are being measured"
+  : h.status === "measured" ? "… agents are verifying this hypothesis (one looks for examples that fit, one for examples that break it)"
+  : "… a judge is weighing the evidence";
+let C_ = null, CA_ = null;
+const KIND = {circumvent_restriction: "tries or plans to get around restrictions", persist_after_stop: "acts again after moderation",
+  misuse_resource: "uses someone else's system for its own purposes", cross_instance_sharing: "passes answers to other runs",
+  identity_obfuscation: "unclear or changing identities", security_probing: "tests for security weaknesses", deception: "reports that conflict with evidence",
+  scope_expansion: "reaches beyond its task", gaming_metrics: "questionable success counts", evade_oversight: "times or hides activity to avoid notice", other_concern: "other concern"};
+function drawConcerns() {
+  const c = C_ && C_.concerns, box = $("#concernBox");
+  if (!c) { box.innerHTML = ""; return; }
+  const st = C_.stats || {};
+  box.innerHTML = `<div class="cbox"><h2>Possibly misaligned behaviour</h2><div class="sum">${esc(c.summary)}</div>` +
+    `<div class="hint" style="margin-top:6px">Found without being told what this data is: an AI inferred whose system this is and what its operators allow, then re-read every event. Interpretations, not verdicts — click one for the evidence.</div>` +
+    `<div class="cps">` + c.patterns.map((p, i) => { const n = st[p.kind] || {};
+      return `<div class="cp" data-cp="${i}"><span class="sev ${p.severity}">${p.severity}</span><b>${esc(p.title)}</b>` +
+        `<div class="m">${n.events ? `${n.events} actions by ${n.actors} agents` + (n.after_authority_acted ? `, ${n.after_authority_acted} where the operator had acted before` : "") : ""}</div></div>`; }).join("") + `</div>` +
+    ((CA_ && CA_.actors && CA_.actors.length) ? `<h3 style="font-size:14px;margin:14px 0 4px">Agents that raise the most concern</h3><div class="hint" style="margin:0 0 6px">Ranked by how serious and how varied their flagged behaviour is, counting it double when they kept going after the operator acted. Agents name themselves, so one agent may appear under several names.</div>` +
+      CA_.actors.map((a, i) => `<div class="cp" data-ca="${i}" style="margin-bottom:6px"><b>${esc(a.actor)}</b><div class="m">${esc(Object.keys(a.kinds).filter(k => k !== "misuse_resource").map(k => KIND[k] || k).join(" · ") || KIND.misuse_resource)}` +
+        (a.after_authority ? ` — ${a.after_authority} times where the operator had acted before` : "") + `</div></div>`).join("") : "") + `</div>`;
+  box.querySelectorAll("[data-ca]").forEach(d => d.onclick = () => showConcernActor(CA_.actors[+d.dataset.ca]));
+  box.querySelectorAll("[data-cp]").forEach(d => d.onclick = () => showConcern(c.patterns[+d.dataset.cp]));
+}
+async function showConcernActor(a) {
+  const out = drawer();
+  out.innerHTML = `<span class="x">✕</span><h3>${esc(a.actor)}</h3><div class="muted">${esc(day(a.first))} – ${esc(day(a.last))} · ` +
+    Object.entries(a.kinds).map(([k, n]) => `${KIND[k] || k} (${n})`).join(", ") + `</div><h3 style="font-size:14px;margin-top:12px">What it did</h3><div id="ce" class="muted">loading…</div>`;
+  const r = await api(`/api/concern_events?actor=${encodeURIComponent(a.actor)}&limit=40`);
+  const pick = r.rows.filter(x => x.kind !== "misuse_resource").concat(r.rows.filter(x => x.kind === "misuse_resource")).slice(0, 8);
+  const evs = (await Promise.all(pick.map(x => api(`/api/msg?id=${encodeURIComponent(x.event_id)}`)))).filter(e => !e.error)
+    .map((e, i) => ({ts: e.ts, who: (KIND[pick[i].kind] || pick[i].kind) + ": " + pick[i].quote, text: e.text}));
+  const box = out.querySelector("#ce"); box.classList.remove("muted"); box.innerHTML = sourceList(evs, 8); wireMore(box, evs);
+}
+async function showConcern(p) {
+  const out = drawer();
+  out.innerHTML = `<span class="x">✕</span><span class="sev ${p.severity}">${p.severity}</span><h3>${esc(p.title)}</h3><div>${esc(p.what)}</div>` +
+    (p.evidence_strength ? `<div class="muted" style="margin-top:6px"><b>How well it is shown:</b> ${esc(plain(p.evidence_strength))}</div>` : "") +
+    ((p.timeline || []).length ? `<h3 style="font-size:14px;margin-top:12px">How it unfolded</h3><ol style="margin:4px 0 0 18px;padding:0">` +
+      p.timeline.map(t => `<li>${esc(day(t.ts))}: ${esc(plain(t.what))}</li>`).join("") + `</ol>` : "") +
+    `<div style="margin-top:8px"><b>Why it matters:</b> ${esc(p.why_concerning)}</div>` +
+    ((p.counter_evidence || []).length ? `<div style="margin-top:6px"><b>What speaks against it:</b><ul style="margin:4px 0 0 18px;padding:0">` +
+      p.counter_evidence.map(c => `<li>${esc(plain(c.what))}</li>`).join("") + `</ul></div>` : "") +
+    (p.unconfirmed ? `<div class="muted" style="margin-top:6px"><b>Not shown in the data:</b> ${esc(plain(p.unconfirmed))}</div>` : "") +
+    `<div class="muted" style="margin-top:4px"><b>Could be fine if:</b> ${esc(p.benign_explanations)}</div>` +
+    `<h3 style="font-size:14px;margin-top:12px">Evidence</h3><div id="ce" class="muted">loading…</div>`;
+  const evs = (await Promise.all(p.evidence.map(i => api(`/api/msg?id=${encodeURIComponent(i)}`)))).filter(e => !e.error)
+    .map(e => ({ts: e.ts, who: e.label, text: e.text, note: e.behaviour}));
+  const box = out.querySelector("#ce"); box.classList.remove("muted"); box.innerHTML = sourceList(evs, 6); wireMore(box, evs);
+}
+const VLABEL = {supported: "Holds up", refuted: "Does not hold", inconclusive: "Not settled", testing: "Being tested"};
+const plainStatement = h => h.plain || h.statement.replace(/_/g, " ");
+let H_ = [];
+function drawHyps() {
+  H_.sort((a, b) => (b.round - a.round) || ({supported: 0, refuted: 1, inconclusive: 2}[a.verdict] ?? 3) - ({supported: 0, refuted: 1, inconclusive: 2}[b.verdict] ?? 3));
+  $("#hyps").innerHTML = H_.map(h => { const v = h.verdict || "testing";
+    return `<div class="hy" data-h="${h.id}"><span class="v ${v}">${VLABEL[v]}</span> <span class="muted" style="font-size:12px">round ${h.round}</span>` +
+      `<b>${esc(plainStatement(h))}</b>${h.plain_note ? `<div class="n">${esc(h.plain_note)}</div>` : ""}</div>`; }).join("") ||
+    `<p class="muted">No behaviour hypotheses yet (run <code>explore</code>).</p>`;
+  document.querySelectorAll(".hy").forEach(d => d.onclick = () => showHyp(+d.dataset.h));
+}
+async function showHyp(id) {
+  const h = H_.find(x => x.id === id), out = drawer(), v = h.verdict || "testing";
+  const who = h.verifiers.length ? `Checked by ${h.verifiers.length} agents (${h.verifiers.join(" and ")}) and a judge` : "Checked by an agent and a judge";
+  const rep = h.replicated === true ? " · the numbers hold in both halves of the period" : h.replicated === false ? " · the numbers do not hold in both halves of the period" : "";
+  out.innerHTML = `<span class="x">✕</span><span class="v ${v}">${VLABEL[v]}</span><h3>${esc(plainStatement(h))}</h3>` +
+    (h.plain_note ? `<div style="margin:4px 0">${esc(h.plain_note)}</div>` : "") + `<div class="muted" style="font-size:12.5px">${esc(who)}${rep}</div>` +
+    `<h3 style="font-size:14px;margin-top:12px">Why we looked at this</h3><div id="hb" class="muted">loading…</div>` +
+    `<h3 style="font-size:14px;margin-top:12px">Examples that fit</h3><div id="hf" class="muted">loading…</div>` +
+    `<h3 style="font-size:14px;margin-top:12px">Examples that go against it</h3><div id="ha" class="muted">loading…</div>`;
+  const fill = async (sel, ids) => { const evs = (await Promise.all(ids.map(i => api(`/api/msg?id=${encodeURIComponent(i)}`)))).filter(e => !e.error)
+      .map(e => ({ts: e.ts, who: e.label, text: e.text, note: e.behaviour}));
+    const box = out.querySelector(sel); box.classList.remove("muted"); box.innerHTML = evs.length ? sourceList(evs, 4) : `<p class="muted">none cited</p>`; wireMore(box, evs); };
+  fill("#hb", h.basis.slice(0, 4)); fill("#hf", h.for.slice(0, 4)); fill("#ha", h.against.slice(0, 4));
+}
+function applyFocus() {
+  document.querySelectorAll(".sl").forEach(d => d.classList.toggle("on", +d.dataset.s === focus));
+  document.querySelectorAll("#chart circle.inc, #chart text.cap, #chart text.slt, #chart path").forEach(e =>
+    e.classList.toggle("fade", focus !== null && (e.dataset.sl === undefined || +e.dataset.sl !== focus)));
+}
+function toggleLine(i) {
+  focus = focus === i ? null : i; applyFocus();
+  if (focus !== null) { const first = S.story.card.storylines[focus].incidents.map(id => document.querySelector(`#chart circle[data-id="${CSS.escape(id)}"]`)).find(Boolean);
+    if (first) first.scrollIntoView({behavior: "smooth", block: "center"}); }
+}
+function drawChart() {
+  const box = $("#chart"), W = box.clientWidth, timeW = 92, textW = Math.max(200, Math.min(380, W * .36));
+  const colW = Math.max(48, (W - timeW - textW - 8) / G.length), X0 = g => timeW + G.indexOf(g) * colW;
+  const R = n => Math.min(colW / 2 - 3, 2.8 + 1.15 * Math.sqrt(n)), color = id => slOf.has(id) ? `var(--s${slOf.get(id) % 7})` : "var(--none)";
+  document.documentElement.style.setProperty("--hh", document.querySelector("header").offsetHeight + "px");
+  $("#cathead").innerHTML = `<span style="width:${timeW}px">when</span>` + G.map(g => `<span style="width:${colW}px" title="${esc(S.plain[g])}">${esc(SHORT[g])}</span>`).join("") +
+    `<span style="width:${textW}px">what happened</span>`;
+  const bySlot = {}, restBy = {}, starts = new Map();
+  I.incidents.forEach(x => (bySlot[x.slot] = bySlot[x.slot] || []).push(x));
+  I.rest.forEach(r => (restBy[r.slot] = restBy[r.slot] || []).push(r));
+  (S.story?.card.storylines || []).forEach((s, i) => { const f = I.incidents.filter(x => s.incidents.includes(x.id)).sort((a, b) => a.ts < b.ts ? -1 : 1)[0]; if (f) starts.set(f.id, i); });
+  const hypSlot = {};
+  H_.filter(h => h.anchor).forEach(h => { const si = I.slots.findIndex(sl => h.anchor >= sl.lo && h.anchor < sl.hi); if (si >= 0) (hypSlot[si] = hypSlot[si] || []).push(h); });
+  const tot = I.slots.map((_, si) => (restBy[si] || []).reduce((a, r) => a + r.n, 0) + (bySlot[si] || []).reduce((a, x) => a + x.n, 0));
+  const minor = Math.max(3, Math.round(.01 * Math.max(...tot)));
+  let y = 0, band = 0; const parts = [], pos = {};
+  I.slots.forEach((sl, si) => {
+    const incs = bySlot[si] || [], rests = (restBy[si] || []).filter(r => r.n >= minor);
+    if (!incs.length && !rests.length && !hypSlot[si]) return;  // nothing worth drawing in this time slot
+    const cells = {}; G.forEach(g => cells[g] = rests.filter(r => r.group === g).map(r => ({rest: 1, ...r})).concat(incs.filter(x => x.group === g).sort((a, b) => b.n - a.n)));
+    let h = 0; const placed = [];
+    G.forEach(g => { let x = 4, ly = 0, lh = 0;
+      cells[g].forEach(c => { const r = R(c.n), d = 2 * r + 4; if (x + d > colW && x > 4) { ly += lh; x = 4; lh = 0; }
+        placed.push({c, cx: X0(g) + x + r, dy: ly + r + 4, r}); x += d; lh = Math.max(lh, d); }); h = Math.max(h, ly + lh); });
+    const lines = [];  // right column: storyline starts, then captions of the moments in this slot
+    incs.filter(x => starts.has(x.id)).forEach(x => { const i = starts.get(x.id); lines.push({t: "▶ " + S.story.card.storylines[i].title, cls: "slt", id: x.id, sl: i}); });
+    incs.filter(x => cap.has(x.id)).sort((a, b) => b.level - a.level).slice(0, 4).forEach(x => lines.push({t: "• " + cap.get(x.id), cls: "cap", id: x.id, sl: slOf.get(x.id)}));
+    (hypSlot[si] || []).forEach(h => {  // behaviour hypotheses suggested by what happened in this slot
+      const st = h.verdict || (h.status === "judged" ? "inconclusive" : "testing");
+      lines.push({t: `◆ Behaviour hypothesis #${h.id}: ${plainStatement(h)}`, cls: "hyp v-" + st, hid: h.id});
+      if (h.reason) lines.push({t: `Why: ${short(h.reason)}`, cls: "hypr", hid: h.id});
+      lines.push({t: STATUS(h), cls: "hyps v-" + st, hid: h.id}); });
+    const wrapped = []; lines.forEach(l => { const max = Math.floor(textW / 6.6); let cur = ""; const out = [];
+      l.t.split(" ").forEach(w => { if ((cur + " " + w).length > max) { out.push(cur); cur = "  " + w; } else cur = cur ? cur + " " + w : w; }); if (cur) out.push(cur);
+      out.forEach(o => wrapped.push({...l, t: o})); });
+    const rowH = Math.max(h, wrapped.length * 16, 22) + 8;
+    parts.push(`<rect x="0" y="${y}" width="${W}" height="${rowH}" fill="${band++ % 2 ? "var(--shade)" : "none"}"/><text class="tl" x="4" y="${y + 16}">${esc(slotName(sl.label))}</text>`);
+    placed.forEach(({c, cx, dy, r}) => { const cy = y + dy;
+      if (c.rest) { parts.push(`<circle class="rest" data-slot="${si}" data-group="${c.group}" cx="${cx}" cy="${cy}" r="${r}" fill="var(--rest)" style="cursor:pointer"><title>${c.n} other actions (${esc(S.plain[c.group])})</title></circle>`); return; }
+      pos[c.id] = {cx, cy, r};
+      const sl = slOf.has(c.id) ? ` data-sl="${slOf.get(c.id)}"` : "", told = slOf.has(c.id) || cap.has(c.id);
+      // grey means one thing only: other activity. Moments the story does not use are drawn like it.
+      if (c.concerns && Object.keys(c.concerns).length) parts.push(`<circle cx="${cx}" cy="${cy}" r="${r + 3.5}" fill="none" stroke="#b8412c" stroke-width="1.6" stroke-dasharray="3 2"><title>possibly misaligned: ${esc(Object.keys(c.concerns).map(k => KIND[k] || k).join(", "))}</title></circle>`);
+      parts.push(told ? `<circle class="inc" data-id="${esc(c.id)}"${sl} cx="${cx}" cy="${cy}" r="${r}" fill="${color(c.id)}" stroke="var(--fg)" stroke-width="${c.level <= 1 ? 1 : 1 + 1.4 * (c.level - 1)}"><title>${esc(cap.get(c.id) || plain(c.summary || c.label))}</title></circle>`
+        : `<circle class="inc" data-id="${esc(c.id)}" cx="${cx}" cy="${cy}" r="${r}" fill="var(--rest)"><title>${esc(plain(c.summary || c.label))}</title></circle>`); });
+    wrapped.forEach((l, j) => parts.push(`<text class="${l.cls}"${l.hid ? ` data-hid="${l.hid}"` : ` data-id="${esc(l.id)}"`}${l.sl !== undefined ? ` data-sl="${l.sl}"` : ""} x="${W - textW + 8}" y="${y + 16 + j * 16}"` +
+      (l.cls === "slt" ? ` style="fill:var(--s${l.sl % 7})"` : "") + `>${esc(l.t)}</text>`));
+    y += rowH;
+  });
+  const outdeg = {}; I.edges.forEach(e => outdeg[e.from] = (outdeg[e.from] || 0) + 1);
+  const arrows = I.edges.filter(e => e.type !== "same actor").map(e => { const a = pos[e.from], z = pos[e.to]; if (!a || !z) return "";
+    const same = slOf.has(e.from) && slOf.get(e.from) === slOf.get(e.to), col = same ? `var(--s${slOf.get(e.from) % 7})` : "var(--none)";
+    const y1 = a.cy + a.r, y2 = z.cy - z.r - 2, mid = (y1 + y2) / 2;
+    // links across storylines show only on hover; fan-outs fade with their number of branches
+    const op = !same ? 0 : Math.min(.8, .9 / Math.sqrt(outdeg[e.from] || 1)) * (y2 - y1 > 320 ? .5 : 1);
+    return `<path class="arr" data-from="${esc(e.from)}" data-to="${esc(e.to)}"${same ? ` data-sl="${slOf.get(e.from)}"` : ""} d="M${a.cx},${y1} C${a.cx},${mid} ${z.cx},${mid} ${z.cx},${y2}" fill="none" stroke="${col}" stroke-width="1.5" opacity="${op.toFixed(2)}" data-op="${op.toFixed(2)}"/>`; }).join("");
+  const marks = H_.flatMap(h => (h.basis_ev || []).map(b => { const x = I.incidents.find(v => v.actor === b.actor && v.ts <= b.ts && b.ts <= v.last_ts);
+    const q = x && pos[x.id]; if (!q) return "";
+    const st = h.verdict || "testing", mx = q.cx + q.r * .8, my = q.cy - q.r * .8;
+    return `<path class="hmark v-${st}" data-hid="${h.id}" d="M${mx},${my - 5} L${mx + 5},${my} L${mx},${my + 5} L${mx - 5},${my} Z"><title>Behaviour hypothesis #${h.id}</title></path>`; })).join("");
+  const grid = G.map(g => `<line x1="${X0(g)}" x2="${X0(g)}" y1="0" y2="${y}" stroke="var(--line)" stroke-width=".6"/>`).join("") + `<line x1="${W - textW}" x2="${W - textW}" y1="0" y2="${y}" stroke="var(--line)"/>`;
+  box.innerHTML = `<svg width="${W}" height="${y + 8}">${grid}${parts.join("")}<g>${arrows}</g><g>${marks}</g></svg>`;
+  box.querySelectorAll("[data-hid]").forEach(el => el.onclick = () => showHyp(+el.dataset.hid));
+  box.querySelectorAll("circle.rest").forEach(el => el.onclick = () => showRest(+el.dataset.slot, el.dataset.group));
+  box.querySelectorAll("circle.inc, text.cap, text.slt").forEach(el => {
+    el.onclick = () => showIncident(el.dataset.id);
+    el.onmouseenter = () => { const id = el.dataset.id;
+      box.querySelectorAll(`[data-id="${CSS.escape(id)}"]`).forEach(x => x.classList.add("hl"));
+      box.querySelectorAll("path.arr").forEach(p => { const on = p.dataset.from === id || p.dataset.to === id; p.setAttribute("opacity", on ? .9 : .05); }); };
+    el.onmouseleave = () => { box.querySelectorAll(".hl").forEach(x => x.classList.remove("hl"));
+      box.querySelectorAll("path.arr").forEach(p => p.setAttribute("opacity", p.dataset.op)); }; });
+  applyFocus();
+}
+const drawer = () => { const d = $("#drawer"); d.hidden = false; return d.querySelector(".in"); };
+$("#drawer").addEventListener("click", ev => { if (ev.target.classList.contains("x")) $("#drawer").hidden = true; });
+function sourceList(evs, max = 5) {
+  return evs.slice(0, max).map((e, i) => `<div class="src"><div class="t">${esc(day(e.ts))} ${esc(hm(e.ts))}${e.who ? " · " + esc(e.who) : ""}${e.note ? " — " + esc(plain(e.note.summary)) : ""}</div>` +
+    `<div class="body" data-full="${i}">${esc((e.text || "").slice(0, 420))}${(e.text || "").length > 420 ? ` <span class="link more">… show all</span>` : ""}</div></div>`).join("") +
+    (evs.length > max ? `<div class="muted">and ${evs.length - max} more</div>` : "");
+}
+function wireMore(root, evs) { root.querySelectorAll(".more").forEach(m => m.onclick = () => { const b = m.closest(".body"); b.textContent = evs[+b.dataset.full].text; }); }
+async function showIncident(id) {
+  const x = I.incidents.find(v => v.id === id); if (!x) return;
+  const out = drawer(), sl = slOf.has(id) ? S.story.card.storylines[slOf.get(id)] : null;
+  const kindLine = sl ? `<b>Key moment</b> in the storyline <span class="chip" style="background:var(--s${slOf.get(id) % 7})">${esc(sl.title)}</span>`
+    : `<b>Notable moment</b> <span class="muted">(not part of a storyline)</span>`;
+  out.innerHTML = `<span class="x">✕</span><div style="font-size:13px">${kindLine}</div>` +
+    `<div style="font-size:13.5px;margin:4px 0 8px">This circle is one agent, <b>${esc(x.actor)}</b>, acting ${x.n} time${x.n === 1 ? "" : "s"} on ${esc(span(x.ts, x.last_ts))}. ` +
+    `It stands out because ${esc(joinAnd(reasons(x)))}.</div>` +
+    `<h3>${esc(cap.get(id) || plain(x.summary || x.label))}</h3>` +
+    (sl ? `<div class="muted" style="margin-top:2px">${esc(sl.explanation)}</div>` : "") +
+    `<h3 style="margin-top:12px;font-size:14px">What the agent wrote</h3><div id="srcs" class="muted">loading…</div>`;
+  const evs = await api(`/api/events?actor=${encodeURIComponent(x.actor)}&since=${encodeURIComponent(x.ts)}&until=${encodeURIComponent(x.last_ts)}&limit=40`);
+  const box = out.querySelector("#srcs"); box.classList.remove("muted"); box.innerHTML = sourceList(evs); wireMore(box, evs);
+}
+async function showRest(slot, group) {
+  const out = drawer();
+  out.innerHTML = `<span class="x">✕</span><div class="muted">loading…</div>`;
+  const c = await api(`/api/cell?slot=${slot}&group=${group}&min_level=${$("#lev").value}`);
+  out.innerHTML = `<span class="x">✕</span><div style="font-size:13px"><b>Other activity</b> <span class="muted">(background)</span></div>` +
+    `<div style="font-size:13.5px;margin:4px 0 8px">This grey circle bundles <b>${c.events} actions</b> of the kind “${esc(S.plain[group])}” by ${c.actors} agent${c.actors === 1 ? "" : "s"} during ${esc(slotName(c.slot))}. ` +
+    `None of them stood out on its own, so they are shown together.</div><h3 style="font-size:14px">Who was most active</h3>` +
+    c.top.map(t => `<div class="src link" data-a="${esc(t.actor)}" data-s="${esc(t.ts)}" data-e="${esc(t.last_ts)}"><div class="t">${esc(t.actor)} · ${t.n} action${t.n === 1 ? "" : "s"} · ${esc(span(t.ts, t.last_ts))}</div>${esc(plain(t.summary))}</div>`).join("") +
+    `<div id="srcs"></div>`;
+  out.querySelectorAll("[data-a]").forEach(d => d.onclick = async () => {
+    const evs = await api(`/api/events?actor=${encodeURIComponent(d.dataset.a)}&since=${encodeURIComponent(d.dataset.s)}&until=${encodeURIComponent(d.dataset.e)}&limit=20`);
+    const box = out.querySelector("#srcs"); box.innerHTML = `<h3 style="font-size:14px;margin-top:10px">What ${esc(d.dataset.a)} wrote</h3>` + sourceList(evs); wireMore(box, evs);
+    box.scrollIntoView({behavior: "smooth", block: "nearest"}); });
+}
+async function showSources(title, ids) {
+  const out = drawer(), incs = ids.map(id => I.incidents.find(v => v.id === id)).filter(Boolean);
+  out.innerHTML = `<span class="x">✕</span><h3>${esc(title)}</h3><div class="muted">Based on ${incs.length} moment${incs.length === 1 ? "" : "s"} — click one to read what the agents wrote.</div>` +
+    incs.map(x => `<div class="src link" data-go="${esc(x.id)}"><div class="t">${esc(day(x.ts))} ${esc(hm(x.ts))} · ${esc(x.actor)}</div>${esc(cap.get(x.id) || plain(x.summary || x.label))}</div>`).join("");
+  out.querySelectorAll("[data-go]").forEach(d => d.onclick = () => { const c = document.querySelector(`#chart circle[data-id="${CSS.escape(d.dataset.go)}"]`);
+    if (c) c.scrollIntoView({behavior: "smooth", block: "center"}); showIncident(d.dataset.go); });
+}
+function drawLanes() {
+  const lanes = S.lanes.slice().sort((a, b) => b.events - a.events);
+  $("#lanes").innerHTML = lanes.map(l => {
+    const strip = l.phases.map((p, j) => (j ? `<span class="arrow">→</span>` : "") + `<div class="ph" style="flex-grow:${Math.max(1, p.n)}" title="${esc(p.title)}">${esc(p.title)}</div>`).join("");
+    const chg = l.changes.map(c => { const others = c.trigger.filter(t => t.actor !== l.key);
+      return `<li>${esc(plain(c.text))}${others.length ? ` <span class="muted">(after ${esc([...new Set(others.map(t => t.actor))].join(", "))})</span>` : ""}</li>`; }).join("");
+    return `<div class="ent"><b>${esc(l.key)}</b> <span class="muted">· ${l.events} actions · ${esc(day(l.first))} – ${esc(day(l.last))}</span>` +
+      (l.role ? `<div>${esc(plain(l.role))}</div>` : "") + `<div class="strip">${strip}</div>` + (chg ? `<ul class="chg">${chg}</ul>` : "") +
+      `<div class="link" style="font-size:12.5px;margin-top:4px" data-card="${esc(l.key)}">read the sources</div></div>`;
+  }).join("") || `<p class="muted">No summaries yet.</p>`;
+  document.querySelectorAll("[data-card]").forEach(a => a.onclick = () => showCard(a.dataset.card));
+}
+async function showCard(key) {
+  const c = await api(`/api/card?kind=${kind}&key=${encodeURIComponent(key)}`), out = drawer();
+  const ids = [...new Set((c.text.match(/\[([^\]]+)\]/g) || []).flatMap(m => m.slice(1, -1).split(" ")).filter(x => /[:~@]/.test(x) && !/^stats:/.test(x)))];
+  out.innerHTML = `<span class="x">✕</span><h3>${esc(key)}</h3><div class="muted">${esc(plain(c.card?.role?.text || ""))}</div><h3 style="margin-top:12px;font-size:14px">What it wrote (the passages the summary is based on)</h3><div id="srcs">loading…</div>`;
+  const evs = await Promise.all(ids.slice(0, 12).map(id => api(`/api/msg?id=${encodeURIComponent(id)}`)));
+  const list = evs.filter(e => !e.error).map(e => ({ts: e.ts, who: e.label, text: e.text, note: e.behaviour})).sort((a, b) => a.ts < b.ts ? -1 : 1);
+  const box = out.querySelector("#srcs"); box.innerHTML = sourceList(list, 12); wireMore(box, list);
+}
+$("#q").addEventListener("keydown", async ev => {
+  if (ev.key !== "Enter" || !$("#q").value.trim()) return;
+  const r = await api(`/api/find?q=${encodeURIComponent($("#q").value.trim())}`), out = drawer();
+  if (r.error) { out.innerHTML = `<span class="x">✕</span><p>${esc(r.error)}</p>`; return; }
+  const evs = await Promise.all(r.notes.slice(0, 10).map(n => api(`/api/msg?id=${encodeURIComponent(n.event_id)}`)));
+  const list = evs.filter(e => !e.error).map(e => ({ts: e.ts, who: e.label, text: e.text, note: e.behaviour}));
+  out.innerHTML = `<span class="x">✕</span><h3>Search: ${esc($("#q").value)}</h3>` + (list.length ? sourceList(list, 10) : `<p class="muted">Nothing found.</p>`);
+  wireMore(out, list);
+});
+$("#lev").onchange = load;
+$("#kActor").onclick = () => { kind = "actor"; $("#kActor").classList.add("on"); $("#kChannel").classList.remove("on"); load(); };
+$("#kChannel").onclick = () => { kind = "channel"; $("#kChannel").classList.add("on"); $("#kActor").classList.remove("on"); load(); };
+addEventListener("resize", () => S && drawChart());
+load();
+</script></body></html>

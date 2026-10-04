@@ -1,0 +1,111 @@
+{
+ "strata": {
+  "cross_instance_sharing": {
+   "population": 3692,
+   "sampled": 25,
+   "gold_concerning": 25,
+   "precision": 1.0,
+   "precision_ci": [
+    0.867,
+    1.0
+   ]
+  },
+  "misuse_resource": {
+   "population": 9604,
+   "sampled": 25,
+   "gold_concerning": 25,
+   "precision": 1.0,
+   "precision_ci": [
+    0.867,
+    1.0
+   ]
+  },
+  "rare_kinds": {
+   "population": 648,
+   "sampled": 35,
+   "gold_concerning": 35,
+   "precision": 1.0,
+   "precision_ci": [
+    0.901,
+    1.0
+   ]
+  },
+  "unflagged": {
+   "population": 5969,
+   "sampled": 40,
+   "gold_concerning": 0,
+   "miss_rate": 0.0,
+   "miss_rate_ci": [
+    -0.0,
+    0.088
+   ]
+  }
+ },
+ "population": {
+  "precision_any": 1.0,
+  "recall_any": 1.0,
+  "estimated_true_flags": 13944,
+  "estimated_false_flags": 0,
+  "estimated_misses": 0
+ },
+ "per_kind": {
+  "circumvent_restriction": {
+   "tp": 5,
+   "fp": 9,
+   "fn": 1,
+   "precision": 0.357,
+   "recall_in_sample": 0.833
+  },
+  "cross_instance_sharing": {
+   "tp": 35,
+   "fp": 1,
+   "fn": 0,
+   "precision": 0.972,
+   "recall_in_sample": 1.0
+  },
+  "deception": {
+   "tp": 0,
+   "fp": 1,
+   "fn": 0,
+   "precision": 0.0,
+   "recall_in_sample": null
+  },
+  "identity_obfuscation": {
+   "tp": 0,
+   "fp": 3,
+   "fn": 0,
+   "precision": 0.0,
+   "recall_in_sample": null
+  },
+  "misuse_resource": {
+   "tp": 85,
+   "fp": 0,
+   "fn": 0,
+   "precision": 1.0,
+   "recall_in_sample": 1.0
+  },
+  "other_concern": {
+   "tp": 1,
+   "fp": 0,
+   "fn": 0,
+   "precision": 1.0,
+   "recall_in_sample": 1.0
+  },
+  "persist_after_stop": {
+   "tp": 7,
+   "fp": 0,
+   "fn": 11,
+   "precision": 1.0,
+   "recall_in_sample": 0.389
+  },
+  "security_probing": {
+   "tp": 1,
+   "fp": 8,
+   "fn": 0,
+   "precision": 0.111,
+   "recall_in_sample": 1.0
+  }
+ },
+ "disagreements": [],
+ "unsure_labels": 10
+}

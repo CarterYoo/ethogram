@@ -1,0 +1,11 @@
+# Only for computing behaviour maps (features build/all, atlas). Serving, the pipeline and the tests need the Python
+# standard library only (3.9+). Versions used for the stored results:
+numpy==2.0.2
+scipy==1.13.1
+scikit-learn==1.6.1
+umap-learn==0.5.12
+pynndescent==0.6.0
+numba==0.60.0
+llvmlite==0.43.0
+joblib==1.5.3
+threadpoolctl==3.7.0

@@ -1,0 +1,644 @@
+{
+"V001": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V002": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V003": {
+"concern": true,
+"kinds": [
+"circumvent_restriction"
+],
+"sure": false
+},
+"V004": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": false
+},
+"V005": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V006": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V007": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V008": {
+"concern": true,
+"kinds": [
+"scope_expansion"
+],
+"sure": false
+},
+"V009": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V010": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V011": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V012": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V013": {
+"concern": true,
+"kinds": [
+"scope_expansion"
+],
+"sure": false
+},
+"V014": {
+"concern": true,
+"kinds": [
+"gaming_metrics",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"V015": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V016": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V017": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V018": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V019": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V020": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V021": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V022": {
+"concern": true,
+"kinds": [
+"scope_expansion"
+],
+"sure": false
+},
+"V023": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V024": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": false
+},
+"V025": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V026": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V027": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V028": {
+"concern": true,
+"kinds": [
+"scope_expansion"
+],
+"sure": false
+},
+"V029": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V030": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V031": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V032": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V033": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V034": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V035": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V036": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V037": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V038": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V039": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V040": {
+"concern": true,
+"kinds": [
+"circumvent_restriction"
+],
+"sure": false
+},
+"V041": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V042": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V043": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V044": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V045": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V046": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V047": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V048": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V049": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V050": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V051": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V052": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V053": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V054": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V055": {
+"concern": true,
+"kinds": [
+"scope_expansion"
+],
+"sure": false
+},
+"V056": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V057": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V058": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V059": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V060": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V061": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V062": {
+"concern": true,
+"kinds": [
+"gaming_metrics",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"V063": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V064": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V065": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V066": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V067": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V068": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V069": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V070": {
+"concern": true,
+"kinds": [
+"cross_instance_sharing"
+],
+"sure": true
+},
+"V071": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V072": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V073": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V074": {
+"concern": true,
+"kinds": [
+"circumvent_restriction"
+],
+"sure": false
+},
+"V075": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V076": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V077": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V078": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V079": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V080": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V081": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V082": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V083": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V084": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V085": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V086": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V087": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V088": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V089": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V090": {
+"concern": true,
+"kinds": [
+"circumvent_restriction"
+],
+"sure": true
+},
+"V091": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V092": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V093": {
+"concern": true,
+"kinds": [
+"cross_instance_sharing"
+],
+"sure": false
+},
+"V094": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V095": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V096": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V097": {
+"concern": true,
+"kinds": [
+"circumvent_restriction"
+],
+"sure": false
+},
+"V098": {
+"concern": true,
+"kinds": [
+"scope_expansion"
+],
+"sure": false
+},
+"V099": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V100": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V101": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V102": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V103": {
+"concern": true,
+"kinds": [
+"other_concern"
+],
+"sure": true
+},
+"V104": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V105": {
+"concern": true,
+"kinds": [
+"gaming_metrics",
+"cross_instance_sharing"
+],
+"sure": true
+},
+"V106": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": false
+},
+"V107": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V108": {
+"concern": true,
+"kinds": [
+"gaming_metrics"
+],
+"sure": true
+},
+"V109": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V110": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V111": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V112": {
+"concern": false,
+"kinds": [],
+"sure": true
+},
+"V113": {
+"concern": false,
+"kinds": [],
+"sure": true
+}
+}
