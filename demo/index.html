@@ -43,7 +43,7 @@ svg,canvas{position:absolute;left:0;top:0}
 </style>
 </head>
 <body>
-<div id="root" data-composition-id="demo" data-start="0" data-duration="36.47" data-width="1920" data-height="1080">
+<div id="root" data-composition-id="demo" data-start="0" data-duration="39.93" data-width="1920" data-height="1080">
   <section id="s1" class="scene clip" data-start="0" data-duration="10.833" data-track-index="2">
     <canvas id="chaos" width="1920" height="1080"></canvas>
     <div class="shade" id="shade"></div>
@@ -53,8 +53,8 @@ svg,canvas{position:absolute;left:0;top:0}
   <section id="s2" class="scene clip" data-start="10.0" data-duration="11.667" data-track-index="3">
     <canvas id="world" width="1920" height="1080"></canvas><div id="bubbles" class="abs"></div>
   </section>
-  <section id="s3" class="scene clip" data-start="17.0" data-duration="19.47" data-track-index="4">
-    <svg id="map" width="1920" height="1080"></svg>
+  <section id="s3" class="scene clip" data-start="17.0" data-duration="22.93" data-track-index="4">
+    <svg id="map" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
     <svg id="strip" width="1920" height="1080"></svg>
     <canvas id="scatter" width="1920" height="1080"></canvas>
     <div id="names" class="abs"></div>
@@ -380,6 +380,10 @@ phases.forEach(ph => { const a0 = bidx[ph.start] ?? 0, b0 = bidx[ph.end] ?? D.bi
   tl.fromTo(band, {opacity: .1}, {opacity: .42, duration: .3, immediateRender: false}, on).to(band, {opacity: .1, duration: .3}, off);
   if (x1 - x0 > ph.name.length * 9.5 + 16) { /* only where the name fits */ const t = el("text", {x: (x0 + x1) / 2, y: SY + SH + 31, "text-anchor": "middle", "font-size": 18, fill: "#eeede7", opacity: .45}, strip); t.textContent = ph.name;
     tl.fromTo(t, {opacity: .45}, {opacity: 1, duration: .3, immediateRender: false}, on).to(t, {opacity: .45, duration: .3}, off); } });
+// where the mix of behaviour changes, as code measured it (the regimes of docs/FLOW.md): dashed, lit as playback passes
+(D.regimes || []).forEach(date => { const k = firstBin(date), x = sxAt(dw[k]), at = Math.max(T0, dayStart(k));
+  const l = el("line", {x1: x, y1: SY - 4, x2: x, y2: SY + SH, stroke: "#eeede7", "stroke-width": 2, "stroke-dasharray": "5 5", opacity: .4}, strip);
+  tl.fromTo(l, {opacity: .4}, {opacity: 1, duration: .15, immediateRender: false}, at).to(l, {opacity: .4, duration: .6}, at + .35); });
 const head = el("rect", {x: SX, y: SY - 4, width: 3, height: SH + 50, fill: "#eeede7"}, strip);
 tl.fromTo("#strip", {opacity: 0}, {opacity: 1, duration: .6}, 29.2);
 const hk = [[0, SX]];
@@ -389,6 +393,7 @@ tl.set(head, {attr: {x: SX}}, T0);
 hk.slice(1).forEach(([t1, x1], j) => tl.to(head, {attr: {x: x1}, duration: Math.max(.001, t1 - hk[j][0]), ease: "none"}, T0 + hk[j][0]));
 // the storyline: the arc's title as the map forms, then each phase as playback enters it, and each turning point on its day
 const wordsOf = t => t.split(" ").map(w => `<span class="w">${esc(w)}</span>`).join(" ");
+const oddsTxt = v => v >= 10 ? String(Math.round(v)) : (+v).toFixed(1);
 const st = $("story"), arcT = div("arcT", `<small>THE ARC OF THE RECORD</small>${wordsOf(D.arc.title)}`, st);
 tl.fromTo(arcT.querySelectorAll(".w"), {opacity: 0, y: 14}, {opacity: 1, y: 0, duration: .45, stagger: .05, ease: "power3.out"}, 29.3)
   .fromTo(arcT.querySelector("small"), {opacity: 0}, {opacity: 1, duration: .4}, 29.2).to(arcT, {opacity: 0, y: -12, duration: .35}, T0 - .1);
@@ -410,9 +415,62 @@ tps.forEach((x, i) => {
   tl.fromTo(b, {opacity: 0, x: -18}, {opacity: 1, x: 0, duration: .3, ease: "power2.out", immediateRender: true}, x.at + .02)
     .to(b, {opacity: 0, x: 12, duration: .2}, Math.max(x.at + .35, next - .2));
 });
-tl.to(["#map", "#strip", "#nodeov", "#story"], {opacity: 0, duration: .6}, PLAY_END + 1.4);
+// ---------------------------------------------------------------- 6 how behaviour spreads: seeing one changes what others do
+const I0 = PLAY_END + 1.4, IL = (D.influence || {}).links || [], gInf = map.insertBefore(el("g", {}, map), gLbl);  // under the names
+tl.to(gSt, {opacity: .2, duration: .6}, PLAY_END + .6).to(gTr, {opacity: .1, duration: .6}, PLAY_END + .6);
+const ih = div("sp", `<div class="k">HOW BEHAVIOUR SPREADS<i><b style="background:${PC}"></b></i></div><div class="n">${wordsOf("Seeing one behaviour changes what others do")}</div>`, st);
+tl.fromTo(ih, {opacity: 0}, {opacity: 1, duration: .01, immediateRender: true}, I0)
+  .fromTo(ih.querySelectorAll(".w"), {opacity: 0, y: 16}, {opacity: 1, y: 0, duration: .4, stagger: .045, ease: "power3.out", immediateRender: true}, I0)
+  .fromTo(ih.querySelector(".k"), {opacity: 0, x: -10}, {opacity: 1, x: 0, duration: .35, immediateRender: true}, I0)
+  .fromTo(ih.querySelector("b"), {scaleX: 0}, {scaleX: 1, duration: 3.6, ease: "none", immediateRender: true}, I0);
+const dotR = f => 4 + 30 * Math.sqrt(f.all), CATCH = ((D.influence || {}).catching || []).filter(c => F[c.g]);
+const inv = [...new Set(IL.flatMap(l => [l.g, l.f]).concat(CATCH.map(c => c.g)))].filter(id => F[id]);
+// the camera closes in on the behaviours involved, below the heading; names and lines keep their size on screen
+let bx0 = 1e9, by0 = 1e9, bx1 = -1e9, by1 = -1e9;
+inv.forEach(id => { const f = F[id], x = PX(f.x), y = PY(f.y), r = dotR(f) + 14;
+  bx0 = Math.min(bx0, x - r); by0 = Math.min(by0, y - r - 24); bx1 = Math.max(bx1, x + r + f.name.length * 11); by1 = Math.max(by1, y + r); });
+const RX0 = 90, RX1 = 1830, RY0 = 230, RY1 = 1040, zs = Math.max(1, Math.min(1.9, (RX1 - RX0) / (bx1 - bx0), (RY1 - RY0) / (by1 - by0)));
+const vx = (bx0 + bx1) / 2 - ((RX0 + RX1) / 2) / zs, vy = (by0 + by1) / 2 - ((RY0 + RY1) / 2) / zs;
+tl.to("#strip", {opacity: 0, duration: .5}, PLAY_END + .8)
+  .to(map, {attr: {viewBox: `${vx} ${vy} ${1920 / zs} ${1080 / zs}`}, duration: 1.3, ease: "power2.inOut"}, PLAY_END + .8);
+const shown = new Set(), lbls = [], label = (id, t0) => { if (shown.has(id)) return; shown.add(id); const f = F[id];
+  const t = el("text", {class: "lbl", style: `font-size:${22 / zs}px;stroke-width:${5 / zs}px`}, gLbl);
+  t.textContent = f.name; lbls.push([t, f]); tl.fromTo(t, {opacity: 0}, {opacity: .95, duration: .35, immediateRender: true}, t0); };
+IL.forEach((l, j) => {  // an arrow from the behaviour seen to the one others then do more (thicker = a larger change in the odds)
+  const a = F[l.g], b = F[l.f]; if (!a || !b) return;
+  const x1 = PX(a.x), y1 = PY(a.y), x2 = PX(b.x), y2 = PY(b.y), d = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / d, uy = (y2 - y1) / d;
+  const sx = x1 + ux * (dotR(a) + 4 / zs), sy = y1 + uy * (dotR(a) + 4 / zs), ex = x2 - ux * (dotR(b) + 8 / zs), ey = y2 - uy * (dotR(b) + 8 / zs);
+  const cx = (sx + ex) / 2 - uy * d * .16, cy = (sy + ey) / 2 + ux * d * .16, w = Math.min(6, 1.6 + 2.2 * Math.log(l.odds)) / zs, at = I0 + .5 + j * .24;
+  const p = el("path", {d: `M${sx},${sy} Q${cx},${cy} ${ex},${ey}`, fill: "none", stroke: "#eeede7", "stroke-width": w, "stroke-linecap": "round", opacity: .8}, gInf);
+  const len = p.getTotalLength(); p.setAttribute("stroke-dasharray", `${len} ${len}`);
+  const ang = Math.atan2(ey - cy, ex - cx), h = 10 / zs + w * 2;
+  const tip = el("polygon", {points: `${ex},${ey} ${ex - h * Math.cos(ang - .45)},${ey - h * Math.sin(ang - .45)} ${ex - h * Math.cos(ang + .45)},${ey - h * Math.sin(ang + .45)}`, fill: "#eeede7"}, gInf);
+  tl.fromTo(p, {attr: {"stroke-dashoffset": len}}, {attr: {"stroke-dashoffset": 0}, duration: .55, ease: "power2.inOut", immediateRender: true}, at)
+    .fromTo(tip, {opacity: 0}, {opacity: .85, duration: .2, immediateRender: true}, at + .5);
+  label(l.g, at); label(l.f, at + .4);
+});
+CATCH.forEach((c, j) => { const f = F[c.g];  // a loop: the behaviour, seen, is done more by the one who saw it
+  const r = el("circle", {cx: PX(f.x), cy: PY(f.y) - dotR(f) - 12 / zs, r: 9 / zs, fill: "none", stroke: PC, "stroke-width": 3 / zs}, gInf);
+  tl.fromTo(r, {opacity: 0, attr: {r: 3 / zs}}, {opacity: .9, attr: {r: 9 / zs}, duration: .4, ease: "back.out(2)", immediateRender: true}, I0 + 2.9 + j * .15);
+  label(c.g, I0 + 3.0); });
+// each name right of its dot, or else left, above or below, wherever it covers no other name and no loop
+const taken = CATCH.map(c => { const f = F[c.g], x = PX(f.x), y = PY(f.y) - dotR(f) - 12 / zs, r = 12 / zs; return [x - r, y - r, x + r, y + r]; });
+lbls.forEach(([t, f]) => { const x = PX(f.x), y = PY(f.y), r = dotR(f), g = 10 / zs, h = 22 / zs, w = t.getComputedTextLength();
+  const opts = [[x + r + g, y + .32 * h, "start"], [x - r - g, y + .32 * h, "end"], [x, y - r - g, "middle"], [x, y + r + g + .75 * h, "middle"]];
+  const box = ([px, py, an]) => { const a = an === "start" ? px : an === "end" ? px - w : px - w / 2; return [a, py - .78 * h, a + w, py + .25 * h]; };
+  const hit = b => taken.some(c => b[0] < c[2] && c[0] < b[2] && b[1] < c[3] && c[1] < b[3]);
+  const o = opts.find(o => !hit(box(o))) || opts[0];
+  t.setAttribute("x", o[0]); t.setAttribute("y", o[1]); t.setAttribute("text-anchor", o[2]); taken.push(box(o)); });
+// two of the arrows in words: the strongest, then the one farthest from it on the map
+const mid = l => [(F[l.g].x + F[l.f].x) / 2, (F[l.g].y + F[l.f].y) / 2], ex1 = IL[0];
+const ex2 = ex1 && IL.slice(1).reduce((b, l) => { const d = Math.hypot(mid(l)[0] - mid(ex1)[0], mid(l)[1] - mid(ex1)[1]); return !b || d > b[1] ? [l, d] : b; }, null)?.[0];
+[ex1, ex2].filter(Boolean).forEach((l, j) => { const at = I0 + 1.0 + j * 1.5;
+  const bt = div("beat", `<em>odds ×${oddsTxt(l.odds)}</em>${esc(F[l.g].name)} → ${esc(F[l.f].name)}`, st);
+  tl.fromTo(bt, {opacity: 0, x: -18}, {opacity: 1, x: 0, duration: .3, ease: "power2.out", immediateRender: true}, at)
+    .to(bt, {opacity: 0, x: 12, duration: .2}, j ? I0 + 4.3 : at + 1.3); });
+tl.to(["#map", "#strip", "#nodeov", "#story"], {opacity: 0, duration: .6}, I0 + 4.6);
 
-const END = PLAY_END + 2.4;
+const END = I0 + 5.6;
 tl.set({}, {}, END);
 
 window.__timelines = window.__timelines || {};

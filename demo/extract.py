@@ -1,6 +1,6 @@
 """Pull the real numbers and lines the demo video shows from the wiki index (run once; writes demo/data.js).
 
-    .venv/bin/python demo/extract.py ../data/wiki.sqlite
+    .venv/bin/python demo/extract.py ../data/wiki_all.sqlite
 """
 import json
 import os
@@ -96,7 +96,23 @@ counts = {"events": con.execute("SELECT count(*) FROM events").fetchone()[0],
           "labels": con.execute("SELECT count(DISTINCT actor) FROM events").fetchone()[0],
           "days": con.execute("SELECT count(DISTINCT substr(ts, 1, 10)) FROM events").fetchone()[0],
           "traces": len(P["edges"]), "behaviours": len(feats), "kappa": 0.89, "detection": "44 of 53"}
+# what the flow layer measured: where the mix of behaviour changes, and which behaviour brings on which in others
+from swarmgraph import flow as FL  # noqa: E402
+fpos = {f["id"] for f in feats}
+regimes = [b["date"] for b in FL.page_view(con).get("boundaries", [])]
+inf = ((FE.get(con) or {}).get("influence") or {}).get("between") or {}
+links, per_src = [], {}
+for l in inf.get("links", []):  # strongest evidence first; at most two arrows leave one behaviour, for variety
+    if l["g"] == l["f"] or l["g"] not in fpos or l["f"] not in fpos or per_src.get(l["g"], 0) >= 2:
+        continue
+    per_src[l["g"]] = per_src.get(l["g"], 0) + 1
+    links.append({k: l[k] for k in ("g", "f", "odds", "z")})
+    if len(links) >= 9:
+        break
+catching = [{k: l[k] for k in ("g", "odds", "z")} for l in inf.get("links", []) if l["g"] == l["f"] and l["g"] in fpos][:3]
 out = {"pivot": pivot, "bins": bins, "n_bin": n_bin, "day_work": day_work, "features": feats, "stretches": stretches,
+       "regimes": regimes, "influence": {"links": links, "catching": catching, "R": inf.get("R"),
+                                         "significant": inf.get("significant")},
        "traces": traces, "cascade": cascade, "lines": lines, "labels": labels, "counts": counts,
        "arc": {"title": arc["title"], "phases": [{k: ph[k] for k in ("name", "start", "end")} for ph in arc["phases"]],
                "turns": [t["date"] for t in arc["turning_points"]],
