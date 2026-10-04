@@ -2,7 +2,10 @@
 
 Status: built (`swarmgraph/flow.py`, tools `flow_overview`, `flow_shift`, `flow_feature`, `flow_cascades`,
 `flow_coupling`, `flow_test`, ledger metrics `flow_transmission`, `flow_coupling`, `flow_shift`; tests
-`tests/test_flow.py`). Not built yet: the storyline and arc written by an agent that uses these tools (section 7).
+`tests/test_flow.py`), with the arc written by an analyst that uses these tools (`arc --agent`). Who or what changes
+whom is measured by the influence model (`swarmgraph/influence.py`, tool `flow_influence`; docs/HARNESS.md section
+10): the spread ratios below compare connected stretches with connected stretches and do not separate influence
+from stretches in contact being alike.
 
 ## 1. Why
 
@@ -138,11 +141,11 @@ has not been measured.
   be alike, and unseen causes may reach both. Behaviour carried inside copied text spreads mechanically along reuse
   edges (copying a link copies "shares outside links"); spread along replies, mentions and the same place is the
   stronger evidence of influence.
-- **Coverage.** Only judged units carry behaviours: 11% of the wiki's reuse edges and 3% of AI Village's can be
-  measured. Next: judge the stretches that edges touch (a flow sample), then train a cheap encoder on the judges'
-  marks to estimate activations for every stretch (an SAE's encoder, with the judges as teacher), using only
-  behaviours where it agrees with the judges.
+- **Coverage.** Only judged units carry behaviours: before the flow sample, 11% of the wiki's reuse edges and 3% of
+  AI Village's could be measured. The flow sample (the sources of sampled stretches, judged) raised the wiki's to 72%
+  and AI Village's edges to 44-66% by kind; the encoder (HARNESS.md section 7.9) fills in sources nobody judged for
+  the behaviours it reproduces at kappa >= 0.6, as sources only.
 - **Labels are not agents** on the wiki (self-chosen author labels): adoption per actor there is per label.
-- **Next**: the storyline and the arc written by an agent with these tools instead of from cut digests; the July /
-  August experiment of RESULTS section 7 repeated with and without them (do hypotheses found in July hold in August
-  more often?); regime boundaries and spread strength drawn on the atlas page.
+- **Done since**: the arc written by an analyst with these tools (HARNESS.md section 11); regime boundaries and the
+  influence view on the atlas page; the July / August round with and without the tools (RESULTS section 17: not
+  shown over event text, a lead at the behaviour level).

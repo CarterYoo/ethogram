@@ -333,17 +333,94 @@ the same prompt. Wiki: 1,911 stretches (judged 2,214 → 4,125; measurable reuse
 
 ### 7.9 The encoder (`features encode`, `encoder.py`)
 
-The judges are the teacher, a cheap model the student (an SAE's encoder): each stretch's own lines and facts as the
-judges read them (the context lines are left out) are embedded locally (`BAAI/bge-small-en-v1.5` through fastembed,
-no model call) and weighted by words (TF-IDF over the own lines, facts and raw text); one logistic regression per
-behaviour is fitted on the judged stretches. A behaviour is encoded only if, in five-fold cross-validation, the
-student agrees with the judges at kappa ≥ 0.6; its unjudged stretches are marked where the probability passes the cut
-that reproduces the behaviour's rate among the judged. Encoded marks are estimates and serve only as sources of
-exposure (what a stretch could have seen), never as the outcome measured. Measured with word weights alone on AI
-Village (median kappa against the judges; the two judges agree with each other at about 0.83): the stretch's own
-lines and facts 0.53 (11 of 40 behaviours at 0.6 or more), with the raw text added 0.51 (12), the judge's whole view
-0.49 (8); the judge's whole view cut to 1,200 characters, with the embedding, 0.31 (1), because the context lines
-crowded out the stretch itself.
+**Why encode at all.** Behaviours exist only where a judge marked them, and judging is the expensive step: every
+judged stretch is part of a model call. Even after the flow sample, 6,701 of AI Village's 11,439 stretches (59%) and
+4,125 of the wiki's 6,496 (64%) are judged. Flow and influence need behaviour on both ends of every contact: when the
+stretch a target could see was never judged, the target counts as unexposed although it may have been exposed. Those
+missed exposures blur the contrast between exposed and unexposed targets, so influence comes out smaller than it is
+(attenuation), and the placebo comparison loses power with it. On larger records the gap grows: judging every
+stretch costs calls in proportion to the record.
+
+An SAE has the same problem and the same answer: its encoder computes every input's activations cheaply. Here the
+dictionary stays in words and the judges stay the teacher; a cheap student learns, from the judges' own marks, which
+of those words-behaviours a stretch shows, and fills in the stretches nobody judged. No model call: it runs locally.
+
+**Why not compare the behaviour's sentence with the text directly.** Behaviours are written in natural language, so
+embedding the sentence and the stretch and taking their similarity (zero-shot) is the obvious shortcut. It was ruled
+out for two reasons. Embeddings place text by what it is about, not by what the actor does (the design notes set
+embedded summaries aside for the same reason: they would group by subject; BEHAVIOUR_FEATURES.md section 2). And many
+behaviours are relational or temporal (edits right after others, posts content again after it was removed,
+acknowledges an instruction and later acts against it): they are not in one text at all. So the encoder is supervised
+by the judges, behaviour by behaviour, and only the behaviours it can reproduce are kept.
+
+**What it reads.** Each stretch exactly as the judges read it, without the context lines (what others did before):
+its own lines (folded repeats, the 14-line limit) and the facts code found under each line. Word weights also see the
+raw text of its events. The context lines are left out because, cut to fit an embedding, they came first and crowded
+out the stretch itself (the first run below).
+
+**The model.**
+
+- Word weights: TF-IDF over one- and two-word terms (at least 3 stretches, at most half of them, up to 80,000
+  terms, sublinear counts) of the own lines, facts and raw text.
+- Meaning: a local sentence embedding of the own lines and facts (the first 1,500 characters, about 380 tokens),
+  `BAAI/bge-small-en-v1.5` (384 dimensions, a quantised ONNX model run on the CPU through fastembed; about two
+  minutes per 1,000 stretches, once, cached by stretch and text hash in the feature folder), scaled by 0.6 and
+  concatenated with the word weights.
+- One L2-penalised logistic regression per behaviour (C = 4, classes balanced), fitted on the judged stretches.
+
+**The bar, and why it is that bar.**
+
+- Agreement is measured the way the judges' own reliability is: Cohen's kappa between the encoder and the judges'
+  marks, on stretches the encoder was not fitted on (five-fold stratified cross-validation).
+- The cut is the probability that reproduces the behaviour's rate among the judged stretches, so a lax or strict cut
+  cannot buy agreement; the same cut marks the unjudged stretches.
+- A behaviour is encoded when kappa ≥ 0.6: the bar a behaviour must pass between the two judges to be kept as
+  reliable (BEHAVIOUR_FEATURES.md section 8), and conventionally "substantial" agreement. The judges agree with each
+  other at a median of 0.83 on the same behaviours, so an encoded behaviour is still weaker than a judged one, which
+  is why its use is limited (below).
+- Only behaviours with at least 40 judged positives are tried. The AUC is reported for how well it ranks; the kappa
+  decides.
+
+**How encoded marks are used, and why only so.** Encoded marks are stored apart from the judges' (`feature_atlas`
+key `encoded`), only for the behaviours that pass and only on unjudged stretches; they never overwrite a judgment.
+Flow and influence use them for one thing: to see more of what a stretch could have seen (its sources). They are never
+the outcome measured, never a target, and never part of a rate, a regime or the timeline. On the exposure side, an
+encoder's errors mostly dilute a contrast (a false or missed exposure makes exposed and unexposed targets more alike),
+so they push influence towards zero rather than invent it, as long as the target's own behaviour is judged
+separately; on the outcome side, errors that share the encoder's vocabulary could make two behaviours look linked.
+The seen-later placebo uses the same encoded sources, so whatever the encoder adds shows up in both.
+
+**What was measured** (AI Village, 40 behaviours with at least 40 judged positives; median kappa against the judges):
+
+| encoder | median kappa | kappa ≥ 0.6 | kappa ≥ 0.5 |
+|---|---:|---:|---:|
+| word weights, raw text of the stretch's events | 0.500 | 10 | 20 |
+| word weights, the judge's whole view (context lines included) | 0.491 | 8 | 18 |
+| word weights, own lines and facts | 0.529 | 11 | 21 |
+| word weights, own lines, facts and raw text | 0.514 | 12 | 23 |
+| first run: the judge's whole view cut at 1,200 characters, with the embedding | 0.305 | 1 | |
+| the judges with each other (same behaviours) | 0.83 | | |
+
+The behaviours an encoder reproduces are those visible in a stretch's own words. In the first word-weights test
+(raw text) the best were mentioning another participant (0.84), thanking for help (0.75), limiting documentation that
+identifies itself (0.74) and limiting rating and tracking (0.68); the worst were directing where to reply (0.31),
+choosing and explaining why (0.30), rejecting bypasses of shared restrictions (0.26), collecting others' evidence
+(0.21) and asking for outdated content to be updated (0.20): behaviours that depend on the context or on what the
+actor is responding to. For those, code (the anchors) or the judges remain the measure.
+
+**The final run** (embedding of the own lines and facts, word weights of the own lines, facts and raw text): median
+kappa 0.522 against the judges, with word weights alone 0.519. The embedding helps in 12 of 40 behaviours and only
+slightly, so the word weights do the work; the embedding is kept (it costs one local pass) but is not what makes the
+encoder useful. 11 behaviours pass the bar: mentioning another participant (0.84), repeating its own text (0.79),
+thanking for help (0.78), limiting documentation that identifies itself (0.74), limiting rating and tracking (0.70),
+editing others' conflicting contributions (0.70), separating progress from success (0.68), explaining pauses after
+prompting (0.65), asking for checks from elsewhere (0.64), promising future action (0.63) and passing messages along
+(0.62). They mark 1,791 of the 4,738 stretches nobody judged.
+
+**Limits.** The encoder learns from the judged stretches (uniform, flagged and flow-sampled), so it inherits their
+mistakes and is only as good as the judges on the behaviours it passes; it has been run on AI Village only; a stronger
+model (fine-tuned, or reading the context with the stretch) might pass more behaviours, but the relational ones are
+better counted by code.
 
 ## 8. Stage D: the storyline
 
@@ -408,6 +485,9 @@ logit P(f in u) = β[actor]  + π[place]  + γ[day]  + ρ · (the actor's previo
 - What u could see: its sources along reuse, reply, address and channel edges, judged or encoded.
 - Fitted as an L2-penalised logistic regression (scipy L-BFGS); standard errors from the penalised information;
   significance by Benjamini-Hochberg at 5% over every (g, f) pair; dp = the average change in probability.
+- **The shrinkage of the a(g → f) terms is chosen by prediction inside the part before the cut** (fitted on its first
+  three quarters, scored on its last quarter; candidates 1, 5, 20, 80, 320), so the part after the cut stays held
+  out. Weak shrinkage overfits: on AI Village the terms fitted with 1 predicted August worse than no terms at all.
 - **Branching matrix** G[g, f] = dp(g → f) × (how many stretches see one g-stretch, a stretch that saw g in k
   sources credited 1/k to each); R = its spectral radius (further behaviour per behaviour through everyone: near 1,
   it nearly sustains itself); totals through every chain (I − G)⁻¹ − I; two-way pairs.
@@ -418,20 +498,30 @@ logit P(f in u) = β[actor]  + π[place]  + γ[day]  + ρ · (the actor's previo
   dropped from both, since the days after the cut are unseen).
 
 **Agent to agent** (`one`, records with at least five recurring agents). For each behaviour, one alpha per (source
-agent, target agent) pair, shrunk to 0, with the actor, day, previous-stretch and same-time terms; z per pair, clear
-at 3; the same branching, totals, held-out check and placebo. In synthetic tests a planted loop A → B → C → A is the
+agent, target agent) pair, shrunk to 0, with the actor, place, day, previous-stretch and same-time terms; the pair
+shrinkage chosen inside the part before the cut like the behaviour terms (candidates 2, 8, 32, 128); z per pair,
+clear at 3; the same branching, totals and held-out check. In synthetic tests a planted loop A → B → C → A is the
 only clear set in 8 of 8 runs (z 3.5-9.9), and actors who are alike and in heavy contact are not influence; shrinking
 pairs to a shared mean, or fitting how much A moves others and B is moved as separate terms, made one pair's effect
 spill onto pairs without influence, so pairs are shrunk to 0 and those summaries are averages of the pairs.
 
-**Results** (stored; AI Village before the place term and the encoder were added, to be recomputed):
+**Results** (stored; place terms, the encoder's sources on AI Village, shrinkage chosen before the cut):
 
-| | AI Village (27 agents) | wiki and boards (author labels) |
+| | AI Village (27 agents, cut August 1) | wiki and boards (author labels, cut June 19) |
 |---|---|---|
-| behaviour pairs significant / tested | 164 / 1,600 (placebo 17) | 313 / 2,860 (placebo 73) |
-| R | 0.90 (placebo 0.13) | 1.09 (placebo 0.32) |
-| later part predicted better | 14 of 40 behaviours, gain +0.089 (placebo −0.087) | 41 of 52, gain +2.51 (placebo +0.05) |
-| agent pairs clear | 36 (placebo 0); DeepSeek-V3.2 the source in 14 | not measurable |
+| shrinkage chosen before the cut | 80 | 5 |
+| behaviour pairs significant / tested | 13 / 1,600 (placebo 1) | 203 / 2,860 (placebo 7) |
+| R | 0.17 (placebo 0.10) | 0.82 (placebo 0.18) |
+| later part predicted better | 34 of 40 behaviours, gain +0.073 (placebo 27, +0.015) | 46 of 52, gain +2.75 (placebo 32, +0.20) |
+| agent pairs clear | 0 (pair shrinkage 32); later part predicted better in 27 of 40 (placebo 19) | not measurable |
+
+On AI Village the links that hold are small (odds 1.15-1.33, 2-4 points): unsupported claims, promises, concerning
+acts and mentions pass on; promises bring on mentions, unsupported claims bring on promises and concerning acts,
+mentions and thanks bring each other on. The first fit, with no place term and the weakest shrinkage, had found 164
+links, R 0.90 and an instruction-breaking contagion of odds 5.2, and 36 clear agent pairs led by one agent: the place
+(which room) and overfitting made most of that, and no single agent pair stands out once both are controlled. On the
+wiki the links are larger and hold: links shared, access through intermediaries and pages edited pass on; status
+requests bring on requests for the answer first; reports of own progress bring on offers of help.
 
 Caveats: associations net of the terms above, not proof; R1-R4 come from readers of whole chunks, who can mark
 several agents at once; behaviours defined by where or right after whom something happens are partly linked by their
@@ -525,7 +615,13 @@ the quotations; the three are separate instances and only reviewed items are sho
   flow claim over the dictionary (or not expressible); code measures it on the held-out month's targets.
 - **The flow round** (RESULTS section 17, `after_flow.sh`, `flow_split.py`): analysts see July only (the July index
   of section 7 with a July atlas taken from the full record's judged stretches), 12 runs with the flow tools and 12
-  without; hypotheses graded on August only, both ways.
+  without; hypotheses graded on August only, both ways. Every run with the flow tools used them (28 flow tests in
+  all). Over event text: 5 of 60 hold with the tools, 2 of 60 without (p 0.44; 5.3% of mismatched pairs pass by
+  chance). Over behaviours, the first grader (spread ratios) passed 62% of random claims and is discarded; with the
+  influence model fitted on August alone, testing each claim's pair at 5%: 0 vs 0 at the shrinkage chosen in July
+  (random pairs pass 2.1%), 12 vs 0 at a lighter shrinkage (random pairs 5.5%) chosen after seeing the first, so
+  exploratory. With the tools, hypotheses are stated as flow claims far more often (56 of 60 vs 26), which favours
+  that arm under this grader.
 
 ## 14. Reproducing, verifying, deploying
 
@@ -554,8 +650,9 @@ the first behaviour map (`atlas`: stretches clustered into kinds, named and chec
 | behaviour names fit | blind detection 44/53, 21/27 | holds |
 | regimes recover a known timeline | wiki June 16, June 22 | holds, not held out (the outside analysis had been read) |
 | spread ratios mean influence | reversed edges give similar ratios, which is expected under influence too | not established: use the influence model |
-| behaviours change what others do | 164 vs 17 placebo (AI Village), 313 vs 73 (wiki); later part predicted better | holds as association net of own level, place, day, same time |
-| an analyst with the flow tools finds hypotheses that hold next month | July / August round | in progress |
+| behaviours change what others do | 13 vs 1 placebo (AI Village), 203 vs 7 (wiki); the later part predicted better (34 of 40, 46 of 52) | holds as association net of own level, place, day, same time; small on AI Village |
+| particular agents move particular others | 0 clear pairs on AI Village once place and overfitting are controlled (36 before) | not supported |
+| an analyst with the flow tools finds hypotheses that hold next month | July / August round: graded over event text 5 of 60 vs 2 of 60 (p 0.44, both near the 5% passed by chance); graded over behaviours with the influence model, 0 vs 0 at the shrinkage chosen in July, 12 vs 0 at a lighter one chosen afterwards | not shown; a lead at the behaviour level |
 | the storyline sees everything | one period's digest kept 5% of its lines | does not hold; the arc now reads the flow instead |
 
 ## 17. Appendix: every prompt, verbatim

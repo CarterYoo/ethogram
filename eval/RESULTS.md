@@ -934,6 +934,45 @@ URL shorteners, paste sites, package-registry metadata and JSON hosts used as re
 cannot be placed in time. What did not change: the new boards hold 2 dated events in July, so later events that
 outside analyses describe on another platform are not in this data; the pipeline cannot find what the record lacks.
 
+## 17. The flow round: does an analyst with the flow tools find hypotheses that hold next month?
+
+Analysts saw July only: the July index of section 7 (36,994 events, notes, tags and themes from July) with a July
+behaviour atlas taken from the full record's judged stretches (`flow_split.py`: 3,539 judged stretches, 1,052 of them
+uniform; judgments are per stretch, but the dictionary's wording and its agreement scores come from both months).
+12 runs had the flow tools and SKILL.md section 2d (`sgflow`), 12 the same package without them (`sgfeat`); each
+wrote 5 behaviour hypotheses (`analyst_ab.py`, conditions in section 13 of docs/HARNESS.md). Every `sgflow` run
+used the flow tools (28 flow tests, 13 overviews, 5 cascades in all); one `sgfeat` run tried a flow tool and found
+none. Hypotheses were graded on August only.
+
+| grader | with the flow tools | without | random claims passing |
+|---|---:|---:|---:|
+| over event text (`hyp_test.py`, condition-blind formalizer), holds / decided | 5 / 57 (0.09) | 2 / 50 (0.04) | 5.3% of mismatched pairs |
+| holds / all (exact test p) | 5 / 60 | 2 / 60 | p = 0.44 |
+| over behaviours, spread ratios (`flow_grade.py` as first written) | 34 / 60 | 14 / 60 | 62% of decided: discarded |
+| over behaviours, influence model on August alone, shrinkage 80 (chosen in July) | 0 / 60 | 0 / 60 | 2.1% |
+| the same, shrinkage 20 (chosen after seeing the row above) | 12 / 60 | 0 / 60 | 5.5% |
+
+Reading:
+- **Not shown.** Over event text, the arm with the flow tools has more hypotheses that hold (5 vs 2), but the
+  difference is within chance and both are near the rate at which mismatched pairs pass. As in section 7, few
+  hypotheses of either kind hold a month later.
+- **The behaviour grader as first written was useless**: it measured spread ratios, which compare connected stretches
+  with connected stretches, and passed 62% of claims whose behaviours had been swapped at random.
+- **With the influence model** (each claim's pair tested at 5% on August's stretches alone), the shrinkage chosen
+  inside July leaves nothing significant in either arm; a lighter one, whose random pairs pass at the nominal rate,
+  separates the arms 12 to 0. It was chosen after seeing the first, so it is a lead, not a result; and with the tools
+  hypotheses are stated as flow claims far more often (56 of 60 against 26), which is what this grader can test.
+
+## Influence, corrected (docs/HARNESS.md section 10)
+
+The first influence fit on AI Village (no place term, the weakest shrinkage) found 164 behaviour links (placebo 17),
+R 0.90, an instruction-breaking contagion of odds 5.2, and 36 clear agent pairs, 14 from one agent. With the room as a
+term and the shrinkage chosen by prediction inside July (80 for the behaviour terms, 32 for the agent pairs): 13 links
+(placebo 1), R 0.17, odds 1.15-1.33, August predicted better for 34 of 40 behaviours (placebo 27), and no clear agent
+pair (August predicted better for 27 of 40, placebo 19). The room and overfitting made most of the first result. On
+the wiki (author labels, page terms, shrinkage 5 chosen before June 19): 203 links (placebo 7), R 0.82, the later part
+predicted better for 46 of 52 behaviours (placebo 32).
+
 ## Reproduce
 
 ```

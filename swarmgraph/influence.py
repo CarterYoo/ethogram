@@ -7,6 +7,7 @@ other way round: does B do f more than B usually does, after B could see A do f?
 For each behaviour f, over the target stretches u of the agents (actors with enough judged stretches):
 
   logit P(f in u) = beta_B            B's own level (B's usual behaviour, whoever it meets)
+                  + pi_place          the page's or room's own level
                   + gamma_day         what changed for everyone that day
                   + rho * prev        B showed f in its previous stretch that day (persistence)
                   + kappa * nearby    how many stretches by others showed f in the two hours before u WITHOUT a
@@ -47,6 +48,7 @@ import time
 
 WINDOW_S, NEARBY_S, MIN_UNITS = 86400, 7200, 30
 LAM = {"fe": 0.05, "a0": 1e6, "d": 2.0, "x": 0.05}  # L2 strength by kind of parameter; a0 held at 0 (see above)
+EXPO_LAM = 1.0  # L2 strength of the behaviour-to-behaviour terms a(g -> f)
 CLEAR_Z = 3.0  # a pair counts as influence when alpha / its standard error reaches this (about 40 pairs tested)
 MIN_POS, MIN_EXPOSED = 40, 25
 
@@ -71,7 +73,7 @@ def _fit(rows, cols, n, y, lam, theta0=None):
     return res.x, X
 
 
-def design(m, f, agents, targets, enc=None, with_alpha=True, with_day=True, placebo=False):
+def design(m, f, agents, targets, enc=None, with_alpha=True, with_day=True, placebo=False, place=True):
     """design rows for behaviour f: (rows [(i, col, val)], columns {name: index}, y, meta per row). placebo: what B
     sees only AFTER u (the sources of B's next stretch that came after u and were not answers to B): influence cannot
     act before it is seen, so an alpha here measures a shared topic or conversation, not influence. (Reversing the
@@ -102,6 +104,8 @@ def design(m, f, agents, targets, enc=None, with_alpha=True, with_day=True, plac
         k = len(y)
         rows.append((k, cols["intercept"], 1.0))
         rows.append((k, col(f"beta:{B}"), 1.0))
+        if place and x.get("channel"):
+            rows.append((k, col(f"place:{x['channel']}"), 1.0))
         if with_day:
             rows.append((k, col(f"day:{x['day']}"), 1.0))
         prev = by_actor[B][order[u] - 1] if order[u] > 0 else None
@@ -135,12 +139,13 @@ def design(m, f, agents, targets, enc=None, with_alpha=True, with_day=True, plac
     return rows, cols, y, meta
 
 
-def _lam(cols):
+def _lam(cols, d=None):
     out = [0.0] * len(cols)
     for name, j in cols.items():
         kind = name.split(":", 1)[0]
-        out[j] = {"intercept": 0.0, "beta": LAM["fe"], "day": LAM["fe"], "prev": LAM["x"], "prev_missing": LAM["x"],
-                  "nearby": LAM["x"], "a0": LAM["a0"], "d": LAM["d"]}[kind]
+        out[j] = {"intercept": 0.0, "beta": LAM["fe"], "place": LAM["fe"], "day": LAM["fe"], "prev": LAM["x"],
+                  "prev_missing": LAM["x"], "nearby": LAM["x"], "a0": LAM["a0"],
+                  "d": LAM["d"] if d is None else d}[kind]
     return out
 
 
@@ -161,19 +166,19 @@ def _logloss(theta, X, y):
     return float((np.logaddexp(0, eta) - y * eta).mean())
 
 
-def one(m, f, agents, enc=None, cut=None, placebo=False):
+def one(m, f, agents, enc=None, cut=None, placebo=False, until=None, d_lam=None):
     """the influence model for one behaviour: alphas, the branching matrix and its consequences, the held-out check"""
     import numpy as np
-    targets = [u for u in m.tgt if m.u[u]["actor"] in agents]
+    targets = [u for u in m.tgt if m.u[u]["actor"] in agents and (not until or m.u[u]["start"] < until)]
     if placebo:
         _next_any(m)
     rows, cols, y, meta = design(m, f, agents, targets, enc, placebo=placebo)
     if sum(y) < MIN_POS or sum(1 for x in meta if x["from"]) < MIN_EXPOSED:
         return None
-    theta, X = _fit(rows, cols, len(cols), y, _lam(cols))
+    theta, X = _fit(rows, cols, len(cols), y, _lam(cols, d_lam))
     eta = X @ theta
     pr = 1 / (1 + np.exp(-eta))
-    info = X.T.multiply(1).power(2) @ (pr * (1 - pr)) + np.asarray(_lam(cols))  # diagonal of the penalised Hessian
+    info = X.T.multiply(1).power(2) @ (pr * (1 - pr)) + np.asarray(_lam(cols, d_lam))  # diagonal of the penalised Hessian
     se = {name: float(1 / math.sqrt(info[j])) for name, j in cols.items()}
     get = lambda name: theta[cols[name]] if name in cols else 0.0  # noqa: E731
     alpha, support = {}, collections.Counter()
@@ -221,7 +226,7 @@ def one(m, f, agents, enc=None, cut=None, placebo=False):
             res = {}
             for name, wa in (("with", True), ("without", False)):
                 r1, c1, y1, _ = design(m, f, agents, tr, enc, wa, with_day=False, placebo=placebo)
-                th, _ = _fit(r1, c1, len(c1), y1, _lam(c1))
+                th, _ = _fit(r1, c1, len(c1), y1, _lam(c1, d_lam))
                 r2, c2, y2, _ = design(m, f, agents, te, enc, wa, with_day=False, placebo=placebo)
                 # columns met only after the cut (an alpha never fitted) count as 0
                 name_of = {j: k for k, j in c2.items()}
@@ -258,6 +263,28 @@ def one(m, f, agents, enc=None, cut=None, placebo=False):
             "heldout": held}
 
 
+PENALTIES = (1.0, 5.0, 20.0, 80.0, 320.0)
+
+
+def choose_penalty(m, agents, enc, cut, fe, log=print):
+    """the shrinkage of the a(g -> f) terms, chosen by prediction INSIDE the part before the cut: fitted on its first
+    three quarters, scored on its last quarter. The part after the cut is never looked at, so the held-out check that
+    follows stays held out. Weak shrinkage overfits: on AI Village the terms fitted with 1 predicted August worse than
+    no terms at all, with 20-80 better"""
+    from datetime import datetime
+    times = sorted(m.u[u]["start"] for u in m.tgt if not cut or m.u[u]["start"] < cut)
+    if not cut or len(times) < 400:
+        return EXPO_LAM, {}
+    inner = times[int(len(times) * 0.75)][:10]
+    tried = {}
+    for lam in PENALTIES:
+        r = behaviours(m, agents, enc, inner, fe=fe, until=cut, lam=lam)
+        tried[lam] = r["heldout"]["total_gain"] if r["heldout"] else None
+        log(f"influence: penalty {lam}: gain {tried[lam]} on {inner} to {cut}")
+    best = max((g, -lam, lam) for lam, g in tried.items() if g is not None)[2]
+    return best, {str(k): v for k, v in tried.items()}
+
+
 def run(db, cut=None, log=print):
     """the influence model for every behaviour with enough cases; stored as feature_atlas['influence']"""
     from . import features as FE, flow as FL, query as Q
@@ -275,21 +302,35 @@ def run(db, cut=None, log=print):
     # once, only behaviour to behaviour is measured, over every label, with each label's and each page's own level
     # shrunk towards the mean
     level = "agents" if len(agents) >= 5 else "labels"
+    d_lam, d_tried = LAM["d"], {}
+    if level == "agents" and cut:
+        times = sorted(m.u[u]["start"] for u in m.tgt if m.u[u]["start"] < cut)
+        inner = times[int(len(times) * 0.75)][:10]
+        for lam in (2.0, 8.0, 32.0, 128.0):  # chosen inside the part before the cut, as for the behaviour terms
+            gains = [r["heldout"]["gain"] for f in m.fids
+                     for r in [one(m, f, agents, enc, inner, until=cut, d_lam=lam)] if r and r["heldout"]]
+            d_tried[str(lam)] = round(sum(gains), 4)
+            log(f"influence: pair penalty {lam}: gain {d_tried[str(lam)]} on {inner} to {cut}")
+        d_lam = float(max((g, -float(k), k) for k, g in d_tried.items())[2])
     if level == "agents":
         for f in m.fids:
-            r = one(m, f, agents, enc, cut)
+            r = one(m, f, agents, enc, cut, d_lam=d_lam)
             if r:
                 out[f] = r
                 log(f"influence: {r['behaviour'][:40]} R={r['R']} heldout={r['heldout'] and r['heldout']['gain']}")
     who, fe = (agents, LAM["fe"]) if level == "agents" else (None, 1.0)
-    between = behaviours(m, who, enc, cut, log=log, fe=fe)
-    pl = behaviours(m, who, enc, cut, placebo=True, fe=fe)
-    between["level"] = level
+    lam, tried = choose_penalty(m, who, enc, cut, fe, log)
+    between = behaviours(m, who, enc, cut, log=log, fe=fe, lam=lam)
+    pl = behaviours(m, who, enc, cut, placebo=True, fe=fe, lam=lam)
+    between["level"], between["penalty"], between["penalty_tried"] = level, lam, tried
+    between.pop("tested", None)
+    pl.pop("tested", None)
     between["placebo"] = {"significant": pl["significant"], "R": pl["R"], "heldout": pl["heldout"]}
     summary = {"level": level, "agents": len(agents), "behaviours": len(out), "cut": cut, "encoded": bool(enc),
                "made": time.strftime("%Y-%m-%d %H:%M:%S"), "seconds": round(time.time() - t0),
                "behaviour_links": between["significant"], "behaviour_links_placebo": pl["significant"],
-               "R": between["R"], "R_placebo": pl["R"]}
+               "R": between["R"], "R_placebo": pl["R"], "penalty": lam, "pair_penalty": d_lam,
+               "pair_penalty_tried": d_tried}
     FE.save(open_work(db), "influence", {"summary": summary, "behaviours": out, "between": between})
     return summary
 
@@ -428,7 +469,8 @@ def _next_any(m):
     return m.next_any
 
 
-def behaviours(m, agents, enc=None, cut=None, placebo=False, fids=None, log=lambda s: None, fe=None, place=True):
+def behaviours(m, agents, enc=None, cut=None, placebo=False, fids=None, log=lambda s: None, fe=None, place=True,
+               until=None, lam=None, since=None):
     """for every behaviour f: logit P(f in u) = B's level + day + B's previous f + same-time f without contact
     + sum over g of a(g -> f) * [what u could see showed g]; a(g -> f) with a z, the false discovery rate over all
     pairs, the change in probability, and the branching matrix over behaviours"""
@@ -440,7 +482,9 @@ def behaviours(m, agents, enc=None, cut=None, placebo=False, fids=None, log=lamb
     if agents is None:  # every actor (author labels that rarely recur: their own level is shrunk towards the mean)
         agents = {x["actor"] for x in m.u.values()}
     fe = LAM["fe"] if fe is None else fe
-    targets = [u for u in m.tgt if m.u[u]["actor"] in agents]
+    lam_e = EXPO_LAM if lam is None else lam
+    targets = [u for u in m.tgt if m.u[u]["actor"] in agents and (not until or m.u[u]["start"] < until)
+               and (not since or m.u[u]["start"] >= since)]
     expo = {u: _exposures(m, u, m.u[u]["actor"], enc, placebo, fids) for u in targets}
     by_actor = collections.defaultdict(list)
     for i in m.has:
@@ -477,7 +521,7 @@ def behaviours(m, agents, enc=None, cut=None, placebo=False, fids=None, log=lamb
                 y.append(1 if f in m.has[u] else 0)
             lam = [0.0 if n == "intercept" else fe if n.split(":")[0] in ("beta", "place") else
                    LAM["fe"] if n.startswith("day:") else
-                   1.0 if n.startswith("e:") else LAM["x"] for n in sorted(cols, key=cols.get)]
+                   lam_e if n.startswith("e:") else LAM["x"] for n in sorted(cols, key=cols.get)]
             return rows, cols, y, lam
         rows, cols, y, lam = build(targets, True, True)
         if sum(y) < MIN_POS:
@@ -558,7 +602,8 @@ def behaviours(m, agents, enc=None, cut=None, placebo=False, fids=None, log=lamb
         back = next((y for y in sig if y["g"] == x["f"] and y["f"] == x["g"]), None)
         if back and x["g"] < x["f"]:
             loops.append({"a": nm(x["g"]), "b": nm(x["f"]), "ab": round(x["a"], 3), "ba": round(back["a"], 3)})
-    return {"links": [{"g": x["g"], "f": x["f"], "a": round(x["a"], 3), "odds": round(math.exp(x["a"]), 2),
+    return {"tested": {f"{x['g']}>{x['f']}": [round(x["a"], 4), round(x["z"], 3), x["exposed"]] for x in links},
+            "links": [{"g": x["g"], "f": x["f"], "a": round(x["a"], 3), "odds": round(math.exp(x["a"]), 2),
                        "dp": round(x["dp"], 4), "z": round(x["z"], 2), "exposed": x["exposed"],
                        "branch": x.get("g_branch")} for x in sorted(sig, key=lambda r: -r["z"])],
             "behaviours": len(fitted), "pairs_tested": len(links), "significant": len(sig),

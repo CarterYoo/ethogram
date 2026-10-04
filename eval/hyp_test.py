@@ -201,7 +201,10 @@ def run(out_dir, arms, indexes, since=None, until=None, effort="medium", only_id
         if not s.get("valid"):
             results[h["hid"]] = {"verdict": "untestable", "why": s.get("why")}
         else:
-            results[h["hid"]] = {**run_test(logs[h["dataset"]], s), "partial": bool(s.get("partial"))}
+            try:
+                results[h["hid"]] = {**run_test(logs[h["dataset"]], s), "partial": bool(s.get("partial"))}
+            except re.error as ex:  # a pattern too slow on the log it is measured on
+                results[h["hid"]] = {"verdict": "untestable", "why": str(ex)[:160]}
     # 3. calibration: A of one hypothesis with B of another (unrelated), same scope and window
     rnd = random.Random(11)
     null = collections.defaultdict(list)
@@ -213,7 +216,10 @@ def run(out_dir, arms, indexes, since=None, until=None, effort="medium", only_id
                 other = rnd.choice([p for p in pool if p[0] != hid])[1]
                 spec = {"shape": "after_then", "a_patterns": s["a_patterns"], "b_patterns": other["b_patterns"],
                         "scope": s["scope"], "window_minutes": s["window_minutes"]}
-                null[ds].append(run_test(logs[ds], spec)["verdict"])
+                try:
+                    null[ds].append(run_test(logs[ds], spec)["verdict"])
+                except re.error:
+                    null[ds].append("untestable")
     for h in hyps:  # recurrence: do the described events occur in the held-out part at all?
         sp = specs[h["hid"]]
         if train_logs and sp.get("a_patterns"):

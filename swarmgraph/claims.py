@@ -116,10 +116,33 @@ class Log:
             if (field, p) not in cache:
                 if self.risky(p):
                     raise re.error(f"nested repetition (can take exponential time): {p[:60]}")
-                rx = re.compile(p, re.I | re.S)
-                cache[(field, p)] = [bool(rx.search(t)) for t in src]
+                cache[(field, p)] = _search_all(p, src)
             arrs.append(cache[(field, p)])
         return [any(col) for col in zip(*arrs)] if arrs else [False] * self.n
+
+
+PER_TEXT_S, PER_PATTERN_S = 2.0, 120  # a pattern slower than this on one text, or on the whole log, is refused
+
+
+def _search_all(p, texts):
+    """one boolean per text. With the `regex` module (the maps environment has it) every search has a time limit, so
+    a pattern that backtracks without end is refused instead of hanging the run (two grading runs hung on such
+    patterns); without it, the standard engine and the nested-repetition check alone"""
+    import time
+    try:
+        import regex as rx_mod
+    except ImportError:
+        rx = re.compile(p, re.I | re.S)
+        return [bool(rx.search(t)) for t in texts]
+    rx, t0, out = rx_mod.compile(p, rx_mod.I | rx_mod.S | rx_mod.V0), time.time(), []
+    for t in texts:
+        try:
+            out.append(bool(rx.search(t, timeout=PER_TEXT_S)))
+        except TimeoutError:
+            raise re.error(f"too slow on one event (over {PER_TEXT_S} s): {p[:60]}")
+        if time.time() - t0 > PER_PATTERN_S:
+            raise re.error(f"too slow over the log (over {PER_PATTERN_S} s): {p[:60]}")
+    return out
 
 
 # ---------------------------------------------------------------------------- measurements
