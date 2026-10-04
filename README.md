@@ -4,8 +4,6 @@ Understanding behaviour in multi-agent environments. (The Python package and com
 
 ![SwarmScope demo: a swarm of agents, one sentence becoming a behaviour, behaviours over time with the storyline](docs/media/swarmscope-demo.webp)
 
-*36-second demo on the wiki logs plus other boards, made with HyperFrames from the real results ([demo/](demo/)).*
-
 
 Index and investigate multi-agent datasets — agent swarms, message boards, group chats, orchestrator/subagent logs —
 as an **MCP server + skill** that any agent can use. Built for the AI Village × Grove Research *AI Swarm Dynamics
