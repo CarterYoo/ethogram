@@ -4,7 +4,7 @@
 
 **Understanding behaviour in multi-agent environments**
 
-<img src="docs/media/swarmscope-demo.webp" alt="SwarmScope: a swarm of agents, one sentence becoming a behaviour, and behaviours over time with the storyline" width="100%">
+<img src="docs/media/swarmscope-demo-30fps.webp" alt="SwarmScope: a swarm of agents, one sentence becoming a behaviour, and behaviours over time with the storyline" width="100%">
 
 [What it does](#what-it-does) · [How it works](#how-it-works) · [Quick start](#quick-start) · [Results](#results) · [Docs](#docs)
 
