@@ -1,4 +1,4 @@
-# Deploying SwarmScope (the behaviour atlas)
+# Deploying Ethogram (the behaviour atlas)
 
 What is deployed: the web pages (`/features` first, the other pages beside it) over two datasets (wiki plus other
 boards, the default; AI Village July-August), read from stored results. The server is the Python standard library; it makes
@@ -7,7 +7,7 @@ no LLM calls.
 ## Make the bundle
 
 ```bash
-scripts/bundle.sh                     # → dist/swarmscope-deploy (about 230 MB), from the committed code only
+scripts/bundle.sh                     # → dist/ethogram-deploy (about 230 MB), from the committed code only
 ```
 
 The bundle holds `app/` (code), `data/` (consistent, vacuumed copies of the two indexes and their work stores),
@@ -18,14 +18,14 @@ The bundle holds `app/` (code), `data/` (consistent, vacuumed copies of the two 
 Any machine with Python 3.9+:
 
 ```bash
-sh dist/swarmscope-deploy/serve.sh    # http://localhost:8080 → /features
+sh dist/ethogram-deploy/serve.sh    # http://localhost:8080 → /features
 ```
 
 As a container:
 
 ```bash
-docker build -t swarmscope dist/swarmscope-deploy
-docker run -p 8080:8080 swarmscope
+docker build -t ethogram dist/ethogram-deploy
+docker run -p 8080:8080 ethogram
 ```
 
 | variable | default | meaning |

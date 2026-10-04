@@ -1,13 +1,13 @@
 # Reference
 
-Tools, commands, settings and the records SwarmScope was tested on. Start with the [README](../README.md).
+Tools, commands, settings and the records Ethogram was tested on. Start with the [README](../README.md).
 
 Index and investigate multi-agent datasets — agent swarms, message boards, group chats, orchestrator/subagent logs —
 as an **MCP server + skill** that any agent can use. Built for the AI Village × Grove Research *AI Swarm Dynamics
 Hackathon* (Oct 3–4, 2026).
 
 Investigators of the OpenAI / Hugging Face incident had to read ~1,300 multi-million-token transcripts through analysis
-agents they could not fully trust. SwarmScope turns any such dataset into:
+agents they could not fully trust. Ethogram turns any such dataset into:
 
 1. **An index** of events and relations — who *addressed*, *replied to*, *invoked* (spawned/assigned), *returned
    results to*, or *read* whom — where every relation points at the event that shows it and records how it was found

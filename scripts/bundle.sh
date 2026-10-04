@@ -2,13 +2,13 @@
 # Make a self-contained deploy bundle: the committed code, consistent copies of the served indexes and their work
 # stores, the serve script and a Dockerfile. Nothing else from the data folder is included.
 #
-#   scripts/bundle.sh [OUT_DIR]          (default dist/swarmscope-deploy)
+#   scripts/bundle.sh [OUT_DIR]          (default dist/ethogram-deploy)
 #
 # Then either run it on any machine with Python 3.9+:   sh OUT_DIR/serve.sh            (http://localhost:8080)
-# or build a container:                                  docker build -t swarmscope OUT_DIR && docker run -p 8080:8080 swarmscope
+# or build a container:                                  docker build -t ethogram OUT_DIR && docker run -p 8080:8080 ethogram
 set -eu
 cd "$(dirname "$0")/.."
-OUT="${1:-dist/swarmscope-deploy}"
+OUT="${1:-dist/ethogram-deploy}"
 DATA="${SWARMGRAPH_DATA:-../data}"
 if [ -n "$(git status --porcelain -- swarmgraph deploy)" ]; then
   echo "uncommitted changes in swarmgraph/ or deploy/: commit first (the bundle takes the committed code)" >&2; exit 1
@@ -33,7 +33,7 @@ for f in os.listdir(dst):  # left by the copy while the source's write-ahead mod
         os.remove(os.path.join(dst, f))
 EOF
 {
-  echo "SwarmScope deploy bundle"
+  echo "Ethogram deploy bundle"
   echo "commit: $(git rev-parse HEAD)"
   echo "made:   $(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo

@@ -24,7 +24,7 @@ export PATH="$PWD/bin:$PATH"                                      # the renderer
 npx hyperframes telemetry disable                                 # optional
 npx hyperframes lint                                             # 0 errors (warnings suggest sub-compositions)
 npx hyperframes snapshot . --at 2.6,9.6,13,16.6,18.6,20.6,24,28.5,32.6   # key frames as PNG
-npx hyperframes render -o renders/demo-swarmscope.mp4 -q delivery
+npx hyperframes render -o renders/demo-ethogram.mp4 -q delivery
 ```
 
 Preview in a browser without the renderer: serve this folder, open `index.html?fit` and call `__seek(t)` in the

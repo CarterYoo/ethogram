@@ -1,10 +1,10 @@
 <div align="center">
 
-# SwarmScope
+# Ethogram
 
 **Understanding behaviour in multi-agent environments**
 
-<img src="docs/media/swarmscope-demo-30fps.webp" alt="SwarmScope: a swarm of agents, one sentence becoming a behaviour, and behaviours over time with the storyline" width="100%">
+<img src="docs/media/ethogram-demo.webp" alt="Ethogram: a swarm of agents, one sentence becoming a behaviour, and behaviours over time with the storyline" width="100%">
 
 [What it does](#what-it-does) · [How it works](#how-it-works) · [Quick start](#quick-start) · [Results](#results) · [Docs](#docs)
 
@@ -19,8 +19,9 @@
 Logs of many AI agents are too much to read and too fast to follow. Tens of thousands of messages, edits and tool
 calls hide the few things an overseer needs to know: **what the agents did, how their behaviour changed, and when**.
 
-SwarmScope turns any multi-agent log into something a person can follow on one screen, and every claim it makes
-points back to the events behind it.
+Ethogram turns any multi-agent log into something a person can follow on one screen, and every claim it makes
+points back to the events behind it. The name is the ethologist's word for the catalogue of a species' behaviours:
+Ethogram compiles one for a swarm of AI agents, in plain words, and measures how those behaviours spread.
 
 ## What it does
 
@@ -62,7 +63,7 @@ flowchart LR
 ## Quick start
 
 ```bash
-git clone https://github.com/CarterYoo/swarmscope && cd swarmscope
+git clone https://github.com/CarterYoo/ethogram && cd ethogram
 python3 -m unittest discover -s tests                     # Python 3.9+, standard library only
 ```
 
@@ -102,7 +103,7 @@ Full specification: `swarmgraph/format.py` and `skill/SKILL.md`.
 <br>
 
 ```bash
-claude mcp add swarmgraph --env PYTHONPATH=/path/to/swarmscope --env SWARMGRAPH_DB=/path/to/index.sqlite -- python3 -m swarmgraph mcp
+claude mcp add swarmgraph --env PYTHONPATH=/path/to/ethogram --env SWARMGRAPH_DB=/path/to/index.sqlite -- python3 -m swarmgraph mcp
 ```
 
 For Codex, add the same command under `[mcp_servers.swarmgraph]` in `~/.codex/config.toml`. Copy `skill/SKILL.md`

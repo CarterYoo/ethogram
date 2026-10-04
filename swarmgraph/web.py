@@ -432,6 +432,6 @@ def serve(db, port, share=False, also=(), host="127.0.0.1", home=""):
     Handler.share = SHARE = share
     Handler.home = home
     srv = http.server.ThreadingHTTPServer((host, port), Handler)
-    print(f"SwarmScope: http://{host}:{port}{home}  (index {Handler.db}"
+    print(f"Ethogram: http://{host}:{port}{home}  (index {Handler.db}"
           f"{', share mode: technical detail withheld' if share else ''})", flush=True)
     srv.serve_forever()

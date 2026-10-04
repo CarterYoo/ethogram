@@ -1,4 +1,4 @@
-# The SwarmScope harness
+# The Ethogram harness
 
 How a multi-agent log becomes a behaviour atlas, a measured flow of behaviour, an influence model and an arc: every
 stage, what it reads and writes, which model call or code does the work, how the stages are chained, what checks each
