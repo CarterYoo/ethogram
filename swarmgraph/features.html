@@ -9,39 +9,21 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow:hidden}
 body{background:var(--bg);color:var(--fg);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-display:grid;grid-template-rows:auto auto 1fr auto;grid-template-columns:minmax(0,1fr);height:100vh}
-header{display:flex;align-items:center;gap:10px;padding:10px 16px 4px;flex-wrap:wrap}
+display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);height:100vh}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px 8px;flex-wrap:wrap}
 h1{font-size:17px;font-weight:600;margin:0}.muted{color:var(--muted)}
-#info{margin-left:auto;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:50%;width:24px;height:24px;cursor:pointer;font:600 13px/1 inherit}
-#story{display:flex;flex-direction:column;gap:4px;padding:4px 16px 6px}
+#info{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:50%;width:24px;height:24px;cursor:pointer;font:600 13px/1 inherit}
 .row{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
 select,button{font:inherit;font-size:13px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer}
 button:hover,select:hover{border-color:var(--sel)}button:disabled{opacity:.4;cursor:default}
 select{min-width:0;flex:0 1 auto;max-width:min(460px,52vw)}
 #step{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;white-space:nowrap}
-#caption{font-size:15px;min-height:2.9em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#caption b{font-weight:600}
 #mapwrap{position:relative;min-height:0;margin:0 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
 #map{position:absolute;inset:0;width:100%;height:100%}
-#legend{position:absolute;left:12px;bottom:8px;font-size:12px;color:var(--muted);pointer-events:none;background:var(--panel);padding:2px 6px;border-radius:6px;opacity:.9}
 #cap{position:absolute;left:12px;top:10px;max-width:min(460px,62%);pointer-events:none;z-index:2;padding:8px 11px 9px;border-radius:10px;
-background:color-mix(in srgb,var(--panel) 84%,transparent);border:1px solid var(--line);backdrop-filter:blur(3px);transition:opacity .35s;opacity:0}
+background:color-mix(in srgb,var(--panel) 55%,transparent);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);transition:opacity .35s;opacity:0}
 #cap.on{opacity:1}#cap .ph{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
 #cap .ph i{width:8px;height:8px;border-radius:50%;display:inline-block}#cap .tp{font-size:16px;font-weight:600;margin-top:2px}
-#cap .wc{font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px}
-#cap .wc{color:var(--muted)}
-#sum{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;padding:10px;opacity:0;pointer-events:none;
-transition:opacity .5s;background:color-mix(in srgb,var(--panel) 55%,transparent);backdrop-filter:blur(4px)}#sum.on{opacity:1;pointer-events:auto}
-#sum .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:660px;width:100%;max-height:100%;display:flex;
-flex-direction:column;padding:14px 18px 12px;box-shadow:0 10px 32px rgba(0,0,0,.18)}#sum .body{overflow:auto;min-height:0}
-#sum .phs{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}#sum h2{font-size:18px;margin:2px 0 4px;line-height:1.25}
-#sum .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:9px 0 4px}#sum .k:first-child{margin-top:0}
-#sum .arc{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#sum .bar{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:6px}
-#sum .ph{display:flex;gap:8px;align-items:baseline;font-size:13px;line-height:1.4}#sum .ph i{width:8px;height:8px;border-radius:50%;flex:none;transform:translateY(-1px)}
-#sum .ph .d{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-#sum .cl{font-size:13px;margin:3px 0;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-#sum .chip{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;margin-right:6px;color:#fff}#sum .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;flex:none}
 #clock{position:absolute;right:14px;top:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted);pointer-events:none}
 #tip{position:fixed;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;
 box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:6;max-width:280px}
@@ -57,17 +39,14 @@ box-shadow:0 8px 28px rgba(0,0,0,.16);z-index:5}
 #over .x{float:right;cursor:pointer;color:var(--muted);font-size:20px}
 .src{border-left:3px solid var(--line);padding:6px 10px;margin:8px 0;font-size:13px;background:var(--bg);border-radius:0 6px 6px 0}
 .src .t{font-size:12px;color:var(--muted)}.pick li{cursor:pointer;margin:4px 0}.pick li:hover{color:var(--sel)}
-@media (max-width:640px){#sum .phs{grid-template-columns:1fr}#cap{max-width:calc(100% - 24px)}#cap .wc{display:none}#step{display:none}#caption{font-size:14px}#when{min-width:0}header{padding:8px 12px 2px}#story,#bottom{padding-left:12px;padding-right:12px}#mapwrap{margin:0 12px}#legend{display:none}}
+@media (max-width:640px){#cap{max-width:calc(100% - 24px)}#step{display:none}#sub{display:none}#when{min-width:0}header{padding:8px 12px 2px}#bottom{padding-left:12px;padding-right:12px}#mapwrap{margin:0 12px}}
 </style></head><body>
-<header><h1>SwarmScope</h1><select id="dataset" aria-label="Choose a dataset" style="display:none"></select><span id="sub" class="muted"></span><button id="info" title="How to read this">?</button></header>
-<section id="story">
-  <div class="row"><button id="prev" aria-label="Previous scene">◀</button><select id="pick" aria-label="Choose a story"></select>
-    <button id="next" aria-label="Next scene">▶</button><span id="step"></span>
-    <span style="margin-left:auto"></span><button id="why" style="display:none" onclick="showWhy()">Why?</button>
-    <button id="evid" style="display:none" onclick="sceneSources()">Evidence</button></div>
-  <div id="caption"></div>
-</section>
-<div id="mapwrap"><canvas id="map"></canvas><div id="cap" aria-live="polite"></div><div id="sum" role="dialog" aria-label="Summary of the record"><div class="box"></div></div><div id="clock"></div><div id="legend"></div><div id="card"></div></div>
+<header><h1>SwarmScope</h1><select id="dataset" aria-label="Choose a dataset" style="display:none"></select><span id="sub" class="muted"></span>
+  <span class="row"><button id="prev" aria-label="Previous scene">◀</button><select id="pick" aria-label="Choose a story"></select>
+    <button id="next" aria-label="Next scene">▶</button><span id="step"></span></span>
+  <span style="margin-left:auto"></span><button id="inf" style="display:none" aria-pressed="false" onclick="toggleInf()">Influence</button><button id="why" style="display:none" onclick="showWhy()">Why?</button>
+  <button id="evid" style="display:none" onclick="sceneSources()">Evidence</button><button id="info" title="How to read this">?</button></header>
+<div id="mapwrap"><canvas id="map"></canvas><div id="cap" aria-live="polite"></div><div id="clock"></div><div id="card"></div></div>
 <div id="bottom"><button id="play">▶ Play</button><canvas id="strip"></canvas><span id="when"></span></div>
 <div id="tip"></div>
 <div id="over"><div class="box"><span class="x" onclick="closeOver()">×</span><div id="obody"></div></div></div>
@@ -87,6 +66,7 @@ const DS = new URLSearchParams(location.search).get("ds");
 const api = p => p + (DS ? (p.includes("?") ? "&" : "?") + "ds=" + encodeURIComponent(DS) : "");
 
 let ARC = null, D, S = {stories: []}, P = null, F = {}, ST = [], EDGES = [], binIdx = {}, peakBin = {}, dayWork = [], daily = {};
+let FLOW = null, rmarks = [], endTok = 0, INF = null, infOn = false, hoverId = null;  // INF: behaviour -> behaviour influence  // measured by code (docs/FLOW.md): regime boundaries and what spreads
 let story = -1, scene = 0, focus = new Set(), picked = null, labelled = [], frameCount = 0, labelKey = "", hotNow = {}, LBLS = {}, labelsMoving = false;
 let view = {w0: 0, w1: 1, a: 0, b: 0, mode: "overview"};   // shown range of time (as share of the work done) and its days
 let T = 1, speed = 0, playing = false, scenePlay = false, last = 0, shown = {}, pts = [], frameReq = 0;
@@ -142,11 +122,12 @@ function render(dt = 1) {  // dt: seconds since the last frame (1 = jump to the 
     ctx.fillStyle = v > 0.003 ? grad(dayWork[peakBin[f.id]] ?? 0, on ? .32 : .07) : COL.faint; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill();
     if (focus.has(f.id) || picked === f.id) { ctx.strokeStyle = COL.fg; ctx.globalAlpha = .7; ctx.lineWidth = picked === f.id ? 2.4 : 1.2; ctx.stroke(); ctx.globalAlpha = 1; }
   }
+  if (infOn && INF) drawInfluence(ctx);
   // traces: a later stretch reusing words another author wrote first; the line grows source -> reuser, then stays faint
   const fresh = view.mode === "overview" ? 0 : Math.max(0.003, speed * 0.9);
   const on = (a, b) => !focus.size || focus.has(ST[a].home) || focus.has(ST[b].home), hot = {};
   for (const e of EDGES) {
-    if (e.w < view.w0) continue; if (e.w > T) break; if (view.mode === "overview" && e.n < 8) continue;
+    if (e.w < view.w0) continue; if (e.w > T) break; if (view.mode === "overview" && e.n < 8) continue; if (infOn && INF) break;
     const s = ST[e.s], d = ST[e.d], age = fresh ? (T - e.w) / fresh : 9, k = on(e.s, e.d) ? 1 : .2;
     if (age < 1) { hot[s.home] = (hot[s.home] || 0) + 1; hot[d.home] = (hot[d.home] || 0) + 1; }
     const x1 = X(s.x), y1 = Y(s.y), x2 = X(d.x), y2 = Y(d.y), cx = (x1 + x2) / 2 - (y2 - y1) * .22, cy = (y1 + y2) / 2 + (x2 - x1) * .22;
@@ -167,7 +148,8 @@ function render(dt = 1) {  // dt: seconds since the last frame (1 = jump to the 
   // largest; refreshed slowly while time runs so they do not flicker
   const key = `${view.mode}|${story}|${scene}`;
   if (key !== labelKey || view.mode === "overview" || !playing || frameCount++ % 60 === 0) {
-    const ranked = [...pts].map(p => [p.id, (focus.has(p.id) ? 1e6 : 0) + (hot[p.id] || 0) * 100 + (shown[p.id] || 0)])
+    const linked = infLinked();
+    const ranked = [...pts].map(p => [p.id, (focus.has(p.id) || linked.has(p.id) ? 1e6 : 0) + (hot[p.id] || 0) * 100 + (shown[p.id] || 0)])
       .filter(([id, v]) => v > 0.004).sort((a, b) => b[1] - a[1]).map(x => x[0]), n = focus.size ? Math.max(8, focus.size) : 12;
     const stay = key === labelKey ? labelled.filter(id => { const r = ranked.indexOf(id); return r >= 0 && r < n + 5; }) : [];  // no churn
     labelled = [...stay, ...ranked.filter(id => !stay.includes(id))].slice(0, n); labelKey = key; hotNow = hot; }
@@ -211,7 +193,7 @@ function storyCap() {  // the phase of the arc that the time shown falls in
   clearTimeout(capTimer); const was = el.classList.contains("on"); el.classList.remove("on");  // fade out, then in
   if (!ph) return;
   const html = `<div class="ph"><i style="background:${grad(dayWork[binIdx[ph.start]] ?? 0)}"></i>Phase ${pi + 1} of ${phases.length} · ${esc(span(ph.start, ph.end))}</div>` +
-    `<div class="tp">${esc(ph.name)}</div>` + (ph.what ? `<div class="wc">${esc(ph.what)}</div>` : "");
+    `<div class="tp">${esc(ph.name)}</div>`;  // the phase and its days only: what defines it is in the arc
   capTimer = setTimeout(() => { el.innerHTML = html; el.classList.add("on"); kick(); }, was && !reduced ? 360 : 0);
 }
 const Tin = () => view.mode === "scene" ? Math.min(T, view.w1 - 1e-9) : T;  // a scene ends before the next day's first stretch
@@ -230,6 +212,10 @@ function renderStrip() {
   ctx.fillStyle = COL.sel; ctx.globalAlpha = .13; ctx.fillRect(XS[view.a], top, XS[view.b + 1] - XS[view.a], base - top); ctx.globalAlpha = 1;
   D.n_bin.forEach((c, k) => { if (!c) return; const bh = Math.max(2, (base - top - 4) * Math.sqrt(c / mx));
     ctx.fillStyle = grad(dayWork[k], k >= view.a && k <= view.b ? 1 : .45); ctx.fillRect(XS[k] + .5, base - bh, Math.max(1, XS[k + 1] - XS[k] - 1), bh); });
+  rmarks = [];
+  (FLOW?.boundaries || []).forEach(r => { const k = binIdx[r.date]; if (k === undefined) return;  // regime changes found by code
+    const x = Math.round(XS[k]) + .5; ctx.strokeStyle = COL.fg; ctx.globalAlpha = .5; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, base); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; rmarks.push({x, r}); });
   if (ARC) {
     ctx.font = "11px -apple-system, sans-serif"; ctx.textBaseline = "middle";
     (ARC.phases || []).forEach((p, i) => { const a = binIdx[p.start] ?? 0, b = binIdx[p.end] ?? n - 1, x0 = XS[a], x1 = XS[b + 1];
@@ -260,19 +246,19 @@ function renderStrip() {
 }
 
 // ---- what is shown
-function setCaption(h) { $("caption").innerHTML = h; }
+function notice(h) { const el = $("cap"); el.innerHTML = h ? `<div class="tp">${h}</div>` : ""; el.classList.toggle("on", !!h); }
 function stepLabel() { const s = S.stories[story];
   $("prev").disabled = story < 0 || scene === 0; $("next").disabled = story < 0 ? !S.stories.length : scene >= s.scenes.length - 1;
   $("step").textContent = story < 0 ? "" : `${S.stories[story].isArc ? "turning point" : "scene"} ${scene + 1} of ${s.scenes.length}`;
   $("evid").style.display = story >= 0 && S.stories[story].scenes[scene].events?.length ? "" : "none"; $("why").style.display = ARC ? "" : "none"; }
 function setView(a, b, mode) {
-  hideSummary(); view = {a, b, mode, w0: dayWork[a], w1: b < D.bins.length - 1 ? dayWork[b + 1] : 1};  // from the start of day a to the end of day b
+  endTok++; view = {a, b, mode, w0: dayWork[a], w1: b < D.bins.length - 1 ? dayWork[b + 1] : 1};  // from the start of day a to the end of day b
   $("when").textContent = span(D.bins[a], D.bins[b]);
 }
 function showScene(auto) {
   const c = S.stories[story].scenes[scene], a = Math.max(0, binIdx[c.start] ?? 0), b = Math.max(a, binIdx[c.end] ?? a);
   setView(a, b, "scene"); focus = new Set((c.features || []).filter(id => F[id])); picked = null; hideCard();
-  setCaption(`<b>${esc(span(D.bins[a], D.bins[b]))}</b> · ${esc(c.caption)}`); stepLabel(); renderStrip();
+  stepLabel(); renderStrip();
   T = view.w0; speed = Math.max(1e-6, view.w1 - view.w0) / 4.5; playing = true; scenePlay = auto; $("play").textContent = auto ? "❚❚ Pause" : "▶ Play"; kick();
 }
 function finished() {
@@ -280,36 +266,53 @@ function finished() {
   if (view.mode === "scene" && scenePlay && story >= 0 && scene < S.stories[story].scenes.length - 1) { setTimeout(() => { if (scenePlay) { scene++; showScene(true); } }, 1500); return; }
   const ended = (view.mode === "play" && T >= 1 - 1e-9) || (view.mode === "scene" && scenePlay);  // the record, or a story, played out
   scenePlay = false; $("play").textContent = "▶ Play";
-  if (ended) setTimeout(() => { if (!playing && !scenePlay) showSummary(); }, 700);
+  if (ended) { const tok = endTok; setTimeout(() => { if (tok === endTok && !playing && !scenePlay) overview(); }, 3000); }  // back to the map unless the viewer moved on
 }
-function showSummary() {
-  if (!ARC && !S.summary) return;
-  const VC = {supported: ["Supported", "#3b8a4b"], partly: ["Partly supported", "#b8862f"], unsupported: ["Not supported", "#b44a3a"]};
-  const phases = ARC?.phases || [], a = p => binIdx[p.start] ?? 0, b = p => binIdx[p.end] ?? D.bins.length - 1;
-  const work = p => (b(p) < D.bins.length - 1 ? dayWork[b(p) + 1] : 1) - dayWork[a(p)], col = p => grad((dayWork[a(p)] + (b(p) < D.bins.length - 1 ? dayWork[b(p) + 1] : 1)) / 2);
-  const rank = h => ["supported", "partly"].indexOf(h.verdict) + 1 || 9;
-  $("sum").firstChild.innerHTML = `<div class="body"><div class="k">Summary · ${esc(span(D.bins[0], D.bins[D.bins.length - 1]))} · ${D.features.length} behaviours · ${EDGES.length.toLocaleString()} traces of reused words</div>` +
-    `<h2>${esc(ARC ? ARC.title : "What happened")}</h2><div class="arc">${esc(ARC ? ARC.arc : S.summary)}</div>` +
-    (phases.length ? `<div class="k">${phases.length} phases</div><div class="bar">${phases.map(p => `<span style="flex:${Math.max(.01, work(p))};background:${col(p)}"></span>`).join("")}</div>` +
-      `<div class="phs">${phases.map((p, i) => `<div class="ph"><i style="background:${col(p)}"></i><span class="d">${esc(span(p.start, p.end))}</span><span>${esc(p.name)}</span></div>`).join("")}</div>` : "") +
-    ((ARC?.hypotheses || []).length ? `<div class="k">What explains it</div>` + [...ARC.hypotheses].sort((x, y) => rank(x) - rank(y)).map(h => { const v = VC[h.verdict] || ["Not reviewed", "#8a8780"];
-      return `<div class="cl"><span class="chip" style="background:${v[1]}">${v[0]}</span>${esc(h.claim)}</div>`; }).join("") : "") +
-    `</div><div class="acts"><button onclick="freeView(0, true)">↺ Play again</button><button onclick="overview()">Explore the map</button>${ARC ? `<button onclick="showWhy()">Why?</button>` : ""}</div>`;
-  $("sum").classList.add("on");
-}
-function hideSummary() { $("sum").classList.remove("on"); }
-$("sum").addEventListener("click", e => { if (e.target.id === "sum") hideSummary(); });
 function overview() {
   story = -1; scene = 0; focus = new Set(); picked = null; hideCard(); scenePlay = false; playing = false;
   setView(0, D.bins.length - 1, "overview"); T = 1; speed = 0; $("pick").value = "-1"; $("play").textContent = "▶ Play";
-  setCaption(ARC ? `<b>${esc(ARC.title)}.</b> ${esc(ARC.arc)}` : esc(S.summary || "Each soft dot is a behaviour; the small marks are stretches of work showing it; the lines are text one stretch reused from another."));
   stepLabel(); kick();
 }
 function freeView(w, play) {  // the whole record from w on; traces of the recent work fade behind the playhead
   story = -1; focus = new Set(); $("pick").value = "-1"; scenePlay = false; stepLabel();
   setView(0, D.bins.length - 1, "play"); view.w0 = Math.max(0, w - 0.05); T = w; speed = 1 / 70; playing = play;
   $("play").textContent = play ? "❚❚ Pause" : "▶ Play";
-  setCaption("Each line is a later post reusing words another author wrote first. Bright = just now; faint = earlier."); kick();
+  kick();
+}
+
+// ---- influence: does seeing one behaviour change what others do (docs/FLOW.md section 8)
+const nx = v => v >= 10 ? Math.round(v) : (+v).toFixed(1);
+function infFocus() { return hoverId || picked; }
+function infLinked() { const c = infFocus(), out = new Set(); if (!infOn || !INF || !c) return out;
+  for (const l of INF.links) { if (l.g === c) out.add(l.f); if (l.f === c) out.add(l.g); } return out; }
+function toggleInf() { infOn = !infOn; $("inf").setAttribute("aria-pressed", infOn); $("inf").style.borderColor = infOn ? "var(--sel)" : "";
+  $("inf").style.color = infOn ? "var(--sel)" : ""; labelKey = ""; kick(); }
+function drawInfluence(ctx) {
+  const at = {}; for (const p of pts) at[p.id] = p;
+  const c = infFocus(), ls = c ? INF.links.filter(l => l.g === c || l.f === c) : INF.links.filter(l => l.g !== l.f).slice(0, 40);
+  for (const l of ls) {
+    const a = at[l.g], b = at[l.f]; if (!a || !b) continue;
+    const w = Math.max(.8, Math.min(4.5, .8 + 1.6 * Math.log(l.odds))), out = c && l.g === c;
+    ctx.strokeStyle = ctx.fillStyle = c ? (out ? COL.sel : COL.fg) : COL.fg; ctx.globalAlpha = c ? .75 : .2; ctx.lineWidth = w;
+    if (l.g === l.f) {  // the same behaviour passes on: a loop on the dot
+      ctx.beginPath(); ctx.arc(a.x, a.y - a.r - 6, 6, .25 * Math.PI, 2.75 * Math.PI); ctx.stroke(); ctx.globalAlpha = 1; continue; }
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    const x1 = a.x + ux * (a.r + 2), y1 = a.y + uy * (a.r + 2), x2 = b.x - ux * (b.r + 4), y2 = b.y - uy * (b.r + 4);
+    const cx = (x1 + x2) / 2 - uy * d * .18, cy = (y1 + y2) / 2 + ux * d * .18;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(cx, cy, x2, y2); ctx.stroke();
+    const ang = Math.atan2(y2 - cy, x2 - cx), h = 5 + w * 1.5;  // the arrowhead at the behaviour it brings on
+    ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - h * Math.cos(ang - .45), y2 - h * Math.sin(ang - .45));
+    ctx.lineTo(x2 - h * Math.cos(ang + .45), y2 - h * Math.sin(ang + .45)); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+  }
+}
+function infCard(id) {
+  if (!INF) return "";
+  const self = INF.links.find(l => l.g === id && l.f === id), out = INF.links.filter(l => l.g === id && l.f !== id).slice(0, 3),
+    inn = INF.links.filter(l => l.f === id && l.g !== id).slice(0, 3), nm = f => esc(F[f]?.short || f), lines = [];
+  if (self) lines.push(`<b style="color:var(--fg)">Catching:</b> after seeing it, others do it ${nx(self.odds)} times the odds (${self.dp > 0 ? "+" : ""}${Math.round(1000 * self.dp) / 10} points).`);
+  if (out.length) lines.push("Others who see it then do more " + out.map(l => `${nm(l.f)} (${nx(l.odds)}×)`).join(", ") + ".");
+  if (inn.length) lines.push("Brought on by seeing " + inn.map(l => `${nm(l.g)} (${nx(l.odds)}×)`).join(", ") + ".");
+  return lines.map(l => `<div style="margin-top:3px">${l}</div>`).join("");
 }
 
 // ---- cards and sources
@@ -324,8 +327,19 @@ function openCard(id) {
   el.innerHTML = `<span class="x" onclick="picked=null;hideCard();kick()">×</span><h3>${esc(f.short)}</h3><div class="muted" style="font-size:13px;margin-bottom:4px">${esc(f.text)}</div>` +
     `<div><span class="big">${Math.round(100 * v)}%</span> <span class="muted">of sampled work, ${esc(span(D.bins[view.a], D.bins[view.b]))}</span></div>` +
     spark(id) + `<div class="muted" style="font-size:12px">Most common on ${esc(day(D.bins[peakBin[id]]))}</div>` +
+    `<div class="muted" style="font-size:12px;margin-top:6px">${infCard(id)}</div><div id="cflow" class="muted" style="font-size:12px;margin-top:4px"></div>` +
     `<div style="margin-top:8px"><button onclick="examples('${id}')">Show examples</button></div>`;
   el.style.display = "block"; placeCard(); kick();
+  if (INF) return;  // the influence model says it better (net of each agent's own level); the spread ratio is the fallback
+  fetch(api("/api/flow?id=" + encodeURIComponent(id))).then(r => r.json()).then(c => { const box = $("cflow"); if (!box || picked !== id || c.error) return;
+    const sp = c.spread, ps = c.persists, x = v => v >= 10 ? Math.round(v) : v.toFixed(1), lines = [];
+    if (sp.exposed_with < 5 || sp.lo == null) lines.push("Too few connected stretches to tell whether it passes between actors.");
+    else if (sp.lo > 1) lines.push(`<b style="color:var(--fg)">Passes between actors:</b> ${x(sp.rr)} times as likely when a stretch it could see showed it (95%: ${x(sp.lo)}–${x(sp.hi)}), net of that week's trend.`);
+    else lines.push(`No sign it passes between actors (${x(sp.rr)} times as likely, 95%: ${x(sp.lo)}–${x(sp.hi)}).`);
+    if (sp.lo > 1 && c.by.length) lines.push("Passed on most by " + c.by.map(b => `${esc(b.who)} (${b.n})`).join(", ") + ".");
+    if (c.follows.length) lines.push("Others often follow it with " + c.follows.map(f => `${esc(F[f.id]?.short || f.id)} (${x(f.rr)}×)`).join(", ") + ".");
+    if (ps.exposed_with >= 5 && ps.lo > 1) lines.push(`The same actor tends to keep doing it (${x(ps.rr)} times as likely in its next stretch).`);
+    box.innerHTML = lines.map(l => `<div style="margin-top:3px">${l}</div>`).join(""); placeCard(); }).catch(() => {});
 }
 function examples(id) {
   const inW = u => { const k = binIdx[u.start.slice(0, 10)]; return k >= view.a && k <= view.b; };
@@ -357,13 +371,14 @@ function hitStretch(x, y) { let best = -1, bd = 25;
   return best; }
 function hitDot(x, y) { let best = null, bd = 1e9; for (const p of pts) { const d = Math.hypot(p.x - x, p.y - y) - p.r; if (d < 6 && d < bd) { bd = d; best = p; } } return best; }
 function at(e) { const r = map.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
-map.addEventListener("mousemove", e => { const [x, y] = at(e), i = hitStretch(x, y), p = i < 0 ? hitDot(x, y) : null, t = $("tip");
+map.addEventListener("mousemove", e => { const [x, y] = at(e), i = infOn ? -1 : hitStretch(x, y), p = i < 0 ? hitDot(x, y) : null, t = $("tip");
+  if ((p ? p.id : null) !== hoverId) { hoverId = p ? p.id : null; if (infOn) { labelKey = ""; kick(); } }
   map.style.cursor = i >= 0 || p ? "pointer" : "default";
   if (i >= 0) { const s = ST[i]; t.innerHTML = `<b>${esc(s.who)}</b> · ${esc(s.date)}<br>${s.inn ? `reused words from ${s.inn} earlier` : "its own words"}${s.out ? ` · reused by ${s.out} later` : ""}`; }
   else if (p) t.innerHTML = `<b>${esc(F[p.id].short)}</b><br>${esc(F[p.id].text)}<br>${Math.round(100 * (shown[p.id] || 0))}% of sampled work`;
   else { t.style.display = "none"; return; }
   t.style.display = "block"; t.style.left = (e.clientX + 12) + "px"; t.style.top = (e.clientY + 12) + "px"; });
-map.addEventListener("mouseleave", () => $("tip").style.display = "none");
+map.addEventListener("mouseleave", () => { $("tip").style.display = "none"; if (hoverId) { hoverId = null; if (infOn) { labelKey = ""; kick(); } } });
 map.addEventListener("click", e => { const [x, y] = at(e), i = hitStretch(x, y);
   if (i >= 0) { const s = ST[i]; return readStretch(s.id, `${s.who} · ${s.date}`); }
   const p = hitDot(x, y); if (p) openCard(p.id); else { picked = null; hideCard(); kick(); } });
@@ -380,11 +395,27 @@ function showWhy() { if (!ARC) return;
   openOver(`<h3 style="margin:0 0 6px">${esc(ARC.title)}</h3><p>${esc(ARC.arc)}</p><h3 style="margin:12px 0 4px">What explains it</h3>` +
     (ARC.hypotheses || []).map(h => `<div class="src" style="border-left-color:${chip(h.verdict)}"><div><b>${esc(h.claim)}</b></div>` +
       `<div class="t" style="margin:2px 0"><span style="color:${chip(h.verdict)};font-weight:600">${esc(h.verdict || "not reviewed")}</span>${h.why ? " · " + esc(h.why) : ""}</div>` +
-      `<div style="font-size:13px">${esc(h.mechanism)}</div><div class="t" style="margin-top:4px">Would show in the record: ${esc(h.check)} · Other explanation: ${esc(h.alternative)}</div></div>`).join(""));
+      `<div style="font-size:13px">${esc(h.mechanism)}</div>` + testLine(h) +
+      `<div class="t" style="margin-top:4px">Would show in the record: ${esc(h.check)} · Other explanation: ${esc(h.alternative)}</div></div>`).join("") +
+    (ARC.made_by ? `<p class="muted" style="font-size:12px;margin-top:10px">Written by an analyst that queried the measured flow; each test was run again by code on a part of the record it was not found on, and a separate reviewer labelled each explanation.</p>` : ""));
 }
-strip.addEventListener("pointermove", e => { if (dragging) { T = stripW(e); view.w0 = Math.max(0, T - 0.05); kick(); } });
+function testLine(h) {  // the code's own run of the analyst's flow test, on a part of the record it was not found on
+  const r = h.test_result; if (!r) return "";
+  const t = r.test || {}, n = v => v == null ? "?" : (v >= 10 ? Math.round(v) : (+v).toFixed(1)), part = r.split?.by === "time" ? `from ${esc(day(r.split.at))} on` : "on the other half of the actors";
+  const col = {holds: "#3b8a4b", contradicted: "#b44a3a"}[r.verdict] || "#8a8780";
+  return `<div class="t" style="margin-top:4px">Held-out test (${part}): <span style="color:${col};font-weight:600">${esc(r.verdict)}</span>` +
+    (t.rr != null ? ` · ${n(t.rr)} times as likely (95%: ${n(t.lo)}–${n(t.hi)}), ${t.exposed_with} of ${t.exposed} exposed` : (t.z != null ? ` · z ${t.z}` : "")) + `</div>`;
+}
+strip.addEventListener("pointermove", e => { if (dragging) { T = stripW(e); view.w0 = Math.max(0, T - 0.05); kick(); return; }
+  const x = e.clientX - strip.getBoundingClientRect().left, m = rmarks.find(q => Math.abs(q.x - x) < 4), t = $("tip");
+  if (!m) { t.style.display = "none"; return; }
+  const pc = v => Math.round(100 * v) + "%", row = a => a.map(z => `${esc(F[z.id]?.short || z.id)} ${pc(z.before)} → ${pc(z.after)}`).join("<br>");
+  t.innerHTML = `<b>The mix of behaviour changes · ${esc(day(m.r.date))}</b>` + (m.r.rose.length ? `<br><span class="muted">rose</span><br>${row(m.r.rose)}` : "") +
+    (m.r.fell.length ? `<br><span class="muted">fell</span><br>${row(m.r.fell)}` : "");
+  t.style.display = "block"; t.style.left = (e.clientX + 12) + "px"; t.style.top = Math.max(8, e.clientY - t.offsetHeight - 12) + "px"; });
+strip.addEventListener("mouseleave", () => $("tip").style.display = "none");
 addEventListener("pointerup", () => dragging = false);
-document.addEventListener("keydown", e => { if (e.key === "Escape") { closeOver(); hideSummary(); picked = null; hideCard(); kick(); }
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeOver(); picked = null; hideCard(); kick(); }
   if (e.key === "ArrowRight") next(); if (e.key === "ArrowLeft") prev(); if (e.key === " " && e.target === document.body) { e.preventDefault(); $("play").click(); } });
 
 function next() { if (story < 0) { if (!S.stories.length) return; story = 0; scene = 0; $("pick").value = "0"; } else if (scene < S.stories[story].scenes.length - 1) scene++; else return; showScene(scenePlay); }
@@ -400,6 +431,8 @@ $("play").onclick = () => {
 $("info").onclick = () => openOver(`<h3 style="margin-top:0">How to read this</h3>
   <p>Each soft dot is a behaviour that AI judges marked in the record. Behaviours that happen at the same times sit close together; a dot's colour is when that behaviour was most common (the same colours as the timeline), its size how much of the sampled work showed it.</p>
   <p>The small marks around a dot are stretches of work showing that behaviour; each is drawn beside the rarest behaviour it shows, so the groups are drawn, not found. A line is drawn when a later stretch reused words another author had written first: it grows from the source to the reuser and then stays as a faint trace, so you can see where text spread.</p>
+  <p>Dashed lines on the timeline are where code finds the mix of behaviour changing (the split of time that best predicts sampled work it was not fitted on); point at one to see what rose and fell. A behaviour's card says whether it passes between actors: how much more often a stretch shows it after a stretch it could have seen (copied words, a reply, a mention, the same place) showed it, net of that week's trend. These are associations, not proof of influence.</p>
+  <p>Influence draws arrows from a behaviour to the behaviours others do more after seeing it (thicker = a larger change in the odds, net of each agent's usual level, the day and what happened at the same time without contact); a loop on a dot means the behaviour itself passes on. Point at a dot to see only its arrows: blue = what it brings on, dark = what brings it on.</p>
   <p>Choose a story to step through what happened; Evidence shows the records behind a scene. Click a mark to read that stretch, a dot to see that behaviour, the timeline to go to any moment.</p>` +
   (D.how || []).slice(1, 3).map(x => `<p class="muted" style="font-size:13px">${esc(x)}</p>`).join(""));
 addEventListener("resize", () => { resize(); stripScale(); kick(); });
@@ -410,10 +443,11 @@ fetch("/api/datasets").then(r => r.json()).then(list => { if (!Array.isArray(lis
   el.value = DS && list.some(d => d.id === DS) ? DS : list[0].id; el.style.display = "";
   el.onchange = () => { location.search = "?ds=" + encodeURIComponent(el.value); }; }).catch(() => {});
 (async () => {
-  setCaption("Loading the map…");
+  notice("Loading the map…");
   [D, S, P] = await Promise.all([fetch(api("/api/features")).then(r => r.json()), fetch(api("/api/feature_storylines")).then(r => r.json()).catch(() => ({})),
     fetch(api("/api/spread")).then(r => r.json()).catch(() => ({stretches: [], edges: []}))]);
-  if (D.error) { setCaption(esc(D.error)); return; }
+  if (D.error) { notice(esc(D.error)); return; }
+  notice("");
   S.stories = (S.status === "ready" && Array.isArray(S.stories) ? S.stories : []).map(s => ({...s, scenes: (s.scenes || []).filter(c => typeof c.caption === "string")})).filter(s => s.scenes.length);
   D.features.forEach(f => { F[f.id] = f; f.short = (D.short || {})[f.id] || f.text.split(/\s+/).slice(0, 4).join(" "); }); D.bins.forEach((b, k) => binIdx[b] = k);
   ARC = S.arc && (S.arc.turning_points || []).length ? S.arc : null;
@@ -438,7 +472,9 @@ fetch("/api/datasets").then(r => r.json()).then(list => { if (!Array.isArray(lis
     u.forEach((c, k) => { const n = D.n_bin[k]; if (n >= 10 && c / n > bv) { bv = c / n; best = k; } }); peakBin[f.id] = best; });
   $("sub").textContent = `${span(D.bins[0], D.bins[D.bins.length - 1])} · ${D.features.length} behaviours · ${EDGES.length.toLocaleString()} traces of reused words`;
   $("pick").innerHTML = `<option value="-1">${S.stories.length ? "Overview — choose a story" : "Overview"}</option>` + S.stories.map((s, i) => `<option value="${i}">${esc(s.title)}</option>`).join("");
-  $("legend").innerHTML = `<span style="color:${grad(0)}">●</span> earlier <span style="color:${grad(1)}">●</span> later · dot = behaviour · mark = stretch of work, drawn beside its rarest behaviour · line = reused words`;
   colours(); resize(); overview();
+  fetch(api("/api/influence")).then(r => r.json()).then(x => { if (x.error || !(x.links || []).length) return; INF = x; $("inf").style.display = ""; }).catch(() => {});
+  fetch(api("/api/flow")).then(r => r.json()).then(x => { if (x.error) return; FLOW = x; renderStrip();
+  }).catch(() => {});
 })();
 </script></body></html>

@@ -377,7 +377,7 @@ def tour(con, share=False, most=5):
     from . import arc as AR
     arc = AR.get(con)
     if arc:
-        arc = {k: arc[k] for k in ("title", "arc", "phases", "turning_points", "hypotheses")}
+        arc = {k: arc[k] for k in ("title", "arc", "phases", "turning_points", "hypotheses", "made_by") if k in arc}
     return {"status": "ready", "source": "storyline", "title": "What happened in this record", "arc": arc,
             "summary": " ".join(o["text"] for o in over[:3]), "stories": stories, "incidents": [],
             "uncertain": st.get("uncertain", ""), "coverage": a.get("coverage", ""), "reason": ""}

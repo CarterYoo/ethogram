@@ -78,6 +78,23 @@ CATALOG = {
                "details.base_linked_share = the same share for all actors active by then (chance baseline); "
                "details.contact_then_adoption = example (contact event, first use) pairs, which are the evidence.",
         "params": {"tag": "str", "other": "str", "since": "ISO", "until": "ISO"}},
+    "flow_transmission": {
+        "doc": "Whether behaviour `feature` (an atlas behaviour id) travels along edges between actors (docs/FLOW.md): "
+               "over sampled stretches with a judged source along `edge` (any|reuse|reply|address|channel|next), "
+               "value = risk ratio of the behaviour when a source shows it versus not, Mantel-Haenszel over weeks; "
+               "details.lo / details.hi = 95% interval, details.o_e = observed / expected from the week's base "
+               "rate, counts. since/until restrict the target stretches (register on a part you have not looked at). "
+               "Typical expectation: {field: lo, op: '>', value: 1}.",
+        "params": {"feature": "str", "edge": "str (default any)", "since": "ISO", "until": "ISO"}},
+    "flow_coupling": {
+        "doc": "Whether behaviour `b` follows behaviour `a` along edges: value = risk ratio of b in a stretch when a "
+               "source along `edge` shows a versus not, by weeks; details.lo / details.hi = 95% interval.",
+        "params": {"a": "str", "b": "str", "edge": "str (default any)", "since": "ISO", "until": "ISO"}},
+    "flow_shift": {
+        "doc": "Whether behaviour `feature` is more common in [start, end) than in the rest of the record: value = "
+               "z of the difference in shares (positive = more common inside); details.inside / details.elsewhere "
+               "= sampled stretches and how many show it. Typical expectation: {op: '>=', value: 1.96}.",
+        "params": {"feature": "str", "start": "ISO", "end": "ISO"}},
 }
 
 
@@ -486,10 +503,48 @@ def tag_spread(con, tag=None, other=None, since=None, until=None):
             "evidence": [x for p in pairs[:6] for x in (p["contact_event"], p["first_use"])] or [r[2] for r in first[:8]]}
 
 
+def _flow(con):
+    from . import flow
+    m = flow.load(con)
+    if m is None:
+        raise QueryError("no behaviour atlas yet: flow metrics need `features` first")
+    return m
+
+
+def _flow_feature(m, *fids):
+    for f in fids:
+        if f not in m.label:
+            raise QueryError(f"no behaviour {f}; ids from behaviour_features")
+
+
+def flow_transmission(con, feature, edge="any", since=None, until=None):
+    m = _flow(con)
+    _flow_feature(m, feature)
+    r = m.transmission(feature, edge, since, until)
+    ex = r.pop("examples")
+    return {"value": r["rr"], "details": r,
+            "evidence": [i for x in ex for i in x["from"]["events"][:1] + x["to"]["events"][:1]]}
+
+
+def flow_coupling(con, a, b, edge="any", since=None, until=None):
+    m = _flow(con)
+    _flow_feature(m, a, b)
+    r = m.coupling(a, b, edge, since, until)
+    return {"value": r["rr"], "details": r, "evidence": []}
+
+
+def flow_shift(con, feature, start, end):
+    m = _flow(con)
+    _flow_feature(m, feature)
+    r = m._shift_one(feature, start, end)
+    return {"value": r["z"], "details": r, "evidence": []}
+
+
 FUNCS = {"reply_rate": reply_rate, "volume": volume, "before_after": before_after, "pair": pair,
          "first_use": first_use, "share": share, "burst": burst,
          "tag_rate": tag_rate, "tag_before_after": tag_before_after, "reaction": reaction,
-         "channel_reaction": channel_reaction, "tag_spread": tag_spread}
+         "channel_reaction": channel_reaction, "tag_spread": tag_spread,
+         "flow_transmission": flow_transmission, "flow_coupling": flow_coupling, "flow_shift": flow_shift}
 
 
 def run(con, metric, params):

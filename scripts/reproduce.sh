@@ -41,6 +41,7 @@ esac
 
 DB="$OUT/$NAME.sqlite"
 python3 -m swarmgraph --db "$DB" prepare "$OUT/$NAME" --workers "$W"     # index, delegated reading, storyline
-"$MAPS_PY" -m swarmgraph --db "$DB" features all "$OUT/${NAME}_features" --workers "$W"   # behaviours, judges, checks, names
-python3 -m swarmgraph --db "$DB" arc --effort high                         # phases, turning points, hypotheses, review
+"$MAPS_PY" -m swarmgraph --db "$DB" features all "$OUT/${NAME}_features" --workers "$W"   # behaviours, judges, checks, flow sample, names
+python3 -m swarmgraph --db "$DB" storyline --workers "$W"                  # again, now with the measured behaviours
+python3 -m swarmgraph --db "$DB" arc --agent --effort high                 # phases, turning points, hypotheses from the measured flow
 echo "done: $DB (serve with: python3 -m swarmgraph --db $DB serve --home /features)"

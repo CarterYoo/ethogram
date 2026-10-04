@@ -847,6 +847,7 @@ def build(db, folder, judges=("judge1", "judge2", "judge_more"), detect="detect"
     fs = json.load(open(os.path.join(folder, "dictionary.json")))
     smp = json.load(open(os.path.join(folder, "samples.json")))
     uniform = set(smp["uniform"]) | set(smp.get("uniform_more", []))
+    flow_set = set(smp.get("flow", []))  # judged so that spread can be measured (chosen by edges, not behaviour)
     marks_list = []
     for j in judges:
         p = os.path.join(folder, j)
@@ -898,7 +899,8 @@ def build(db, folder, judges=("judge1", "judge2", "judge_more"), detect="detect"
                   "n": len(byid[u]["ids"]), "ids": byid[u]["ids"][:40], "x": (upos.get(u) or [None])[0],
                   "y": (upos.get(u) or [None, None])[1],
                   "f": {k: v for k, v in act[u].items() if k in kept},
-                  "flagged": any(i in flagged for i in byid[u]["ids"])} for u in sorted(act)]
+                  "flagged": any(i in flagged for i in byid[u]["ids"]), "uniform": u in uniform,
+                  "flow": u in flow_set} for u in sorted(act)]
     judged_keep = [f for f in keep if f["source"] == "judged"]
     rel = [f["reliability"]["kappa"] for f in judged_keep if f.get("reliability") and f["reliability"].get("kappa") is not None]
     how = [f"A stretch is one author label's events in a row (no pause over 15 minutes, at most an hour), shown to the "
@@ -977,20 +979,9 @@ def view(con, fid=None, limit=30):
 _SPREAD = {}
 
 
-def spread(con):
-    """traces of influence for the /features map: every stretch of work placed beside its most specific behaviour
-    (judged stretches) or beside the stretches it shares text with (the rest), and every case of a stretch reusing
-    word sequences another actor wrote first (at least REUSE_MIN shared sequences), source -> reuser; cached per
-    state of the index and the atlas"""
-    import hashlib
-    d = get(con)
-    if not d or "atlas" not in d:
-        return {"error": "no behaviour atlas yet"}
-    a = d["atlas"]
-    key = (con.execute("PRAGMA database_list").fetchone()[2], len(a["units"]), a.get("coverage"))
-    if key in _SPREAD:  # one entry per index, so a server with several datasets keeps each
-        return _SPREAD[key]
-    rows, us = units(con)
+def reuse_edges(rows, us):
+    """{(source stretch, reusing stretch): shared word sequences}: every case of a stretch reusing at least REUSE_MIN
+    word sequences that another actor wrote first"""
     ev_unit = {e: u["id"] for u in us for e in u["ids"]}
     first, edges = {}, collections.Counter()
     for e in rows:
@@ -1007,6 +998,24 @@ def spread(con):
         for s_ev, c in src.items():
             if c >= REUSE_MIN and s_ev in ev_unit and e["id"] in ev_unit and ev_unit[s_ev] != ev_unit[e["id"]]:
                 edges[(ev_unit[s_ev], ev_unit[e["id"]])] += c
+    return edges
+
+
+def spread(con):
+    """traces of influence for the /features map: every stretch of work placed beside its most specific behaviour
+    (judged stretches) or beside the stretches it shares text with (the rest), and every case of a stretch reusing
+    word sequences another actor wrote first (at least REUSE_MIN shared sequences), source -> reuser; cached per
+    state of the index and the atlas"""
+    import hashlib
+    d = get(con)
+    if not d or "atlas" not in d:
+        return {"error": "no behaviour atlas yet"}
+    a = d["atlas"]
+    key = (con.execute("PRAGMA database_list").fetchone()[2], len(a["units"]), a.get("coverage"))
+    if key in _SPREAD:  # one entry per index, so a server with several datasets keeps each
+        return _SPREAD[key]
+    rows, us = units(con)
+    edges = reuse_edges(rows, us)
     dens = {f["id"]: f["density"] or 1 for f in a["features"]}
     judged = {u["id"]: u for u in a["units"]}
 
@@ -1112,10 +1121,43 @@ def read_folder(folder, kind, workers=12, effort="low", log=print):
     return len(todo)
 
 
+def flow_sample(con, rows, us, judged, targets):
+    """stretches to judge so that spread can be measured (docs/FLOW.md): the unjudged sources, along every exposure
+    edge, of the stretches drawn as targets. Chosen by the edges alone, never by what the stretches show, so they can
+    serve as targets too"""
+    from . import flow as FL
+    edges = FL.edges_from(con, rows, us, judged)
+    start = {u["id"]: u["start"] for u in us}
+    need = {v for k in FL.EXPOSE for v, w in edges[k] if w in targets and v not in judged and start[v] <= start[w]}
+    return sorted(need)
+
+
+def run_flow(db, folder, judges, record_name="", workers=12, log=print):
+    """the flow sample for an atlas built from `folder`: choose the stretches, write judging batches (judge_flow),
+    judge them with Codex, and rebuild the atlas with them (each step skipped when done)"""
+    from . import query as Q
+    con = Q.connect(db)
+    rows, us = units(con)
+    smp_path = os.path.join(folder, "samples.json")
+    smp = json.load(open(smp_path))
+    out_dir = os.path.join(folder, "judge_flow")
+    if not os.path.isdir(out_dir):
+        judged = {u["id"] for u in (get(con) or {}).get("atlas", {}).get("units", [])}
+        targets = set(smp["uniform"]) | set(smp.get("uniform_more", []))
+        smp["flow"] = flow_sample(con, rows, us, judged, targets)
+        json.dump(smp, open(smp_path, "w"))
+        fs = json.load(open(os.path.join(folder, "dictionary.json")))
+        name = record_name or (con.execute("SELECT value FROM meta WHERE key='name'").fetchone() or ["a log"])[0]
+        prepare_judging(record(con, rows), us, fs, smp["flow"], out_dir, name, per_file=60, seed=4)
+        log(f"features: flow sample of {len(smp['flow'])} stretches")
+    read_folder(out_dir, "judge", workers, "low", log)
+    return build(db, folder, judges=tuple(judges) + ("judge_flow",), log=log)
+
+
 def run_all(db, folder, record_name, workers=12, more=1600, log=print):
     """the feature stage end to end with Codex readers (each step skipped when its output exists): induction on
     stratified samples, one merge into a dictionary, two calibration judges on a uniform sample, one judge on `more`
-    further uniform stretches, the blind detection test, and the atlas"""
+    further uniform stretches, the blind detection test, the atlas, the flow sample (docs/FLOW.md) and short names"""
     from . import query as Q
     from .llm import Codex
     os.makedirs(folder, exist_ok=True)
@@ -1164,6 +1206,7 @@ def run_all(db, folder, record_name, workers=12, more=1600, log=print):
         prepare_detection(R, us, fs, sets, os.path.join(folder, "detect"), record_name, per_file=6)
     read_folder(os.path.join(folder, "detect"), "detect", workers, "low", log)
     out = build(db, folder, judges=("judge1", "judge2", "judge_more"), log=log)
+    out = run_flow(db, folder, ("judge1", "judge2", "judge_more"), record_name, workers, log)
     short_names(db, log=log)
     return out
 

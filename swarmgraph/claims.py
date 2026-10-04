@@ -76,6 +76,36 @@ class Log:
                 self.targets[pos[ev]].add(dst)
         self.con = con
 
+    @staticmethod
+    def risky(p):
+        """a group that repeats something repeated, e.g. (a+)+ or (.*\s)*: such patterns can take exponential time on
+        long texts (one hung a grading run for an hour), so they are refused as invalid"""
+        stack, i = [], 0
+        while i < len(p):
+            c = p[i]
+            if c == "\\":
+                i += 2
+                continue
+            if c == "[":  # a character class: skip to its end
+                j = i + 1
+                while j < len(p) and p[j] != "]":
+                    j += 2 if p[j] == "\\" else 1
+                i = j + 1
+                continue
+            if c == "(":
+                stack.append(False)
+            elif c == ")" and stack:
+                inner = stack.pop()
+                if inner and i + 1 < len(p) and p[i + 1] in "+*{":
+                    return True
+                if stack:
+                    stack[-1] = stack[-1] or inner or (i + 1 < len(p) and p[i + 1] in "+*{")
+            elif c in "+*" or (c == "{" and re.match(r"\{\d*,\d*\}|\{\d+\}", p[i:])):
+                if stack:
+                    stack[-1] = True
+            i += 1
+        return False
+
     def match(self, patterns, field="text"):
         """one boolean per event; each single pattern is matched once over the log and cached, so mismatched-pair
         calibration and repeated specs cost nothing extra. field: text (summary || raw) | raw | summary"""
@@ -84,6 +114,8 @@ class Log:
         arrs = []
         for p in patterns:
             if (field, p) not in cache:
+                if self.risky(p):
+                    raise re.error(f"nested repetition (can take exponential time): {p[:60]}")
                 rx = re.compile(p, re.I | re.S)
                 cache[(field, p)] = [bool(rx.search(t)) for t in src]
             arrs.append(cache[(field, p)])

@@ -185,6 +185,25 @@ Sub-agents' readings and counts are leads with evidence ids: open the events (`c
 happened; results show what happened. A period where nothing was flagged was read with fixed questions, which is not
 proof that nothing happened there: if your question is different, delegate it.
 
+## 2d. How behaviour moved through the system (`flow_*`, after the feature atlas)
+
+The atlas page animates the flow for people; these tools give you the same flow as numbers computed by code over the
+whole record (docs/FLOW.md), so you do not have to rebuild it from summaries. Start with **`flow_overview`**:
+- `regimes`: the split of time that best predicts held-out stretches' behaviour, each with its defining behaviours,
+  and at each boundary what rose and fell. A measured skeleton for the story; `heldout_explained` says how much the
+  split explains (under 1%: the overall mix hardly changes, so work from single behaviours);
+- `spreads_most` / `spreads_by_edge`: behaviours that travel between actors along copied words (`reuse`), replies,
+  mentions (`address`) or the same place (`channel`), as a risk ratio net of week-wide trends with a 95% interval;
+- `persists_within_actor` and `couplings`: what an actor keeps doing, and which behaviour tends to follow which.
+
+Then `flow_shift {"at": date}` (what changed at a boundary, and the chunk ids to read for why), `flow_feature {"id"}`
+(one behaviour's course, spread, adoption, spreaders), `flow_cascades {"id"}` (who passed it to whom, with events),
+`flow_coupling {"a"}`. Before you report a flow claim, test it where you did not find it: `flow_test` with
+`{"by": "time", "at": date}` or `{"by": "actors"}`, or register a `flow_transmission` / `flow_coupling` /
+`flow_shift` metric with `propose_hypothesis`. Read every number as an association that fits spread, not proof:
+behaviour inside copied text spreads mechanically along `reuse`; check `coverage` (only judged stretches count) and
+open the events.
+
 ## 3. Investigate with hypotheses (the core loop)
 
 **For leads, start at `theme_map`** (after the `themes` stage). Themes are the recurring situations/moves specific to
@@ -214,6 +233,9 @@ For each question worth answering:
 Behaviour metrics (need tags): `tag_rate` (share vs everyone else), `tag_before_after` (change around a time),
 `reaction` (what targets do within N minutes after an event with a trigger tag, vs the window before), `tag_spread`
 (adoption order and whether adopters had contact with earlier adopters, vs chance).
+Flow metrics (need the feature atlas): `flow_transmission` (a behaviour travels along edges: risk ratio by weeks, with
+`lo`/`hi`), `flow_coupling` (B follows A along edges), `flow_shift` (a behaviour more common in a window: z). Register
+them with `since` on a part of the record you have not looked at.
 Aim for hypotheses that explain behaviour — how agents react, adapt, coordinate, copy each other, and whether claims
 match actions — whether or not the behaviour is risky. Use `run_metric` for exploration, but only registered plans
 count as tests.

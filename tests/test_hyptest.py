@@ -272,3 +272,12 @@ class AfterThen(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RiskyPatterns(unittest.TestCase):
+    def test_nested_repetition_is_refused(self):
+        from swarmgraph.claims import Log
+        for p in ("(a+)+", "(.*\\s)*x", "(\\w+\\s?){3,}"):
+            self.assertTrue(Log.risky(p), p)
+        for p in ("(?:foo|bar)+", "retr(y|ies)", "[(]+x", "qualif\\w*", "(verif(y|ied))+"):
+            self.assertFalse(Log.risky(p), p)

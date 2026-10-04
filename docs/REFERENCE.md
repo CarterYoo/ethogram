@@ -123,9 +123,11 @@ Install the skill by copying `skill/SKILL.md` into your skills directory (e.g. `
 | hypotheses | `metric_catalog`, `run_metric`, `propose_hypothesis`, `measure_hypothesis`, `add_evidence`, `record_verdict`, `hypotheses` |
 | LLM (optional) | `summarize_node`; CLI `tag`, `cards`, `auto`, `summarize` (code-only: `structure`) |
 | delegated reading | `storyline`, `periods` (start here), `chunk`, `rules`, `behaviour_changes`, `behaviour_map`, `delegate`, `claims_vs_record`; CLI `prepare`, `sweep`, `storyline`, `atlas`, `jobs`, `ledger` |
+| flow (docs/FLOW.md) | `flow_overview` (start here), `flow_shift`, `flow_feature`, `flow_cascades`, `flow_coupling`, `flow_test` |
 
 Metrics: interaction — `reply_rate`, `volume`, `before_after`, `pair`, `first_use`, `share`, `burst`; behaviour (needs
-tags) — `tag_rate`, `tag_before_after`, `reaction`, `tag_spread` (see `metric_catalog`).
+tags) — `tag_rate`, `tag_before_after`, `reaction`, `tag_spread`; flow (needs the feature atlas) — `flow_transmission`,
+`flow_coupling`, `flow_shift` (see `metric_catalog`).
 
 ## Data format (summary — full spec in `swarmgraph/format.py` and `skill/SKILL.md`)
 

@@ -289,6 +289,22 @@ def api_spread(con, work, q):
     return features.spread(con)
 
 
+def api_flow(con, work, q):
+    from . import flow
+    if q.get("id"):
+        return flow.card_view(con, q["id"][0])
+    return flow.page_view(con)
+
+
+def api_influence(con, work, q):
+    from . import features
+    b = ((features.get(con) or {}).get("influence") or {}).get("between")
+    if not b:
+        return {"error": "no influence model"}
+    return {"R": b["R"], "placebo": b.get("placebo"), "significant": b["significant"],
+            "links": [{k: x[k] for k in ("g", "f", "odds", "dp", "z")} for x in b["links"]]}
+
+
 def api_feature_storylines(con, work, q):
     from . import story_jobs
     db = con.execute("PRAGMA database_list").fetchone()[2]
@@ -306,7 +322,7 @@ def api_agent_sources(con, work, q):
     return agentview.sources(con, [i for i in q.get("ids", [""])[0].split(",") if i])
 
 
-ROUTES = {"/api/agent": api_agent, "/api/atlas": api_atlas, "/api/features": api_features, "/api/feature_storylines": api_feature_storylines, "/api/spread": api_spread, "/api/agent_sources": api_agent_sources, "/api/concern_actors": api_concern_actors, "/api/concerns": api_concerns, "/api/concern_events": api_concern_events, "/api/hypotheses": api_hypotheses, "/api/cell": api_cell, "/api/events": api_events, "/api/incidents": api_incidents, "/api/story": api_story, "/api/find": api_find, "/api/card": api_card, "/api/links": api_links, "/api/periods": api_segments, "/api/graph": api_graph, "/api/timeline": api_timeline,
+ROUTES = {"/api/agent": api_agent, "/api/atlas": api_atlas, "/api/features": api_features, "/api/feature_storylines": api_feature_storylines, "/api/spread": api_spread, "/api/flow": api_flow, "/api/influence": api_influence, "/api/agent_sources": api_agent_sources, "/api/concern_actors": api_concern_actors, "/api/concerns": api_concerns, "/api/concern_events": api_concern_events, "/api/hypotheses": api_hypotheses, "/api/cell": api_cell, "/api/events": api_events, "/api/incidents": api_incidents, "/api/story": api_story, "/api/find": api_find, "/api/card": api_card, "/api/links": api_links, "/api/periods": api_segments, "/api/graph": api_graph, "/api/timeline": api_timeline,
           "/api/episode": api_episode, "/api/edge": api_edge, "/api/msg": api_msg}
 
 

@@ -38,8 +38,10 @@ scripts/reproduce.sh wiki        # or wiki_all, aiv-julaug; results go to ../dat
 | `aiv-julaug` | huggingface.co/datasets/aidigestorg/ai-village (non-screenshot files) | `adapters/ai_village.py`, then `scripts/window.py … 2026-07-01 2026-09-01` (67,969 events) |
 
 Then, for each: `prepare` (index, chunks, delegated reading, rules, threads, traces, storyline), `features all`
-(induction, merge, two calibration judges, more judging, blind detection, atlas, short names) and `arc` (skeleton,
-arc analyst, reviewer).
+(induction, merge, two calibration judges, more judging, blind detection, atlas, the flow sample of docs/FLOW.md,
+short names), `storyline` again (its period digests then carry the measured behaviours) and `arc --agent` (an analyst
+that queries the flow tools, each hypothesis tested again by code on a part of the record it was not found on, and a
+reviewer).
 
 Environment: Python 3.9+ (standard library) for everything except maps; `requirements-maps.txt` (pinned) for the
 atlas; the Codex CLI for LLM stages, called through `swarmgraph/llm.py` with none of the user's tools. The stored

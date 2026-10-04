@@ -121,11 +121,11 @@ def codex_path():
 class Codex:
     """One non-interactive turn per call; safe to run in parallel threads (each call is its own process)."""
 
-    def __init__(self, effort="low", model=None, timeout=900, retries=1, sandbox="read-only", workdir=None):
+    def __init__(self, effort="low", model=None, timeout=900, retries=1, sandbox="read-only", workdir=None, shell=False):
         self.bin = codex_path()
         self.effort, self.timeout, self.retries = effort, timeout, retries
         self.model = model or os.environ.get("SWARMGRAPH_MODEL") or user_model()
-        self.sandbox, self.workdir = sandbox, workdir
+        self.sandbox, self.workdir, self.shell = sandbox, workdir, shell  # shell: an analyst that runs the tools
 
     def key(self, prompt, schema):
         return hashlib.sha256(json.dumps([self.model, self.effort, schema, prompt], sort_keys=True).encode()).hexdigest()
@@ -135,7 +135,8 @@ class Codex:
         with tempfile.TemporaryDirectory() as tmp:
             out = os.path.join(tmp, "last.txt")
             cmd = [self.bin, "exec", "--skip-git-repo-check", "--ephemeral", "--color", "never", "-s", self.sandbox,
-                   "-C", self.workdir or tmp, "-o", out, "-c", f'model_reasoning_effort="{self.effort}"'] + isolation()
+                   "-C", self.workdir or tmp, "-o", out, "-c", f'model_reasoning_effort="{self.effort}"'] + \
+                isolation(self.shell)
             if self.model:
                 cmd += ["-m", self.model]
             if schema:

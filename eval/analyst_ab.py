@@ -79,6 +79,15 @@ This directory also holds a small toolbox: the `swarmgraph` package and an index
 chunks that sub-agents can read for you. DELEGATE.md (short) says how to send them questions. You can still read
 events.jsonl directly.
 """
+EXTRA_FEAT = EXTRA + """It also holds a behaviour atlas: behaviours (each a sentence in general words) that AI judges
+marked on a sample of stretches of work, with their rates over time (`behaviour_features`, SKILL.md section 2c).
+"""
+EXTRA_FLOW = EXTRA + """It also holds a behaviour atlas: behaviours (each a sentence in general words) that AI judges
+marked on a sample of stretches of work, with their rates over time (`behaviour_features`, SKILL.md section 2c), and
+how they moved through the system, computed by code: regimes, spread between actors, what follows what
+(`flow_overview` and the other flow tools, SKILL.md section 2d; `flow_test` checks a claim on a part of the log you did
+not use to find it).
+"""
 DELEGATING = {"sgdelegate", "rawdelegate"}  # conditions whose `delegate` calls are served by a broker outside the analyst's sandbox
 DELEGATE_BUDGET = 150  # chunks an analyst may have read for it per run (each is one sub-agent call)
 # condition -> (what the run directory gets, prompt addendum)
@@ -96,7 +105,10 @@ CONDITIONS = {"raw": ("none", ""), "swarmgraph": ("full", EXTRA), "rawtool": ("e
               "sgdelegate": ("full", EXTRA_DELEGATE),
               # ablation: the same delegation, but none of the prepared reading (no sweep, rules, traces, behaviour
               # counts or ledger): does the structure add anything to an analyst that can call sub-agents?
-              "rawdelegate": ("chunks", EXTRA_RAWDELEGATE)}  # same, with coverage per period and evidence text (section 11)
+              "rawdelegate": ("chunks", EXTRA_RAWDELEGATE),
+              # flow round (section 17): the July index with a July behaviour atlas; the only difference is whether
+              # the flow tools (and SKILL.md section 2d) are there
+              "sgfeat": ("full", EXTRA_FEAT), "sgflow": ("full", EXTRA_FLOW)}  # same, with coverage per period and evidence text (section 11)
 
 SCHEMA = {"type": "object", "additionalProperties": False, "required": ["answer", "numbers", "evidence", "confidence"],
           "properties": {"answer": {"type": "string"},
@@ -198,6 +210,24 @@ def checkpoint(index):
         con.close()
 
 
+def strip_flow(run_dir):
+    """remove the flow tools, the flow metrics and the guide's flow section from a run directory's copies"""
+    import re as _re
+    pkg = os.path.join(run_dir, "swarmgraph")
+    with open(os.path.join(pkg, "tools.py"), "a") as f:
+        f.write("\nfor _k in [k for k in TOOLS if k.startswith('flow_')]:\n    del TOOLS[_k]\n")
+    with open(os.path.join(pkg, "metrics.py"), "a") as f:
+        f.write("\nfor _k in [k for k in FUNCS if k.startswith('flow_')]:\n    del FUNCS[_k]\n    CATALOG.pop(_k, None)\n")
+    os.remove(os.path.join(pkg, "flow.py"))
+    sk = os.path.join(run_dir, "SKILL.md")
+    t = open(sk).read()
+    t = _re.sub(r"## 2d\. How behaviour moved.*?(?=## 3\.)", "", t, flags=_re.S)
+    t = _re.sub(r"\nFlow metrics \(need the feature atlas\).*?looked at\.", "", t, flags=_re.S)
+    t = t.replace(", `flow_overview`", "")
+    assert "flow_" not in t, "flow text left in SKILL.md"
+    open(sk, "w").write(t)
+
+
 def setup(cfg, q, cond, run_dir):
     ds = cfg["datasets"][q["dataset"]]
     os.makedirs(run_dir, exist_ok=True)
@@ -218,6 +248,8 @@ def setup(cfg, q, cond, run_dir):
             shutil.copy(ds["raw_index"], os.path.join(run_dir, "log.sqlite"))
         shutil.copytree(cfg["package"], os.path.join(run_dir, "swarmgraph"),
                         ignore=shutil.ignore_patterns("__pycache__"))
+        if cond == "sgfeat":  # the same package and guide without the flow tools
+            strip_flow(run_dir)
         if kind != "chunks":  # the ablation gets delegation and nothing else
             shutil.copy(os.path.join(os.path.dirname(cfg["skill"]), "CLAIMS.md"), os.path.join(run_dir, "CLAIMS.md"))
         # the tool must work in the copy exactly as the analyst will call it, or the comparison means nothing

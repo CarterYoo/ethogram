@@ -73,7 +73,8 @@ Run it on your own log. LLM stages use the [Codex CLI](https://github.com/openai
 python3 -m swarmgraph --db my.sqlite prepare path/to/dataset            # index, delegated reading, storyline
 python3 -m venv .venv && .venv/bin/pip install -r requirements-maps.txt  # only for the behaviour maps
 .venv/bin/python -m swarmgraph --db my.sqlite features all my_features   # behaviours, judges, checks, atlas
-python3 -m swarmgraph --db my.sqlite arc                                 # phases, turning points, hypotheses
+python3 -m swarmgraph --db my.sqlite storyline                           # again, with the measured behaviours
+python3 -m swarmgraph --db my.sqlite arc --agent                         # phases, turning points, hypotheses
 python3 -m swarmgraph --db my.sqlite serve --home /features              # → http://localhost:8792
 ```
 
@@ -105,7 +106,7 @@ claude mcp add swarmgraph --env PYTHONPATH=/path/to/swarmscope --env SWARMGRAPH_
 ```
 
 For Codex, add the same command under `[mcp_servers.swarmgraph]` in `~/.codex/config.toml`. Copy `skill/SKILL.md`
-into your skills directory so the agent knows where to start (`storyline`, `periods`, then the evidence tools).
+into your skills directory so the agent knows where to start (`storyline`, `periods`, `flow_overview`, then the evidence tools).
 
 </details>
 
@@ -128,7 +129,9 @@ the structure ([eval/RESULTS.md](eval/RESULTS.md)).
 
 ## Docs
 
+- [**Harness**](docs/HARNESS.md): every stage, who reads what, how they are chained, and every prompt
 - [**Behaviour features**](docs/BEHAVIOUR_FEATURES.md): how the dictionary is built and checked
+- [**Flow**](docs/FLOW.md): how behaviour moves (regimes, spread, coupling) as numbers agents can query
 - [**Reproduce**](docs/REPRODUCE.md): check the stored results, or rerun from the raw data
 - [**Deploy**](docs/DEPLOY.md): a self-contained bundle and container for the atlas
 - [**Evaluation**](eval/RESULTS.md): every experiment, including the ones that did not work

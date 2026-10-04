@@ -133,7 +133,7 @@ def collect(arms):
         for spec in specs_:
             d, cond = spec.rsplit(":", 1)
             for f in sorted(os.listdir(d)):
-                m = re.match(r"^(WH|FH|AH)_(raw|swarmgraph|rawtool|sgfixed)_(\d+)\.json$", f)
+                m = re.match(r"^(WH|FH|AH)_(raw|swarmgraph|rawtool|sgfixed|sgfeat|sgflow)_(\d+)\.json$", f)
                 if not m or m.group(2) != cond:
                     continue
                 r = json.load(open(os.path.join(d, f)))

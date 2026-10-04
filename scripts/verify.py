@@ -21,8 +21,8 @@ sys.path.insert(0, ROOT)
 from swarmgraph import features as FE, query as Q  # noqa: E402
 
 # dataset -> (feature folder, judge folders: the first two are the calibration pair)
-DATASETS = {"wiki_all": ("wiki_all_features", "judge1,judge2,judge_new"),
-            "aiv-julaug": ("aiv_features", "judge1,judge2,judge_more")}
+DATASETS = {"wiki_all": ("wiki_all_features", "judge1,judge2,judge_new,judge_flow"),
+            "aiv-julaug": ("aiv_features", "judge1,judge2,judge_more,judge_flow")}
 
 
 def copy(src, dst):

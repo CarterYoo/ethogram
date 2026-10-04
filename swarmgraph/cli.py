@@ -63,6 +63,9 @@ def main(argv=None):
     ac = sub.add_parser("arc", help="the arc of the whole record: phases, turning points and hypotheses that explain "
                                     "the change, from a code skeleton and the storyline (after storyline); reviewed")
     ac.add_argument("--effort", default="high")
+    ac.add_argument("--agent", action="store_true", help="written by an analyst that queries the flow tools (after "
+                    "features), each hypothesis tested again by code on a part of the record it was not found on")
+    ac.add_argument("--review", action="store_true", help="review the stored analyst-written arc again")
     sl = sub.add_parser("storyline", help="storylines for people written from the delegated reading (after sweep)")
     sl.add_argument("--workers", type=int, default=None)
     fs = sub.add_parser("feature-stories", help="agent-discovered, independently reviewed incident stories with atlas context")
@@ -81,14 +84,20 @@ def main(argv=None):
     at.add_argument("--no-names", action="store_true", help="kinds without LLM names (no LLM calls)")
     fe = sub.add_parser("features", help="behaviour features (docs/BEHAVIOUR_FEATURES.md): 'all' runs the whole stage "
                                          "with isolated Codex readers (induce, merge, judge, detect, build; resumable); "
-                                         "'build' the atlas from a folder; 'codex' reads a folder's batches")
-    fe.add_argument("action", choices=["all", "build", "codex", "names"])
+                                         "'build' the atlas from a folder; 'codex' reads a folder's batches; 'flow' "
+                                         "judges the sources of sampled stretches so spread can be measured")
+    fe.add_argument("action", choices=["all", "build", "codex", "names", "flow", "encode"])
     fe.add_argument("folder", nargs="?", default="", help="the feature folder (not needed for names)")
     fe.add_argument("--record", default="", help="one line saying what the record is (for 'all')")
     fe.add_argument("--more", type=int, default=1600, help="uniform stretches judged beyond calibration (for 'all')")
     fe.add_argument("--workers", type=int, default=None)
     fe.add_argument("--judges", default="", help="judge folders for 'build', comma-separated; the first two are the "
                     "calibration pair (default judge1,judge2,judge_more, those present)")
+    inf = sub.add_parser("influence", help="who changes whom (docs/FLOW.md section 8): per behaviour, how much each "
+                                           "agent moves each other one net of its own level, the day and same-time "
+                                           "activity; the branching matrix, feedback and a held-out check (needs "
+                                           "numpy and scipy; after features)")
+    inf.add_argument("--cut", default="", help="date for the held-out check: fitted before it, scored from it on")
     jb = sub.add_parser("jobs", help="run delegated questions: --run JOB (one job) or --watch (broker: run every "
                                      "queued job, for analysts that cannot reach the LLM themselves)")
     jb.add_argument("--run")
@@ -191,7 +200,12 @@ def main(argv=None):
         return print(json.dumps(out))
     if args.cmd == "arc":
         from . import arc
-        return print(json.dumps(arc.run(session.db, args.effort, log=lambda m: print(m, file=sys.stderr, flush=True))))
+        log = lambda m: print(m, file=sys.stderr, flush=True)  # noqa: E731
+        if args.agent:
+            return print(json.dumps(arc.run_agent(session.db, args.effort, log=log)))
+        if args.review:
+            return print(json.dumps(arc.review_agent(session.db, args.effort, log=log)))
+        return print(json.dumps(arc.run(session.db, args.effort, log=log)))
     if args.cmd == "storyline":
         from . import storyline as SL
         return print(json.dumps(SL.run(session.db, args.workers, log=lambda m: print(m, file=sys.stderr, flush=True))))
@@ -232,7 +246,17 @@ def main(argv=None):
             name = args.record or (session.con().execute("SELECT value FROM meta WHERE key='name'").fetchone() or ["a log"])[0]
             return print(json.dumps(FE.run_all(session.db, args.folder, name, args.workers, args.more, log=log)))
         judges = tuple(args.judges.split(",")) if args.judges else ("judge1", "judge2", "judge_more")
+        if args.action == "encode":  # a cheap model learned from the judges, for the stretches nobody judged
+            from . import encoder
+            return print(json.dumps(encoder.fit(session.db, args.folder, log=log)))
+        if args.action == "flow":  # judge the sources of sampled stretches so spread can be measured (docs/FLOW.md)
+            return print(json.dumps(FE.run_flow(session.db, args.folder, [j for j in judges if j != "judge_flow"],
+                                                args.record, args.workers or 12, log=log)))
         return print(json.dumps(FE.build(session.db, args.folder, judges=judges, log=log)))
+    if args.cmd == "influence":
+        from . import influence as IN
+        return print(json.dumps(IN.run(session.db, args.cut or None,
+                                       log=lambda m: print(m, file=sys.stderr, flush=True))))
     if args.cmd == "jobs":
         from . import sweep as SW
         log = lambda m: print(m, file=sys.stderr, flush=True)

@@ -98,6 +98,59 @@ TOOLS = {
                            schema({"id": S_, "limit": I_}),
                            lambda s, a: __import__("swarmgraph.features", fromlist=["x"]).view(s.con(), a.get("id"),
                                                                                               a.get("limit", 30))),
+    "flow_overview": ("START HERE to explain how behaviour moved through the whole system (after the feature atlas): "
+                      "the flow the atlas page animates, as numbers computed by code. Regimes (the split of time that "
+                      "best predicts held-out stretches' behaviour, each with the behaviours that define it, and what "
+                      "rose and fell at each boundary), behaviours that spread along edges between actors (copied "
+                      "words, replies, mentions, the same place) net of week-wide trends, behaviours that persist "
+                      "within an actor, and which behaviour tends to follow which. With how much of each edge type "
+                      "could be measured. Build hypotheses on these, then read the chunks behind them.",
+                      schema(), lambda s, a: __import__("swarmgraph.flow", fromlist=["x"]).overview_view(s.con())),
+    "flow_shift": ("What changed in a window: behaviours over- and under-represented (shares, z) in [start, end) "
+                   "against the rest of the record, or, with at and days, in the days after `at` against the days "
+                   "before it; stretches, actors and new actors; and the chunk ids whose readings to open for why.",
+                   schema({"start": S_, "end": S_, "at": S_, "days": I_}),
+                   lambda s, a: __import__("swarmgraph.flow", fromlist=["x"]).shift_view(
+                       s.con(), a.get("start"), a.get("end"), a.get("at"), a.get("days", 3))),
+    "flow_feature": ("One behaviour (id from behaviour_features) across the record: its share per day or week with "
+                     "intervals, first seen, peak and last seen, actors taking it up per bin; whether it spreads along "
+                     "each edge type (rr with interval, observed / expected), whether actors first show it after "
+                     "exposure (adoption), who passed it on most, and its largest cascades.",
+                     schema({"id": S_}, ["id"]),
+                     lambda s, a: __import__("swarmgraph.flow", fromlist=["x"]).feature_view(s.con(), a["id"])),
+    "flow_cascades": ("Who passed one behaviour to whom: groups of stretches showing it joined by edges, largest "
+                      "first, with the order of actors, depth, time span and the events of each member.",
+                      schema({"id": S_, "edge": {"enum": ["any", "reuse", "reply", "address", "channel"]},
+                              "limit": I_}, ["id"]),
+                      lambda s, a: __import__("swarmgraph.flow", fromlist=["x"]).cascades_view(
+                          s.con(), a["id"], a.get("edge", "any"), a.get("limit", 5))),
+    "flow_coupling": ("Which behaviour follows which: rr of behaviour B in a stretch when a source along the edges "
+                      "shows A versus not, by weeks. With a and b: that pair; with one of them: its strongest "
+                      "partners; with neither: the strongest pairs. edge=next asks within one actor (A, then B in its "
+                      "next stretch); edge=channel with a removal behaviour as A asks what follows removals there.",
+                      schema({"a": S_, "b": S_, "edge": {"enum": ["any", "reuse", "reply", "address", "channel",
+                                                                   "next"]}, "limit": I_}),
+                      lambda s, a: __import__("swarmgraph.flow", fromlist=["x"]).coupling_view(
+                          s.con(), a.get("a"), a.get("b"), a.get("edge", "any"), a.get("limit", 10))),
+    "flow_influence": ("Does seeing one behaviour change what others do, and by how much (after the `influence` "
+                       "stage)? Default: behaviour to behaviour, a(g -> f) = how much more an agent shows f than it "
+                       "usually does after it could see another agent show g, net of the day, its previous stretch and "
+                       "same-time f without contact; odds, change in probability, significance over every pair "
+                       "(false discovery rate 5%), the branching matrix, R (near 1: behaviour nearly sustains itself), "
+                       "totals through chains, two-way loops, a held-out check and a placebo (what an agent sees only "
+                       "afterwards). With id: what that behaviour makes others do and what brings it on. With "
+                       "by=agents: agent to agent per behaviour (who moves whom); with actor: one agent.",
+                       schema({"id": S_, "actor": S_, "by": {"enum": ["behaviours", "agents"]}}),
+                       lambda s, a: __import__("swarmgraph.influence", fromlist=["x"]).view(
+                           s.con(), a.get("id"), a.get("actor"), a.get("by"))),
+    "flow_test": ("Check a flow claim on data you did not use to find it. claim: {kind: transmission | adoption | "
+                  "coupling | shift, feature (or a and b), edge, start/end and direction up|down for a shift}; split: "
+                  "{by: time, at: date} (find before, test from it on) or {by: actors} (two halves of the actors). "
+                  "Returns both parts and a verdict on the held-out part: holds (interval above 1, or z >= 1.96 in "
+                  "the claimed direction), contradicted, undecided or too few cases. To keep it in the hypothesis "
+                  "ledger, register a flow_* metric with propose_hypothesis instead.",
+                  schema({"claim": {"type": "object"}, "split": {"type": "object"}}, ["claim", "split"]),
+                  lambda s, a: __import__("swarmgraph.flow", fromlist=["x"]).test_view(s.con(), a["claim"], a["split"])),
     "behaviour_map": ("Kinds of behaviour across all actors (after `atlas`): every stretch of work (an actor's events "
                       "in a row) described by code — what it did, not what it was about — and grouped into kinds at a "
                       "level set by measurement (held-out prediction of the next stretch, agreement on resampling). "
