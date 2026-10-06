@@ -34,12 +34,27 @@ behaviour atlas (bundle, container, share mode): [docs/DEPLOY.md](DEPLOY.md).
 
 ### As a skill
 
-`install.sh` puts the engine in `~/.ethogram` and the skill (`skills/ethogram`) in `~/.claude/skills` and
-`~/.codex/skills`, for whichever of the two is installed. Then ask the agent to run Ethogram on a log.
+For Claude Code, the plugin (`.claude-plugin/`):
+
+```bash
+claude plugin marketplace add CarterYoo/ethogram
+claude plugin install ethogram@ethogram
+```
+
+For Codex and other agents that support skills (`skills/ethogram`):
+
+```bash
+npx skills add CarterYoo/ethogram
+```
+
+Or `install.sh`, which puts the engine in `~/.ethogram` and the skill in `~/.claude/skills` and `~/.codex/skills`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CarterYoo/ethogram/main/install.sh | sh
 ```
+
+The skill fetches the engine into `~/.ethogram` the first time it needs it. Then ask the agent to run Ethogram on a
+log.
 
 ### The pipeline by hand
 

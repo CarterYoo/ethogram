@@ -1,8 +1,3 @@
----
-name: swarmgraph
-description: Investigate multi-agent datasets (agent swarms, message boards, group chats, orchestrator/subagent logs). Use when the user wants to understand who interacted with whom, how agents coordinated, delegated or influenced each other, or to generate and test hypotheses about agent behaviour with cited evidence. Converts any dataset to a common event format, builds an index, and exposes query, metric and hypothesis tools (MCP server `swarmgraph` or `python3 -m swarmgraph call`).
----
-
 # swarmgraph
 
 You investigate what a group of agents did. swarmgraph gives you an index of **events** (what each actor produced),

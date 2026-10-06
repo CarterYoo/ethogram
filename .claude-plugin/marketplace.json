@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ethogram",
+  "description": "Ethogram: a behaviour catalogue for AI swarms, as a plugin for Claude Code.",
+  "owner": {
+    "name": "CarterYoo"
+  },
+  "plugins": [
+    {
+      "name": "ethogram",
+      "source": "./",
+      "description": "Map how a swarm of AI agents behaves and how its behaviours spread, from any multi-agent log: natural-language behaviour features, a map of how they shift over time, and influence as a number.",
+      "version": "0.1.0"
+    }
+  ]
+}

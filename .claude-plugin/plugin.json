@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "ethogram",
+  "version": "0.1.0",
+  "description": "Map how a swarm of AI agents behaves and how its behaviours spread, from any multi-agent log: natural-language behaviour features, a map of how they shift over time, and influence as a number.",
+  "author": {
+    "name": "CarterYoo"
+  },
+  "homepage": "https://github.com/CarterYoo/ethogram",
+  "repository": "https://github.com/CarterYoo/ethogram",
+  "keywords": [
+    "multi-agent",
+    "agents",
+    "behaviour",
+    "interpretability",
+    "swarm"
+  ],
+  "skills": [
+    "./skills/"
+  ]
+}
