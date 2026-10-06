@@ -2,9 +2,9 @@
 
 # Ethogram
 
-**A behaviour catalogue for AI swarms**
+**A behavior catalog for AI swarms**
 
-<img src="docs/media/ethogram-intro.gif" alt="Ethogram: a multi-agent log, lines marked as behaviours in plain words, the behaviour map rising and falling over time, and which behaviours bring on which" width="100%">
+<img src="docs/media/intro.gif" alt="Ethogram: multi-agent logs, natural language behavior features, feature activation over time, influence propagation, and a generated storyline with a tested hypothesis" width="100%">
 
 [Quick start](#quick-start) · [Why](#why-watching-a-swarm-is-hard) · [How does it work?](#how-does-it-work) · [What we found](#what-we-found) · [Docs](#docs)
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ethogram",
-  "description": "Ethogram: a behaviour catalogue for AI swarms, as a plugin for Claude Code.",
+  "description": "Ethogram: a behavior catalog for AI swarms, as a plugin for Claude Code.",
   "owner": {
     "name": "CarterYoo"
   },
