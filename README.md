@@ -4,7 +4,7 @@
 
 **A behavior catalog for AI swarms**
 
-<img src="docs/media/intro.gif" alt="Ethogram: multi-agent logs, natural language behavior features, feature activation over time, influence propagation, and a generated storyline with a tested hypothesis" width="100%">
+<img src="docs/media/intro.gif" alt="Ethogram: multi-agent log support, natural language behavior features, feature activation over time, influence propagation, and a generated storyline with a tested hypothesis" width="100%">
 
 [Quick start](#quick-start) · [Why](#why-watching-a-swarm-is-hard) · [How does it work?](#how-does-it-work) · [What we found](#what-we-found) · [Docs](#docs)
 
