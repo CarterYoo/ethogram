@@ -37,14 +37,14 @@ Ethogram builds the structure first, and every number in it points back to the e
 
 ## How does it work?
 
-<img src="docs/media/fig-architecture.png" alt="The architecture: a multi-agent log is cut into stretches; behaviour features (propose, merge, two judges, blind test) give an activation per stretch; links connect stretches; together they feed the atlas for people, influence, and MCP tools for agents; an analyst agent writes a storyline with tested hypotheses; delegated reading feeds reader-found behaviours and facts" width="100%">
+<img src="docs/media/architecture.png" alt="The architecture: a multi-agent log is cut into stretches; behaviour features (propose, merge, two judges, blind test) give an activation per stretch; links connect stretches; together they feed the atlas for people, influence, and MCP tools for agents; an analyst agent writes a storyline with tested hypotheses; delegated reading feeds reader-found behaviours and facts" width="100%">
 
 Four steps turn the log into something both people and agents can read. Each step is checked before the next one
 uses it.
 
 ### Step 1 · Cut the record into stretches
 
-<img src="docs/media/fig-stretch.png" alt="A stretch is one agent's events in a row, ended by a pause of more than 15 minutes; the judge sees context lines, the stretch's own events, and facts computed by code" width="100%">
+<img src="docs/media/step1-stretches.png" alt="A stretch is one agent's events in a row, ended by a pause of more than 15 minutes; the judge sees context lines, the stretch's own events, and facts computed by code" width="100%">
 
 The unit of behaviour is a **stretch**: one agent's events in a row, ended by a pause of more than 15 minutes, and at
 most an hour long. A single event is too small to show a behaviour, and a whole day mixes too many. For long working
@@ -56,7 +56,7 @@ computed, such as "others reused this text later" or "another agent edited this 
 
 ### Step 2 · Behaviour features: an SAE, in natural language
 
-<img src="docs/media/fig-dictionary.png" alt="Sample, propose, merge, add, dictionary; one stored entry with fires-if and not-if; two judges and a blind test" width="100%">
+<img src="docs/media/step2-dictionary.png" alt="Sample, propose, merge, add, dictionary; one stored entry with fires-if and not-if; two judges and a blind test" width="100%">
 
 A sparse autoencoder explains a model's activations with a dictionary of features, and checks each feature by asking
 whether its explanation predicts where it fires. Ethogram does the same for a swarm's record, except that every
@@ -92,7 +92,7 @@ pass on the wiki, 21 of 27 on AI Village).
 
 ### Activation strength
 
-<img src="docs/media/fig-activation.png" alt="Activation equals marks divided by events shown times judges; how activation rolls up into presence, daily rate, map position, share and stretch position" width="100%">
+<img src="docs/media/activation-strength.png" alt="Activation equals marks divided by events shown times judges; how activation rolls up into presence, daily rate, map position, share and stretch position" width="100%">
 
 The **activation** of behaviour *f* in stretch *u* is the share of the stretch's events that the judges marked with
 it, averaged over the judges who read it:
@@ -128,7 +128,7 @@ the stretches show any behaviour at all, usually one.
 
 ### Step 3 · Link every stretch to what its agent could have seen
 
-<img src="docs/media/fig-links.png" alt="Reuse, reply, address, channel and next links between stretches of different agents over time" width="100%">
+<img src="docs/media/step3-links.png" alt="Reuse, reply, address, channel and next links between stretches of different agents over time" width="100%">
 
 Each box above is one stretch of that agent's work. Stretches are linked like pointers, always from earlier to later, and always from what the record itself states. A
 later stretch is linked when it reuses word sequences an earlier one wrote first, or replies to it. It is also linked
@@ -152,7 +152,7 @@ how many there are by cross-validation. Clicking a behaviour or a stretch opens 
 
 ### Step 4 · Influence as a number
 
-<img src="docs/media/fig-influence.png" alt="Mark each stretch, find what it could see, compare agents who saw a behaviour with those who did not, and get how many times as likely" width="100%">
+<img src="docs/media/step4-influence.png" alt="Mark each stretch, find what it could see, compare agents who saw a behaviour with those who did not, and get how many times as likely" width="100%">
 
 Behaviours don't just happen side by side. They push each other. Ethogram asks one question for every pair of
 behaviours: did agents who could see behaviour A do more of behaviour B next, compared with agents in the same
