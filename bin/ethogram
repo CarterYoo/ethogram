@@ -1,0 +1,14 @@
+#!/bin/sh
+# Ethogram's command line, callable from anywhere: `ethogram --db INDEX <command> ...` (the commands of
+# `python3 -m swarmgraph`). The stages that compute maps or influence get their own environment, made on first use.
+E="$(cd "$(dirname "$0")/.." && pwd)"
+PY=python3
+case " $* " in
+  *" features "*|*" influence "*|*" atlas "*)
+    if [ ! -x "$E/.venv/bin/python" ]; then
+      echo "ethogram: setting up the maps environment (once, a few minutes)" >&2
+      python3 -m venv "$E/.venv" && "$E/.venv/bin/pip" install -q -r "$E/requirements-maps.txt" >&2 || exit 1
+    fi
+    PY="$E/.venv/bin/python" ;;
+esac
+PYTHONPATH="$E${PYTHONPATH:+:$PYTHONPATH}" exec "$PY" -m swarmgraph "$@"

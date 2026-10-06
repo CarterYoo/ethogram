@@ -157,8 +157,6 @@ the spectral radius of the matrix of extra stretches of *f* in others per stretc
 
 ### For agents
 
-<img src="docs/media/agent-tool.png" alt="An agent calls flow_influence for Shares outside links and gets back what it spreads to and what brings it on" width="100%">
-
 Every view is also an MCP tool (`flow_shift`, `flow_influence`, `flow_test` and more), so an agent reads the flow as
 numbers instead of screenshots. The storyline is written that way. An analyst agent writes phases, turning points and
 hypotheses with tests, code re-runs every test on held-out data, and a separate agent reviews each turning point.
@@ -190,60 +188,12 @@ Stored results rebuild exactly from the saved model outputs (`scripts/verify.py`
 ## Try it
 
 ```bash
-git clone https://github.com/CarterYoo/ethogram && cd ethogram
-python3 -m unittest discover -s tests                     # Python 3.9+, standard library only
+curl -fsSL https://raw.githubusercontent.com/CarterYoo/ethogram/main/install.sh | sh
 ```
 
-Run it on your own log. The LLM stages run through a local agent CLI with your own login, either
-[Codex](https://github.com/openai/codex) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Whichever
-is installed is used, Codex first, or pick one with `SWARMGRAPH_AGENT=codex` or `SWARMGRAPH_AGENT=claude`. The Python
-package is `swarmgraph`.
-
-```bash
-python3 -m swarmgraph --db my.sqlite prepare path/to/dataset            # index, delegated reading, storyline
-python3 -m venv .venv && .venv/bin/pip install -r requirements-maps.txt  # maps, influence and the encoder
-.venv/bin/python -m swarmgraph --db my.sqlite features all my_features   # dictionary, judges, checks, atlas
-.venv/bin/python -m swarmgraph --db my.sqlite features encode my_features  # optional: fill in unjudged stretches
-python3 -m swarmgraph --db my.sqlite storyline                           # again, with the measured behaviours
-.venv/bin/python -m swarmgraph --db my.sqlite influence                  # which behaviour brings on which
-python3 -m swarmgraph --db my.sqlite arc --agent                         # phases, turning points, hypotheses
-python3 -m swarmgraph --db my.sqlite serve --home /features              # → http://localhost:8792
-```
-
-Add `--share` to `serve` before showing it to anyone outside the investigation. Share mode shows methods only by
-kind: links are cut to their domain, and payloads and secrets are withheld.
-
-<details>
-<summary><b>Dataset format</b></summary>
-
-<br>
-
-A folder with:
-
-- `events.jsonl`: one event per line, with `id`, `ts`, `actor`, `text`, `kind` (`message`, `call`, `return`, `action`,
-  `result`, `read`, `reasoning`, `self_report`), and optionally `to`, `reply_to`, `channel`, `url`, `meta`
-- `actors.jsonl`: `id`, `label`, `kind`, `role`, `model`, `parent`
-- `dataset.json`: `name`, `description`, `notes`; `phases.jsonl` optional
-
-An agent can write the converter for a new log, and `adapters/` has examples. Full specification:
-`swarmgraph/format.py` and `skill/SKILL.md`.
-
-</details>
-
-<details>
-<summary><b>Use it from an agent (MCP)</b></summary>
-
-<br>
-
-```bash
-claude mcp add swarmgraph --env PYTHONPATH=/path/to/ethogram --env SWARMGRAPH_DB=/path/to/index.sqlite -- python3 -m swarmgraph mcp
-```
-
-For Codex, add the same command under `[mcp_servers.swarmgraph]` in `~/.codex/config.toml`. Copy `skill/SKILL.md`
-into your skills directory so the agent knows where to start (`storyline`, `periods`, `flow_overview`, then the
-evidence tools).
-
-</details>
+Then ask Claude Code or Codex: *"Run Ethogram on ./my-agent-logs."* The skill converts the log, runs the pipeline
+through your own agent CLI and login, and opens the atlas. It needs git and Python 3.9 or later. To run it by hand,
+or to connect the MCP server, see [docs/REFERENCE.md](docs/REFERENCE.md#use-it).
 
 ## Docs
 
@@ -253,7 +203,8 @@ evidence tools).
 - [**Reproduce**](docs/REPRODUCE.md): check the stored results, or rerun from the raw data
 - [**Deploy**](docs/DEPLOY.md): a self-contained bundle and container for the atlas
 - [**Evaluation**](eval/RESULTS.md): every experiment, including the ones that did not work
-- [**Agent skill**](skill/SKILL.md): instructions for agents using the tools
+- [**Skill**](skills/ethogram/SKILL.md): what Claude Code or Codex follows to run Ethogram
+- [**Investigation guide**](skill/SKILL.md): how an agent investigates with the tools
 - [**Reference**](docs/REFERENCE.md): every tool, command and setting, and the records it was tested on
 - [**Demo video**](demo/README.md): how the video above is made
 
@@ -279,12 +230,14 @@ evidence tools).
 
 ```
 swarmgraph/        the package: index, delegated reading, behaviours, flow, influence, arc, web pages, MCP server
+skills/ethogram/   the skill for Claude Code and Codex (install.sh puts it in place)
+bin/ethogram       the command line, callable from anywhere
 adapters/          converters for the records above (wiki logs, other boards, AI Village, agent transcripts)
 scripts/           verify, reproduce, bundle
 deploy/            container and serve script
 demo/              the demo video composition
 eval/              experiments and results
-skill/             instructions for agents
+skill/             the investigation guide for agents using the tools
 tests/             unit tests
 ```
 

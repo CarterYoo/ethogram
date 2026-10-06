@@ -32,6 +32,37 @@ behaviour atlas (bundle, container, share mode): [docs/DEPLOY.md](DEPLOY.md).
 
 ## Use it
 
+### As a skill
+
+`install.sh` puts the engine in `~/.ethogram` and the skill (`skills/ethogram`) in `~/.claude/skills` and
+`~/.codex/skills`, for whichever of the two is installed. Then ask the agent to run Ethogram on a log.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CarterYoo/ethogram/main/install.sh | sh
+```
+
+### The pipeline by hand
+
+The LLM stages run through a local agent CLI with your own login, Codex or Claude Code: whichever is installed, Codex
+first, or `SWARMGRAPH_AGENT=codex` / `SWARMGRAPH_AGENT=claude`. `bin/ethogram` runs the same commands from anywhere and
+sets up the maps environment on first use.
+
+```bash
+python3 -m swarmgraph --db my.sqlite prepare path/to/dataset            # index, delegated reading, storyline
+python3 -m venv .venv && .venv/bin/pip install -r requirements-maps.txt  # maps, influence and the encoder
+.venv/bin/python -m swarmgraph --db my.sqlite features all my_features   # dictionary, judges, checks, atlas
+.venv/bin/python -m swarmgraph --db my.sqlite features encode my_features  # optional: fill in unjudged stretches
+python3 -m swarmgraph --db my.sqlite storyline                           # again, with the measured behaviours
+.venv/bin/python -m swarmgraph --db my.sqlite influence                  # which behaviour brings on which
+python3 -m swarmgraph --db my.sqlite arc --agent                         # phases, turning points, hypotheses
+python3 -m swarmgraph --db my.sqlite serve --home /features              # → http://localhost:8792
+```
+
+Add `--share` to `serve` before showing it to anyone outside the investigation: links are cut to their domain, and
+payloads and secrets are withheld.
+
+### Earlier commands
+
 One command after converting the data (LLM stages run in parallel and resume where they stopped):
 
 ```bash
