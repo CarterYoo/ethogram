@@ -1,6 +1,6 @@
 {
  "package": "swarmgraph",
- "skill": "skill/SKILL.md",
+ "skill": "skill/GUIDE.md",
  "datasets": {
   "wiki": {
    "dir": "../data/wiki",

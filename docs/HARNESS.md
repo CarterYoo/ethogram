@@ -107,7 +107,7 @@ These hold everywhere; each was adopted after a measured failure (eval/RESULTS.m
 
 ## 3. Data: the format, the index, the work store
 
-**Common format** (a folder; full specification in `swarmgraph/format.py` and `skill/SKILL.md`):
+**Common format** (a folder; full specification in `swarmgraph/format.py` and `skill/GUIDE.md`):
 
 - `events.jsonl`: `id`, `ts`, `actor`, `text`, `kind` (`message`, `call`, `return`, `action`, `result`, `read`,
   `reasoning`, `self_report`), optionally `to`, `reply_to`, `channel`, `url`, `meta` (for example `meta.boundary =
@@ -589,7 +589,7 @@ match, 5 cannot be checked: single episodes), 4 hypotheses (1 supported, 3 partl
 | events | `get_event`, `context`, `grep`, `search`, `select_events`, `timeline`, `interactions` |
 | hypotheses | `metric_catalog`, `run_metric`, `propose_hypothesis`, `measure_hypothesis`, `add_evidence`, `record_verdict`, `hypotheses`, `test_claim` |
 
-`skill/SKILL.md` tells an agent where to start and how to read each result (sections 2c and 2d for the reading and
+`skill/GUIDE.md` tells an agent where to start and how to read each result (sections 2c and 2d for the reading and
 the flow). A hypothesis is registered with a metric and an expectation before it is measured; a verdict is gated
 (supported needs the metric to pass and a verified supporting event).
 

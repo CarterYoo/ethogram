@@ -129,7 +129,7 @@ with the gates. The next round reads the verdicts. Results appear under "Behavio
 Step by step:
 
 ```bash
-# 1. convert your data to the common format (an agent writes this script; see skill/SKILL.md)
+# 1. convert your data to the common format (an agent writes this script; see skill/GUIDE.md)
 python3 examples/forum/make_fixture.py && python3 examples/forum/convert.py
 # 2. build the index
 python3 -m swarmgraph --db forum.sqlite build examples/forum/dataset
@@ -160,7 +160,7 @@ command = "python3"
 args = ["-m", "swarmgraph", "mcp"]
 env = { PYTHONPATH = "/path/to/swarmgraph", SWARMGRAPH_DB = "/path/to/index.sqlite" }
 ```
-Install the skill by copying `skill/SKILL.md` into your skills directory (e.g. `~/.claude/skills/swarmgraph/`).
+The skill (see *As a skill* above) points the agent to `skill/GUIDE.md`, the investigation guide for these tools.
 
 ## Tools
 
@@ -178,7 +178,7 @@ Metrics: interaction — `reply_rate`, `volume`, `before_after`, `pair`, `first_
 tags) — `tag_rate`, `tag_before_after`, `reaction`, `tag_spread`; flow (needs the feature atlas) — `flow_transmission`,
 `flow_coupling`, `flow_shift` (see `metric_catalog`).
 
-## Data format (summary — full spec in `swarmgraph/format.py` and `skill/SKILL.md`)
+## Data format (summary — full spec in `swarmgraph/format.py` and `skill/GUIDE.md`)
 
 `events.jsonl`: `id, ts, actor, text, kind (message|call|return|action|result|read|reasoning|self_report), to[],
 reply_to, channel, url, meta` (`meta.error` on a failed result; `meta.boundary = "context"` where an agent's context
@@ -215,7 +215,7 @@ adapters/wiki_logs.py    wiki edit-log adapter                swarmgraph/ledger.
 adapters/agent_transcript.py  agent transcripts               swarmgraph/chunks.py       chunks one reader can read whole
 swarmgraph/sweep.py      sweep, rules, traces, delegate jobs  swarmgraph/behaviour.py    behaviour over time (code)
 swarmgraph/agentview.py  /agent page data (+ agent.html)     swarmgraph/atlas.py        behaviour map (+ atlas.html)
-skill/SKILL.md           instructions for agents              tests/test_core.py         unit + MCP tests
+skill/GUIDE.md           investigation guide for agents              tests/test_core.py         unit + MCP tests
 ```
 
 ## How well it works (`eval/RESULTS.md`)

@@ -441,10 +441,10 @@ def run_agent(db, effort="high", log=print, timeout=3000):
             a.close()
             b.close()
         shutil.copytree(pkg, os.path.join(run_dir, "swarmgraph"), ignore=shutil.ignore_patterns("__pycache__"))
-        for f in ("skill/SKILL.md", "docs/FLOW.md"):
+        for f, name in (("skill/GUIDE.md", "SKILL.md"), ("docs/FLOW.md", "FLOW.md")):  # the guide as the prompt names it
             p = os.path.join(os.path.dirname(pkg), f)
             if os.path.exists(p):
-                shutil.copy(p, run_dir)
+                shutil.copy(p, os.path.join(run_dir, name))
         log(f"arc agent: querying the flow of {name}")
         out, secs = Agent(effort=effort, timeout=timeout, retries=1, sandbox="workspace-write", workdir=run_dir,
                           shell=True).run(AGENT.format(record=name), AGENT_SCHEMA)

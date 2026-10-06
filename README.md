@@ -270,7 +270,7 @@ Stored results rebuild exactly from the saved model outputs (`scripts/verify.py`
 - [**Deploy**](docs/DEPLOY.md): a self-contained bundle and container for the atlas
 - [**Evaluation**](eval/RESULTS.md): every experiment, including the ones that did not work
 - [**Skill**](skills/ethogram/SKILL.md): what Claude Code or Codex follows to run Ethogram
-- [**Investigation guide**](skill/SKILL.md): how an agent investigates with the tools
+- [**Investigation guide**](skill/GUIDE.md): how an agent investigates with the tools
 - [**Reference**](docs/REFERENCE.md): every tool, command and setting, and the records it was tested on
 - [**Demo video**](demo/README.md): how the video above is made
 

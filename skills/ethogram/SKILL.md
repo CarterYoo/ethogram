@@ -51,7 +51,7 @@ Query instead of reading raw logs: `~/.ethogram/bin/ethogram --db INDEX.sqlite c
 (`tools` lists them). Start with `storyline` and `flow_overview`, then `flow_shift` (what rose and fell between two
 dates), `flow_influence` (what a behaviour brings on, and what brings it on) and `flow_test` (does a claim hold on
 held-out data). Cite event ids, and open them with `get_event` or `context`. The full investigation guide is
-`~/.ethogram/skill/SKILL.md`.
+`~/.ethogram/skill/GUIDE.md`.
 
 Influence numbers are associations net of the agent, the place and the day, checked against a placebo. Say so, and
 describe methods only by kind, never the recipe.

@@ -1,6 +1,6 @@
 {
  "package": "swarmgraph",
- "skill": "skill/SKILL.md",
+ "skill": "skill/GUIDE.md",
  "datasets": {
   "july": {
    "dir": "../data/aiv-julaug_oos_train",

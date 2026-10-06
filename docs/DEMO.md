@@ -64,7 +64,7 @@ scipy, scikit-learn, umap-learn); the page itself is served by any Python.
 
 ## 4. The analyst's view (40 s)
 
-In Claude Code or Codex with the MCP server (`skill/SKILL.md` section 2c): `storyline` → `periods` → `chunk {"id": N}`
+In Claude Code or Codex with the MCP server (`skill/GUIDE.md` section 2c): `storyline` → `periods` → `chunk {"id": N}`
 → `delegate {"question": "...", "chunks": [...]}` (sub-agents read those chunks whole in the background) → the
 answer with cited events, each verified to be in the chunk it came from.
 
