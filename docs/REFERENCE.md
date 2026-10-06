@@ -3,8 +3,7 @@
 Tools, commands, settings and the records Ethogram was tested on. Start with the [README](../README.md).
 
 Index and investigate multi-agent datasets — agent swarms, message boards, group chats, orchestrator/subagent logs —
-as an **MCP server + skill** that any agent can use. Built for the AI Village × Grove Research *AI Swarm Dynamics
-Hackathon* (Oct 3–4, 2026).
+as an **MCP server + skill** that any agent can use.
 
 Investigators of the OpenAI / Hugging Face incident had to read ~1,300 multi-million-token transcripts through analysis
 agents they could not fully trust. Ethogram turns any such dataset into:

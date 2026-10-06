@@ -4,11 +4,9 @@
 
 **A behaviour catalogue for AI swarms**
 
-<img src="docs/media/ethogram-demo.gif" alt="Ethogram: a swarm of agents, one sentence becoming a behaviour, behaviours over time with the storyline, and which behaviours bring on which" width="100%">
+<img src="docs/media/ethogram-intro.gif" alt="Ethogram: a multi-agent log, lines marked as behaviours in plain words, the behaviour map rising and falling over time, and which behaviours bring on which" width="100%">
 
 [Quick start](#quick-start) · [Why](#why-watching-a-swarm-is-hard) · [How does it work?](#how-does-it-work) · [What we found](#what-we-found) · [Docs](#docs)
-
-<sub>Built for the AI Village × Grove Research <b>AI Swarm Dynamics Hackathon</b> · October 3–4, 2026</sub>
 
 </div>
 
