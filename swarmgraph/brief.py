@@ -392,3 +392,4 @@ def node(con, entity):
     if con.execute("SELECT 1 FROM events WHERE channel=? LIMIT 1", (entity,)).fetchone():
         return _channel_node(con, entity)
     return _actor_node(con, entity)
+

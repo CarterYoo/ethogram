@@ -50,3 +50,4 @@ def serve(db_path=None):
         if reply is not None:
             sys.stdout.write(json.dumps(reply, ensure_ascii=False, default=str) + "\n")
             sys.stdout.flush()
+

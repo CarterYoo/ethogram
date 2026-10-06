@@ -333,3 +333,4 @@ def tag_of(con, event_id):
     return {"tags": json.loads(r[0]), "other": r[1], "summary": r[2], "addressed_to": json.loads(r[3]),
             "signed_as": r[4], "confidence": r[5], "responds_to": r[6] or None, "continues": r[7] or None,
             "claims": json.loads(r[8]) if r[8] else [], "stated_goal": r[9] or None} if r else None
+

@@ -72,3 +72,4 @@ def prepare(dataset_dir, db, workers=None, llm=True, tag_effort="low", card_effo
         stage("quality", lambda: cards.quality(query.connect(db)))
     log(f"prepared {db} in {sum(s['seconds'] for s in report['stages']) / 60:.1f} min; report {db}.prepare.json")
     return report
+

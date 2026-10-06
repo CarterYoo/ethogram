@@ -84,3 +84,4 @@ answer with cited events, each verified to be in the chunk it came from.
 One multi-question pass (about 3x the record) instead of one pass per question; follow-up questions read only the
 chunks chosen and are cached. Sub-agents run with none of the operator's own tools. Any log: transcripts, request logs
 and wiki edits went through the same command.
+

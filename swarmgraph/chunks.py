@@ -357,3 +357,4 @@ def _fetch(con, ids):
         out.append(e)
     out.sort(key=lambda e: (e["ts"], e["id"]))
     return out
+

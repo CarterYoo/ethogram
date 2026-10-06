@@ -1032,3 +1032,4 @@ def traced(con, verdict=("contradicted", "overstates")):
                 out.append({**lst[k], "earlier_chunk": cid, "verdict": it["verdict"], "why": it["why"],
                             "earlier_evidence": it.get("events", [])})
     return sorted(out, key=lambda x: x["ts"])
+

@@ -253,3 +253,4 @@ if __name__ == "__main__":
     opt = lambda k, d: type(d)(a[a.index(k) + 1]) if k in a else d
     main(a[0], a[1], opt("--window-min", 90), opt("--min-cases", 20), opt("--variant", "all"), "--reverse" in a,
          opt("--eval-variant", "") or None, opt("--labels", "themes"))
+

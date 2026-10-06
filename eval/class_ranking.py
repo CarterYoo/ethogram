@@ -167,3 +167,4 @@ if __name__ == "__main__":
         judge(sys.argv[2], sys.argv[3])
     else:
         report(sys.argv[2], sys.argv[3])
+

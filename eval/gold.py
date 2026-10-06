@@ -174,3 +174,4 @@ if __name__ == "__main__":
         sample(index, name, sizes, seed, exclude)
     else:
         score(index, name)
+

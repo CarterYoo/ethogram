@@ -233,3 +233,4 @@ def sources(con, ids):
         out.append({"when": r[1][:16].replace("T", " "), "who": who, "what": what + (" (it failed)" if failed else ""),
                     "text": re.sub(r"\s+", " ", text)[:1500]})
     return out
+

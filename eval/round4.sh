@@ -28,3 +28,4 @@ echo "== $(date) analysts done"
 python3 -u eval/pairwise.py $CFG $OUT TR raw sgdelegate --pairs 3 --ev-limit 150
 python3 -u eval/delegate_report.py $OUT $DB ../data/aiv-transcript --conds raw,sgaction3,sgdelegate
 echo "== $(date) round 4 done"
+

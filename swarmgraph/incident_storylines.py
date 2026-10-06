@@ -963,3 +963,4 @@ def page(con):
         return {**out, "status": "stale", "reason": "saved_evidence_or_audit_changed"}
     return {**out, **result, "incidents": copy.deepcopy(artifact["discovery"]["incidents"]),
         "status": "ready" if result["stories"] else "missing", "reason": artifact["reason"]}
+

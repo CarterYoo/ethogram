@@ -97,3 +97,4 @@ if __name__ == "__main__":
         split(d, idx, prefix, per_day_half=True)
     else:
         split(d, idx, prefix, cut=sys.argv[sys.argv.index("--cut") + 1])
+

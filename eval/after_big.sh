@@ -13,3 +13,4 @@ echo "[$(date +%T)] analysts done; hold-test"
 python3 eval/hyp_test.py run $D/hold_big raw=$D/ab_big:raw sg=$D/ab_big:swarmgraph \
   --big $D/aiv-julaug_oos_train.sqlite --test-big $D/aiv-julaug.sqlite --ids-big $D/aiv-julaug_oos_test_ids.txt
 echo "[$(date +%T)] ALL DONE"
+

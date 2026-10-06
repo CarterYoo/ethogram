@@ -290,3 +290,4 @@ def behaviors(con, actor=None, tag=None, other=None, since=None, until=None, seg
                                       "responds_to": r[11] or None, "continues": r[12] or None,
                                       "claims": json.loads(r[13]) if r[13] else [], "stated_goal": r[14] or None,
                                       "text": Q.clip(r[4], 240)} for r in rows]}
+

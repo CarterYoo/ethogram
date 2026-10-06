@@ -23,3 +23,4 @@ How to use: turn a hypothesis into A and B patterns, run `test_claim`, read `rea
 patterns with `grep` when it reports a problem. A claim that comes back `not_holds` is usually about something that
 happened once or twice, or is weaker than it sounds: narrow it, replace it, or report it with that caveat. `holds` is a
 statement about this log, in-sample; whoever grades it later may use events you did not see.
+

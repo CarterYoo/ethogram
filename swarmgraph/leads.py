@@ -185,3 +185,4 @@ def shuffled_best(ev, themes, tok=None, window_s=90 * 60, min_cases=10, shuffles
         g = sorted((s["gap"] for s in pair_table(ev, sh, lo, hi, window_s, min_cases, tok).values()), reverse=True)
         res.append((g[0] if g else 0.0, sum(g[:8]) / max(1, len(g[:8]))))
     return {"best_gap": [round(x[0], 3) for x in res], "top8_mean_gap": [round(x[1], 3) for x in res]}
+

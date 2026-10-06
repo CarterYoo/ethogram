@@ -647,3 +647,4 @@ def quality(con, sample=5, seed=0):
             "issue_kinds": dict(kinds),
             "read_these": [f"{k}:{key}" for k, key, _ in rnd.sample(cards, min(sample, len(cards)))],
             "note": "Read the sampled cards against their events before trusting hypotheses built on them."}
+

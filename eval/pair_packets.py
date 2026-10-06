@@ -63,3 +63,4 @@ def main(cfg_path, qid, out, pairs_path):
 
 if __name__ == "__main__":
     main(*sys.argv[1:5])
+

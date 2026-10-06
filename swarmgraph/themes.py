@@ -440,3 +440,4 @@ def theme_node(con, name, examples=10, offset=None):
                              f"{len(ex)} spread evenly over {len(rows)} events in time order, one per stretch, "
                              "preferring actors not shown yet — a SAMPLE: pass `offset` to page through all "
                              f"{len(rows)}, because what matters inside a class is rare and a sample misses it")}
+

@@ -591,3 +591,4 @@ def concern_events(con, kind=None, actor=None, min_conf="medium", limit=50):
             "rows": [{"event_id": r[0], "kind": r[1], "records": NEUTRAL.get(r[1], r[1]), "quote": r[2], "basis": r[7],
                       "unconfirmed": r[8],
                       "confidence": r[3], "ts": r[4], "actor": r[5], "channel": r[6]} for r in rows[:limit]]}
+

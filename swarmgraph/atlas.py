@@ -923,3 +923,4 @@ def view(con, type=None, limit=40):
                                                                      "after": r.get("probe_after")},
             "types": [{**t, "per_day": dict(sorted(per[t["id"]].items()))} for t in d["types"]],
             "unusual": [{k: p[k] for k in ("actor", "start", "n", "ids", "type")} for p in pts if p["unusual"]][:limit]}
+

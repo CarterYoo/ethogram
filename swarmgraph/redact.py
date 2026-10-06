@@ -58,3 +58,4 @@ def redact_obj(obj, counts=None, key=None):
     if isinstance(obj, dict):
         return {k: redact_obj(v, counts, k) for k, v in obj.items()}
     return obj
+

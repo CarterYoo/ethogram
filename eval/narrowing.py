@@ -98,3 +98,4 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     conds = tuple(a[a.index("--conds") + 1].split(",")) if "--conds" in a else ("raw", "sgaction", "sgaction2")
     main(a[0], a[1], a[2], conds)
+

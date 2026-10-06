@@ -56,3 +56,4 @@ def page(db, con):
     if job.get("status") in ("building", "error"):
         return {k: job[k] for k in ("status", "stage")}
     return incident_storylines.page(con)
+

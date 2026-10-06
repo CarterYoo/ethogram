@@ -147,3 +147,4 @@ def behaviour_signals(con, add, w, v):
             f"ON e.id=t.event_id WHERE t.other<>''{ew} GROUP BY lower(t.other) HAVING count(DISTINCT e.actor) >= 3 "
             f"ORDER BY count(*) DESC LIMIT 10", v):
         add("free_label", [], n, f"free label '{label}' on {n} events by {actors} actors", [eid], label=label)
+

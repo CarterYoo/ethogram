@@ -177,3 +177,4 @@ class LedgerBoard(unittest.TestCase):
         self.assertEqual(b["kinds"]["heard"]["claims_made_by"], {"Claude Sonnet 4.6": 1})
         only = L.board(Q.connect(db), case_type="heard")
         self.assertEqual([c["type"] for c in only["cases"]], ["heard"])
+

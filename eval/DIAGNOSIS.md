@@ -287,3 +287,4 @@ claims keep about two thirds of their in-sample rate on the next month; nobody s
 - Whether people (not models) find the people-facing view faster; not tested.
 - Whether a corrections ledger changes what analysts find (only the probe exists), and its recall.
 - Whether the claim tools help once echoes are excluded: 31 and 37 hypotheses per cell cannot tell 26% from 18%.
+
