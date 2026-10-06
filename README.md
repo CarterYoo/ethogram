@@ -143,7 +143,7 @@ judges. It is used only where it agrees with them at κ 0.6 or more, and only fo
 
 For each behaviour *f*, one penalised logistic regression over the stretches *u* that could show it:
 
-$$\operatorname{logit} P(f \in u) = \beta_{\text{agent}} + \pi_{\text{place}} + \gamma_{\text{day}} + \rho\, f(\text{previous stretch}) + \kappa\, f(\text{nearby, no contact}) + \sum_g a_{g \to f}\, x_g(u)$$
+$$\text{logit}\, P(f \in u) = \beta_{\text{agent}} + \pi_{\text{place}} + \gamma_{\text{day}} + \rho\, f(\text{previous stretch}) + \kappa\, f(\text{nearby, no contact}) + \sum_g a_{g \to f}\, x_g(u)$$
 
 Here $x_g(u) = 1$ when a stretch linked into *u* shows behaviour *g*, and $e^{a_{g \to f}}$ is how many times the odds
 of *f* multiply after seeing *g*. Shrinkage is chosen by predicting a later part of the record from an earlier one,
