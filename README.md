@@ -67,8 +67,6 @@ reused later.
 
 ### Activation strength
 
-<img src="docs/media/how-activation.png" alt="Two judges mark six events; activation is (3 + 2) / (6 × 2) = 0.42; activations become daily rates, map positions and dot sizes" width="100%">
-
 $$a_f(u) = \frac{1}{|J_u|} \sum_{j \in J_u} \frac{|\text{events of } u \text{ that judge } j \text{ marked with } f|}{|\text{events of } u \text{ shown to the judges}|}$$
 
 0 means no event shows the behaviour, and 1 means every event does and both judges agree. Behaviours measured by code
