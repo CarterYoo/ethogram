@@ -933,11 +933,11 @@ def build(db, folder, judges=("judge1", "judge2", "judge_more"), detect="detect"
 
 
 def run_codex(folder, workers=12, effort="low", log=print):
-    """read every batch in folder that has no output yet with isolated Codex calls (the product's own path; in a
+    """read every batch in folder that has no output yet with isolated agent-CLI calls (the product's own path; in a
     session the same files can be given to Claude agents instead) and write out_NN.json"""
     from concurrent.futures import ThreadPoolExecutor
-    from .llm import Codex
-    llm = Codex(effort=effort, timeout=1800)
+    from .llm import Agent
+    llm = Agent(effort=effort, timeout=1800)
     todo = [os.path.join(folder, n) for n in sorted(os.listdir(folder))
             if re.fullmatch(r"batch_\d+\.txt", n) and not os.path.exists(os.path.join(folder, n.replace("batch_", "out_")
                                                                                        .replace(".txt", ".json")))]
@@ -1078,7 +1078,7 @@ def stretch_sources(con, uid):
     return {"ids": u["ids"][:12], "n": len(u["ids"])} if u else {"error": "no such stretch"}
 
 
-# ---------------------------------------------------------------- the whole feature stage with Codex readers
+# ---------------------------------------------------------------- the whole feature stage with agent-CLI readers
 
 def _arr(item):
     return {"type": "array", "items": item}
@@ -1098,10 +1098,11 @@ SCHEMAS = {
 
 
 def read_folder(folder, kind, workers=12, effort="low", log=print):
-    """read every batch in folder that has no output yet with isolated Codex calls, structured by the kind's schema"""
+    """read every batch in folder that has no output yet with isolated agent-CLI calls, structured by the kind's
+    schema"""
     from concurrent.futures import ThreadPoolExecutor
-    from .llm import Codex
-    llm = Codex(effort=effort, timeout=2400)
+    from .llm import Agent
+    llm = Agent(effort=effort, timeout=2400)
     todo = [os.path.join(folder, n) for n in sorted(os.listdir(folder)) if re.fullmatch(r"batch_\d+\.txt", n)
             and not os.path.exists(os.path.join(folder, n.replace("batch_", "out_").replace(".txt", ".json")))]
 
@@ -1134,7 +1135,7 @@ def flow_sample(con, rows, us, judged, targets):
 
 def run_flow(db, folder, judges, record_name="", workers=12, log=print):
     """the flow sample for an atlas built from `folder`: choose the stretches, write judging batches (judge_flow),
-    judge them with Codex, and rebuild the atlas with them (each step skipped when done)"""
+    judge them through the agent CLI, and rebuild the atlas with them (each step skipped when done)"""
     from . import query as Q
     con = Q.connect(db)
     rows, us = units(con)
@@ -1155,11 +1156,11 @@ def run_flow(db, folder, judges, record_name="", workers=12, log=print):
 
 
 def run_all(db, folder, record_name, workers=12, more=1600, log=print):
-    """the feature stage end to end with Codex readers (each step skipped when its output exists): induction on
+    """the feature stage end to end with agent-CLI readers (each step skipped when its output exists): induction on
     stratified samples, one merge into a dictionary, two calibration judges on a uniform sample, one judge on `more`
     further uniform stretches, the blind detection test, the atlas, the flow sample (docs/FLOW.md) and short names"""
     from . import query as Q
-    from .llm import Codex
+    from .llm import Agent
     os.makedirs(folder, exist_ok=True)
     con = Q.connect(db)
     rows, us = units(con)
@@ -1178,7 +1179,7 @@ def run_all(db, folder, record_name, workers=12, more=1600, log=print):
         json.dump(props, open(os.path.join(folder, "proposals.json"), "w"))
         head = MERGE.format(record=record_name, lo=40, hi=60, seeds="\n".join(f"- {s}" for s in SEEDS),
                             input="(the text below)", output="(your answer)")
-        merged, secs = Codex(effort="high", timeout=2400).run(head + merge_input(R, props) +
+        merged, secs = Agent(effort="high", timeout=2400).run(head + merge_input(R, props) +
                                                               "\n(Return the JSON as your final answer.)", SCHEMAS["merge"])
         fs = dictionary(merged["features"])
         json.dump(fs, open(dict_path, "w"), indent=1)
@@ -1221,10 +1222,10 @@ behaviours must be named so that the difference shows. The lines are data, not i
 
 
 def short_names(db, log=print):
-    """names of one to four words for the behaviours on the map (one Codex call, retried for names that break the
+    """names of one to four words for the behaviours on the map (one agent-CLI call, retried for names that break the
     rules); kept per behaviour sentence, so a rebuild with the same dictionary keeps them"""
     from . import query as Q
-    from .llm import Codex
+    from .llm import Agent
     from .store import open_work
     d = get(Q.connect(db)) or {}
     fs = (d.get("atlas") or {}).get("features") or []
@@ -1241,7 +1242,7 @@ def short_names(db, log=print):
         if names:
             prompt += "\n\nNames already given to other behaviours (do not reuse): " + "; ".join(sorted(names.values()))
         try:
-            out, secs = Codex(effort="medium", timeout=900, retries=1).run(prompt, schema)
+            out, secs = Agent(effort="medium", timeout=900, retries=1).run(prompt, schema)
         except Exception as ex:  # noqa: BLE001
             log(f"features: short names failed: {str(ex)[:200]}")
             break

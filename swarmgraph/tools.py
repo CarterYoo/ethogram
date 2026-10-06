@@ -358,7 +358,7 @@ TOOLS = {
     "hypotheses": ("The hypothesis ledger (or one hypothesis by id).",
                    schema({"id": I_, "status": S_, "verdict": S_}),
                    lambda s, a: H.get(s.work(), a["id"]) if a.get("id") else H.listing(s.work(), a.get("status"), a.get("verdict"))),
-    "summarize_node": ("Optional LLM summary of one actor in one segment via the configured LLM CLI (default: Codex). "
+    "summarize_node": ("Optional LLM summary of one actor in one segment via the configured agent CLI (Codex or Claude Code). "
                        "Every claim cites event ids, which are verified; observed vs self-reported claims are separated.",
                        schema({"actor": S_, "segment": I_, "effort": S_}, ["actor", "segment"]), _summarize),
 }

@@ -22,7 +22,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from swarmgraph.llm import Codex  # noqa: E402
+from swarmgraph.llm import Agent  # noqa: E402
 
 PROMPT = """You rate behaviour hypotheses that analysts wrote about a log of AI agents working on tasks together
 (project work, chat, publishing, coordination). You see only the regularity each analyst stated. Do not run commands.
@@ -80,7 +80,7 @@ def judge(out, run_dirs, workers=6, batch=20):
 
     def run(g):
         items = "\n".join(f"{i + 1}. {h['text']}" for i, h in enumerate(g))
-        res, _ = Codex(effort="medium", timeout=1500, retries=1).run(PROMPT.format(items=items), SCHEMA)
+        res, _ = Agent(effort="medium", timeout=1500, retries=1).run(PROMPT.format(items=items), SCHEMA)
         return g, res
 
     with concurrent.futures.ThreadPoolExecutor(workers) as pool:

@@ -142,7 +142,7 @@ class FeatureStorylines(unittest.TestCase):
         con = query.connect(self.db)
         self.addCleanup(con.close)
         before = con.total_changes
-        with patch.object(FS, "Codex", side_effect=AssertionError("GET must not generate")):
+        with patch.object(FS, "Agent", side_effect=AssertionError("GET must not generate")):
             self.assertEqual(FS.page(con)["status"], "missing")
         self.assertEqual(con.total_changes, before)
 
@@ -206,7 +206,7 @@ class FeatureStorylines(unittest.TestCase):
         self.generated()
         con = query.connect(self.db)
         artifact = FS.latest_run(con); con.close()
-        with patch.object(FS, "Codex", side_effect=AssertionError("replay must not generate")):
+        with patch.object(FS, "Agent", side_effect=AssertionError("replay must not generate")):
             self.assertEqual(len(FS.replay(artifact)["stories"]), 1)
             self.assertEqual(FS.save_replay(self.db, artifact)["accepted"], 2)
         bad = copy.deepcopy(artifact); bad["calls"]["writer"]["output"]["title"] = "Tampered"
@@ -232,7 +232,7 @@ class FeatureStorylines(unittest.TestCase):
         self.generated()
         snapshot_path = os.path.join(self.tmp.name, "input.json")
         run_path = os.path.join(self.tmp.name, "run.json")
-        with patch.object(FS, "Codex", side_effect=AssertionError("export/replay must not generate")), \
+        with patch.object(FS, "Agent", side_effect=AssertionError("export/replay must not generate")), \
                 patch.object(cli, "install_signal_handlers"), contextlib.redirect_stdout(io.StringIO()):
             cli.main(["--db", self.db, "feature-stories", "--overview", "--export-input", snapshot_path])
             cli.main(["--db", self.db, "feature-stories", "--overview", "--export-run", run_path])

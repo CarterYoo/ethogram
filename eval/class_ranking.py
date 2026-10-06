@@ -108,12 +108,12 @@ def scores(ev, targeted, cls):
 
 
 def judge(index, out_path):
-    from swarmgraph.llm import Codex
+    from swarmgraph.llm import Agent
     ev, targeted, cls, defs = load(index)
     names = sorted(cls)
     random.Random(int(os.environ.get("CLASS_SEED", "11"))).shuffle(names)  # no size order, no counts given
     items = "\n".join(f"{i + 1}. {n} - {defs.get(n, '')}" for i, n in enumerate(names))
-    res, _ = Codex(effort="medium", timeout=1500, retries=1).run(PROMPT.format(items=items), SCHEMA)
+    res, _ = Agent(effort="medium", timeout=1500, retries=1).run(PROMPT.format(items=items), SCHEMA)
     got = {names[r["n"] - 1]: r["interest"] for r in res["items"] if 1 <= r["n"] <= len(names)}
     json.dump(got, open(out_path, "w"), indent=1)
     print(f"judged {len(got)} classes -> {out_path}")

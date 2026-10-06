@@ -44,13 +44,13 @@ that queries the flow tools, each hypothesis tested again by code on a part of t
 reviewer).
 
 Environment: Python 3.9+ (standard library) for everything except maps; `requirements-maps.txt` (pinned) for the
-atlas; the Codex CLI for LLM stages, called through `swarmgraph/llm.py` with none of the user's tools. The stored
-results used the model `gpt-6.1-sol` (set `SWARMGRAPH_MODEL` to choose). Each stage sets its own reasoning
-effort (for example the judges low, the arc high).
+atlas; an agent CLI for LLM stages (Codex or Claude Code), called through `swarmgraph/llm.py` with none of the user's
+tools. The stored results used Codex with the model `gpt-6.1-sol` (set `SWARMGRAPH_AGENT` and `SWARMGRAPH_MODEL` to
+choose). Each stage sets its own reasoning effort (for example the judges low, the arc high).
 
 How the stored runs differ from `reproduce.sh`, so a fresh run will not match them line for line:
 - `wiki` behaviours: the first reading (induction, merge, judges, detection) was done by Claude agents from the same
-  batch files; `features codex` / `features all` read them with Codex.
+  batch files; `features run` / `features all` read them with the agent CLI.
 - `wiki_all` reused the `wiki` dictionary and judgments for the wiki part and judged the new stretches separately
   (`judge_new`), so its checks equal the wiki's.
 - The arcs were written twice (`arc_v1` kept); the second run added the question how the agents' goals relate to the

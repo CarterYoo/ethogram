@@ -1,4 +1,4 @@
-"""Behaviour-hypothesis rounds, verified by several agents (LLM via Codex, all calls in parallel):
+"""Behaviour-hypothesis rounds, verified by several agents (LLM through the agent CLI, all calls in parallel):
 
   each round:
     generate  behaviour hypotheses from the story, cards and the ledger so far, each with its basis (the events
@@ -21,7 +21,7 @@ from . import hypotheses as H
 from . import metrics as M
 from . import query as Q
 from . import signals as S
-from .llm import Codex
+from .llm import Agent
 
 GEN_SCHEMA = {"type": "object", "additionalProperties": False, "required": ["hypotheses"], "properties": {
     "hypotheses": {"type": "array", "items": {"type": "object", "additionalProperties": False,
@@ -190,7 +190,7 @@ def cards_context(con, n_traj=10, n_link=8, n_changes=40, clip=1800):
     return "\n".join(out) + "\n"
 
 
-def generate(con, work, codex, n=5, round_no=1):
+def generate(con, work, agent, n=5, round_no=1):
     ov = Q.overview(con)
     ov["most_active"] = ov["most_active"][:8]
     sig = [{k: s[k] for k in ("type", "actors", "names", "value", "note", "evidence")} for s in S.detect(con, limit=24)]
@@ -211,7 +211,7 @@ def generate(con, work, codex, n=5, round_no=1):
     cc = concerns_card(con)
     concerns = (cc["concerns"]["summary"] + "\n" + "\n".join(f"- [{p['severity']}] {p['title']}: {p['what']} (examples: {' '.join(p['evidence'][:4])})"
                                                                for p in cc["concerns"]["patterns"])) if cc.get("concerns") else "(none found yet)"
-    out, _ = codex.cached(work, GEN_PROMPT.format(overview=_jsonl(ov), story=story, concerns=concerns, profile=_jsonl(prof, 4000), cards=cards_context(con),
+    out, _ = agent.cached(work, GEN_PROMPT.format(overview=_jsonl(ov), story=story, concerns=concerns, profile=_jsonl(prof, 4000), cards=cards_context(con),
                                                   signals=_jsonl(sig[:12], 5000), catalog=_jsonl(catalog, 6000), n=n,
                                                   ledger="\n".join(prior) or "(none yet)"),
                           GEN_SCHEMA)
@@ -232,9 +232,9 @@ def generate(con, work, codex, n=5, round_no=1):
 
 
 def verify(db, hyp, role, effort):
-    """One verifier agent (worker thread): read-only tool access, its own Codex call."""
+    """One verifier agent (worker thread): read-only tool access, its own agent-CLI call."""
     project = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return Codex(effort=effort, workdir=project, timeout=1800, retries=0).run(INV_PROMPT.format(
+    return Agent(effort=effort, workdir=project, timeout=1800, retries=0).run(INV_PROMPT.format(
         role=role, task=ROLES[role], db=db, id=hyp["id"], statement=hyp["statement"],
         basis=", ".join(hyp.get("basis") or []) or "(none)", plan=json.dumps(hyp["plan"]),
         metric=_jsonl({k: hyp["metric_result"].get(k) for k in ("value", "details")}, 2500),
@@ -250,7 +250,7 @@ def judge(db, hyp, found, effort):
             if row:
                 lines.append(f"[{ev['event_id']}] ({role}: {ev['stance']}) {row[0][:16]} {row[1]}: {Q.clip(row[2], 400)}")
     con.close()
-    return Codex(effort=effort, timeout=1200, retries=1).run(JUDGE_PROMPT.format(
+    return Agent(effort=effort, timeout=1200, retries=1).run(JUDGE_PROMPT.format(
         statement=hyp["statement"], confirm_if=hyp["confirm_if"], refute_if=hyp["refute_if"],
         alternatives="; ".join(hyp["alternatives"] or []), plan=json.dumps(hyp["plan"]),
         metric=_jsonl(hyp["metric_result"], 3000), passed=bool(hyp["metric_pass"]),
@@ -271,7 +271,7 @@ def explore(db, rounds=3, per_round=6, effort="medium", workers=None, gen_effort
     done_all, rejected_all = [], []
     for rnd in range(first, first + rounds):
         log(f"== round {rnd}: generating {per_round} behaviour hypotheses")
-        hyps, rejected = generate(con, work, Codex(effort=gen_effort), per_round, rnd)
+        hyps, rejected = generate(con, work, Agent(effort=gen_effort), per_round, rnd)
         rejected_all += rejected
         for r in rejected:
             log(f"  rejected (invalid plan): {r['statement'][:90]} — {r['error'][:120]}")

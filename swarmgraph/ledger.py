@@ -297,7 +297,7 @@ def check(db, workers=None, batch=6, effort="medium", only=None, log=print):
     """LLM verdict on every flagged case (resumable: cases already checked are kept)"""
     import concurrent.futures
     from . import query as Q
-    from .llm import Codex, default_workers
+    from .llm import Agent, default_workers
     from .store import open_work
     con, work = Q.connect(db), open_work(db)
     work.execute("CREATE TABLE IF NOT EXISTS claim_checks(case_type TEXT, event_id TEXT, actor TEXT, flags TEXT, "
@@ -312,7 +312,7 @@ def check(db, workers=None, batch=6, effort="medium", only=None, log=print):
 
     def run(g):
         text = "\n\n".join(f"### case {k + 1}\n{render(c, ev, names)}" for k, c in enumerate(g))
-        out, _ = Codex(effort=effort, timeout=1200, retries=1).run(CHECK.format(cases=text), CHECK_SCHEMA)
+        out, _ = Agent(effort=effort, timeout=1200, retries=1).run(CHECK.format(cases=text), CHECK_SCHEMA)
         return g, out
 
     n = 0

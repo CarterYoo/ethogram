@@ -25,7 +25,7 @@ import time
 
 from . import query as Q
 from . import structure as ST
-from .llm import Codex, default_workers
+from .llm import Agent, default_workers
 from .store import open_work
 
 DISCOVER = """You are mapping the recurring behaviours in a multi-agent log. Below are one-line summaries of many
@@ -89,7 +89,7 @@ def discover(db, n_sample=600, effort="medium", log=print):
     con2 = Q.connect(db)
     actor_of = dict(con2.execute("SELECT id, actor FROM events"))
     lines = "\n".join(f"{names.get(actor_of.get(e, ''), '?')}: {s}" for e, s in sample)
-    out, secs = Codex(effort=effort, timeout=1500, retries=1).run(DISCOVER.format(summaries=lines), DISCOVER_SCHEMA)
+    out, secs = Agent(effort=effort, timeout=1500, retries=1).run(DISCOVER.format(summaries=lines), DISCOVER_SCHEMA)
     themes = out["themes"]
     work.execute("INSERT OR REPLACE INTO cards VALUES ('themes','all',1,?,?,?,?,?)",
                  (time.strftime("%Y-%m-%d %H:%M:%S"), json.dumps({"sampled": len(sample)}), json.dumps(themes),
@@ -112,7 +112,7 @@ def rate_interest(db, effort="medium", log=print):
     order = list(range(len(themes)))
     random.Random(11).shuffle(order)  # the LLM must not see our order either
     items = "\n".join(f"{k + 1}. {themes[i]['name']} - {themes[i].get('definition', '')}" for k, i in enumerate(order))
-    out, secs = Codex(effort=effort, timeout=1500, retries=1).run(RATE.format(items=items), RATE_SCHEMA)
+    out, secs = Agent(effort=effort, timeout=1500, retries=1).run(RATE.format(items=items), RATE_SCHEMA)
     got = 0
     for r in out["items"]:
         if 1 <= r["n"] <= len(order):
@@ -134,7 +134,7 @@ def get_themes(con):
 
 def _assign_batch(batch, theme_text, effort):
     prompt = ASSIGN.format(themes=theme_text, events="\n".join(f"{e}: {s}" for e, s in batch))
-    out, _ = Codex(effort=effort, timeout=900, retries=1).run(prompt, ASSIGN_SCHEMA)
+    out, _ = Agent(effort=effort, timeout=900, retries=1).run(prompt, ASSIGN_SCHEMA)
     return out["items"]
 
 

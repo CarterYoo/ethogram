@@ -84,7 +84,7 @@ python3 -m swarmgraph --db INDEX call quality # check before trusting it
   exchanges, effect on the other's behaviour. Every sentence is marked observed / claim / inferred and cites event
   ids; code checks ids, numbers and trigger order and lists `issues`.
 - Cards and notes are summaries for finding things. They are not evidence: cite events you have read.
-- Parallel LLM calls: `--workers N` or `$SWARMGRAPH_WORKERS` (default 12); each call is one `codex exec` process.
+- Parallel LLM calls: `--workers N` or `$SWARMGRAPH_WORKERS` (default 12); each call is one agent-CLI process (Codex or Claude Code).
 
 ## 2. Orient — `map`, then `node`, then the events
 
@@ -246,7 +246,7 @@ State each finding with its hypothesis id, verdict, metric value vs expectation,
 present). Separate what events show from what agents claim about themselves. Say what the data cannot show
 (missing sources, heuristic relations, sampled summaries).
 
-## Optional LLM helpers (need a local LLM CLI, default Codex; set SWARMGRAPH_CODEX to change)
+## Optional LLM helpers (need a local agent CLI, Codex or Claude Code; set SWARMGRAPH_AGENT to choose)
 - `summarize_node {actor, segment}` — grounded summary of one actor in one segment; every claim cites event ids.
 - `python3 -m swarmgraph auto --n 5` — fully automatic loop: generate hypotheses from signals, measure, investigate
   (separate LLM call with read-only tools), judge (another call that sees only plan, metric and cited events), gate.

@@ -25,7 +25,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from swarmgraph.llm import Codex, codex_path, isolation, user_model  # noqa: E402
+from swarmgraph.llm import Agent, codex_path, isolation, user_model  # noqa: E402
 
 BASE = """You are an analyst. The directory you are in holds an event log from a multi-agent system:
 events.jsonl (one event per line: id, ts, actor, kind, text, channel, reply_to, meta) and actors.jsonl.
@@ -442,10 +442,10 @@ def judge(cfg_path, out, workers=6, ev_limit=60):
         if q["kind"] == "hypotheses":
             hyp = "\n".join(f"{i + 1}. [{h['pattern']}] {h['statement']} (evidence {', '.join(h['evidence'])})"
                             for i, h in enumerate(ans.get("hypotheses", []))) or "(none)"
-            j, _ = Codex(effort="high", timeout=1500, retries=1).run(
+            j, _ = Agent(effort="high", timeout=1500, retries=1).run(
                 HYP_JUDGE.format(answer=hyp, events=texts), HYP_JUDGE_SCHEMA)
         else:
-            j, _ = Codex(effort="high", timeout=1500, retries=1).run(
+            j, _ = Agent(effort="high", timeout=1500, retries=1).run(
                 JUDGE.format(question=q["question"], rubric=q["rubric"], answer=ans.get("answer", "(no answer)"),
                              events=texts), JUDGE_SCHEMA)
         r["judge"], r["judge_version"] = j, 3

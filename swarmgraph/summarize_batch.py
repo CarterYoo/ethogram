@@ -5,7 +5,7 @@ import sys
 import time
 
 from . import query as Q
-from .llm import Codex
+from .llm import Agent
 from .summarize import PROMPT, SCHEMA, evidence_pack, ground
 
 
@@ -14,12 +14,12 @@ def run(session, segment, actors=None, min_events=20, workers=4, effort="low"):
     dataset = dict(con.execute("SELECT key, value FROM meta")).get("name", "dataset")
     ids = [Q.resolve(con, a) for a in actors] if actors else [r[0] for r in con.execute(
         "SELECT actor FROM nodes WHERE segment_id=? AND n_events>=? ORDER BY n_events DESC", (segment, min_events))]
-    codex = Codex(effort=effort)
+    agent = Agent(effort=effort)
     jobs = []
     for aid in ids:
         pack, refs, name, seg = evidence_pack(con, aid, segment)
         prompt = PROMPT.format(dataset=dataset, actor=name, segment=seg, pack=pack)
-        key = codex.key(prompt, SCHEMA)
+        key = agent.key(prompt, SCHEMA)
         hit = work.execute("SELECT response FROM llm_cache WHERE key=?", (key,)).fetchone()
         jobs.append((aid, name, refs, prompt, key, json.loads(hit[0]) if hit else None))
     print(f"{len(jobs)} nodes in segment {segment}", file=sys.stderr, flush=True)
@@ -28,7 +28,7 @@ def run(session, segment, actors=None, min_events=20, workers=4, effort="low"):
         if job[5] is not None:
             return job, job[5], 0.0, None
         try:
-            r, s = codex.run(job[3], SCHEMA)
+            r, s = agent.run(job[3], SCHEMA)
             return job, r, s, None
         except Exception as ex:
             return job, None, 0.0, str(ex)

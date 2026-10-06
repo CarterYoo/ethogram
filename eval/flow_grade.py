@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 from swarmgraph import flow as FL, query as Q  # noqa: E402
-from swarmgraph.llm import Codex  # noqa: E402
+from swarmgraph.llm import Agent  # noqa: E402
 import hyp_test  # noqa: E402
 
 FORM = """You restate behaviour hypotheses about a multi-agent log as claims that code can measure over a dictionary of
@@ -88,7 +88,7 @@ def run(out_dir, full, cut, arms, effort="medium"):
 
     def form(hs):
         items = "\n".join(f"[{h['hid']}] {h['statement']}" for h in hs)
-        out, _ = Codex(effort=effort, timeout=1500, retries=1).run(FORM.format(dictionary=dictionary, items=items),
+        out, _ = Agent(effort=effort, timeout=1500, retries=1).run(FORM.format(dictionary=dictionary, items=items),
                                                                    SCHEMA)
         return {c["id"]: c for c in out["claims"]}
     with concurrent.futures.ThreadPoolExecutor(8) as pool:

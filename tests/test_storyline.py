@@ -64,12 +64,12 @@ class Storyline(unittest.TestCase):
             return {"summary": SECRET_METHOD, "turning_points": [{"text": "tp", "events": ["act4-0", "nope"]}],
                     "also": [], "actors": []}, 0.0
 
-        orig = llm.Codex.run
-        llm.Codex.run = fake
+        orig = llm.Agent.run
+        llm.Agent.run = fake
         try:
             SL.run(self.db, workers=2, log=lambda m: None)
         finally:
-            llm.Codex.run = orig
+            llm.Agent.run = orig
         con = Q.connect(self.db)
         st = SL.get(con)
         self.assertEqual(st["overview"][0]["events"], ["act4-0"])  # an id the material never held is dropped

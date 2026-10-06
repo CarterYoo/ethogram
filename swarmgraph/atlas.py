@@ -679,7 +679,7 @@ def name_types(db, st, P, labels, F, fkeys, R, rkeys, types, workers=12, effort=
     import numpy as np
     from concurrent.futures import ThreadPoolExecutor
     from . import query as Q
-    from .llm import Codex
+    from .llm import Agent
     from .store import open_work
     local = threading.local()
 
@@ -689,7 +689,7 @@ def name_types(db, st, P, labels, F, fkeys, R, rkeys, types, workers=12, effort=
         return local.con, local.work
 
     names = dict(conns()[0].execute("SELECT id, label FROM actors"))
-    llm = Codex(effort=effort, timeout=600)
+    llm = Agent(effort=effort, timeout=600)
 
     def ask(prompt, schema):
         return llm.cached(conns()[1], prompt, schema)[0]

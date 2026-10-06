@@ -37,7 +37,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from swarmgraph.build import epoch  # noqa: E402
-from swarmgraph.llm import Codex  # noqa: E402
+from swarmgraph.llm import Agent  # noqa: E402
 
 
 from swarmgraph.claims import Log, measure_after_then, measure_co, measure_spread, run_test, verdict, _window  # noqa: E402,F401
@@ -103,7 +103,7 @@ def formalize(index, hyps, effort="medium", feedback=None):
     for h in hyps:
         fb = f"\n    NOTE from validation: {feedback[h['hid']]}" if feedback and h["hid"] in feedback else ""
         items.append(f"[{h['hid']}] {h['statement']}  (hint: {h['pattern']}){fb}\n" + evidence_text(index, h["evidence"]))
-    out, _ = Codex(effort=effort, timeout=1500, retries=1).run(FORMALIZE.format(items="\n".join(items)), FORM_SCHEMA)
+    out, _ = Agent(effort=effort, timeout=1500, retries=1).run(FORMALIZE.format(items="\n".join(items)), FORM_SCHEMA)
     return {t["id"]: t for t in out["tests"]}
 
 

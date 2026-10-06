@@ -1,4 +1,4 @@
-"""Summary structure, LLM half: cards written by Codex from event notes + code stats (never from raw text).
+"""Summary structure, LLM half: cards written by the agent CLI from event notes + code stats (never from raw text).
 
   trajectory card  one entity (actor, channel, or the whole swarm 'all'): role, phases, change points with
                    triggers, claims, comparison with others, unknowns
@@ -19,7 +19,7 @@ import time
 from . import query as Q
 from . import structure as ST
 from .build import epoch
-from .llm import Codex
+from .llm import Agent
 from .store import open_work
 
 VERSION = 1
@@ -308,7 +308,7 @@ def make(con, kind, key, note):
 
 
 def write_card(db, kind, key, effort, log=None):
-    """Worker thread: own connection, one Codex call."""
+    """Worker thread: own connection, one agent-CLI call."""
     t0 = time.time()
     con = Q.connect(db)
     try:
@@ -317,7 +317,7 @@ def write_card(db, kind, key, effort, log=None):
     finally:
         con.close()
     t1 = time.time()
-    card, secs = Codex(effort=effort, timeout=900, retries=1).run(prompt, schema)
+    card, secs = Agent(effort=effort, timeout=900, retries=1).run(prompt, schema)
     issues = ST.verify(card, ctx["entity_ids"], ctx["allowed"], ctx["ts_of"], prompt, ctx["stats"])
     text = render(kind, key, card, ctx)
     if log:
@@ -467,8 +467,8 @@ def story_input(con, min_level=2, max_incidents=250):
 def write_story(db, effort="high", min_level=2, log=lambda m: print(m, file=sys.stderr, flush=True)):
     con, work = Q.connect(db), open_work(db)
     prompt, back = story_input(con, min_level)
-    log(f"story: {len(back)} incidents → Codex ({effort})")
-    out, secs = Codex(effort=effort, timeout=1800, retries=1).run(prompt, STORY_SCHEMA)
+    log(f"story: {len(back)} incidents → agent CLI ({effort})")
+    out, secs = Agent(effort=effort, timeout=1800, retries=1).run(prompt, STORY_SCHEMA)
     issues, used = [], set()
     nums = set(ST.NUM.findall(prompt))
 

@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime, timezone
 
 from . import features, query
-from .llm import Codex
+from .llm import Agent
 from .redact import redact
 from .store import open_work
 from .storyline_adapters import SQLiteAtlasAdapter
@@ -605,8 +605,8 @@ def run(db, effort="medium", force=False, log=print, *, writer=None, reviewer=No
     work = open_work(db); con = query.connect(db)
     try:
         snapshot = build_snapshot(con)
-        writer = writer if writer is not None else Codex(effort=effort, timeout=1500, retries=1)
-        reviewer = reviewer if reviewer is not None else Codex(effort=effort, timeout=1500, retries=1)
+        writer = writer if writer is not None else Agent(effort=effort, timeout=1500, retries=1)
+        reviewer = reviewer if reviewer is not None else Agent(effort=effort, timeout=1500, retries=1)
         cfg = config or {"writer": _client_config(writer, effort), "reviewer": _client_config(reviewer, effort)}
         previous = latest_run(con)
         if not force and previous and previous.get("config_hash") == _hash(cfg):

@@ -2,7 +2,7 @@
 import json
 import time
 
-from .llm import Codex
+from .llm import Agent
 from .query import clip
 
 SCHEMA = {
@@ -79,7 +79,7 @@ def ground(result, refs):
 def summarize_node(con, work, actor, segment, effort="low", model=None):
     dataset = dict(con.execute("SELECT key, value FROM meta")).get("name", "dataset")
     pack, refs, name, seg = evidence_pack(con, actor, segment)
-    result, secs = Codex(effort=effort, model=model).cached(work, PROMPT.format(dataset=dataset, actor=name, segment=seg,
+    result, secs = Agent(effort=effort, model=model).cached(work, PROMPT.format(dataset=dataset, actor=name, segment=seg,
                                                                                 pack=pack), SCHEMA)
     grounded = ground(result, refs)
     work.execute("INSERT OR REPLACE INTO summaries VALUES (?,?,?,?,?,?,?)",

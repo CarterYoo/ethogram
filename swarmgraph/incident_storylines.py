@@ -14,7 +14,7 @@ import uuid
 from datetime import datetime, timezone
 
 from . import feature_storylines as legacy, query
-from .llm import Codex
+from .llm import Agent
 from .store import open_work
 from .storyline_adapters import SQLiteAtlasAdapter
 
@@ -925,9 +925,9 @@ def run(db, effort="medium", force=False, log=print, *, scout=None, writer=None,
     work = open_work(db); con = query.connect(db)
     try:
         snapshot = build_snapshot(con)
-        scout = scout if scout is not None else Codex(effort=effort, timeout=1500, retries=1)
-        writer = writer if writer is not None else Codex(effort=effort, timeout=1500, retries=1)
-        reviewer = reviewer if reviewer is not None else Codex(effort=effort, timeout=1500, retries=1)
+        scout = scout if scout is not None else Agent(effort=effort, timeout=1500, retries=1)
+        writer = writer if writer is not None else Agent(effort=effort, timeout=1500, retries=1)
+        reviewer = reviewer if reviewer is not None else Agent(effort=effort, timeout=1500, retries=1)
         cfg = config if config is not None else {"scout": _client_config(scout, effort),
             "writer": _client_config(writer, effort), "reviewer": _client_config(reviewer, effort)}
         previous = latest_run(con)

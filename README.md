@@ -256,8 +256,10 @@ git clone https://github.com/CarterYoo/ethogram && cd ethogram
 python3 -m unittest discover -s tests                     # Python 3.9+, standard library only
 ```
 
-Run it on your own log. The LLM stages use the [Codex CLI](https://github.com/openai/codex), and the Python package
-is `swarmgraph`.
+Run it on your own log. The LLM stages run through a local agent CLI with your own login, either
+[Codex](https://github.com/openai/codex) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Whichever
+is installed is used, Codex first, or pick one with `SWARMGRAPH_AGENT=codex` or `SWARMGRAPH_AGENT=claude`. The Python
+package is `swarmgraph`.
 
 ```bash
 python3 -m swarmgraph --db my.sqlite prepare path/to/dataset            # index, delegated reading, storyline

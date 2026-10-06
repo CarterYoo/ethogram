@@ -14,7 +14,7 @@ agents they could not fully trust. Ethogram turns any such dataset into:
    (explicit field, reply field, `@mention`, call/return kind, parent link) and with what confidence.
 2. **A hypothesis ledger** where plans are pre-registered, metrics are computed by code, and verdicts are gated: an LLM
    cannot mark a hypothesis *supported* unless the pre-registered metric passes and a verified event supports it.
-3. **Optional LLM layers** (via a local agent CLI, default Codex): **behaviour tags** for every event (what the actor
+3. **Optional LLM layers** (via a local agent CLI, Codex or Claude Code): **behaviour tags** for every event (what the actor
    did, from a dataset-independent vocabulary, plus addressees found in the text), grounded node summaries, and a
    fully automatic generate → measure → investigate → judge loop with separate investigator and judge calls.
 4. **Delegated reading for records too large to read** (agent transcripts: reasoning, tool calls and results): the
@@ -53,8 +53,9 @@ python3 -m swarmgraph --db wiki.sqlite serve                                # /a
 python3 -m swarmgraph --db wiki.sqlite serve --also aiv=aiv.sqlite             # one server, several datasets: a picker on /features
 ```
 
-Sub-agents run with none of the user's own Codex setup (no MCP servers, plugins, web search, computer use, apps):
-they read untrusted text, so a prompt inside it must find no tool to use (`llm.isolation()`).
+Sub-agents run with none of the user's own agent setup (no MCP servers, plugins, web search, computer use, apps),
+whether the CLI is Codex or Claude Code: they read untrusted text, so a prompt inside it must find no tool to use
+(`llm.isolation()`, `llm.claude_isolation()`).
 
 `--share` masks working methods in everything shown (links reduced to their domain, encoded strings, markup,
 commands, addresses, secret-like tokens) and concern cards are written to describe methods only by kind; on the wiki
@@ -62,9 +63,11 @@ logs no link, encoding, markup, address or command survives in any of the 19,913
 
 | setting | default | meaning |
 |---|---|---|
-| `--workers` / `$SWARMGRAPH_WORKERS` | 12 | parallel LLM calls in `prepare`, `tag`, `cards`, `auto` (each call is its own `codex exec`) |
-| `$SWARMGRAPH_CODEX` | `codex` on PATH or the ChatGPT app's bundled CLI | LLM command |
-| `$SWARMGRAPH_MODEL` | Codex default | model override |
+| `--workers` / `$SWARMGRAPH_WORKERS` | 12 | parallel LLM calls in `prepare`, `tag`, `cards`, `auto` (each call is its own CLI process) |
+| `$SWARMGRAPH_AGENT` | the first installed, Codex first | which agent CLI runs the calls: `codex` or `claude` |
+| `$SWARMGRAPH_CODEX` | `codex` on PATH or the ChatGPT app's bundled CLI | the Codex command |
+| `$SWARMGRAPH_CLAUDE` | `claude` on PATH, `~/.claude/local/claude`, or the Claude app's bundled CLI | the Claude Code command |
+| `$SWARMGRAPH_MODEL` | the CLI's default | model override (a model name the chosen CLI accepts) |
 | `--tag-effort / --card-effort / --story-effort` | low / medium / high | reasoning effort per stage |
 
 The work store (`<index>.work`) runs in WAL mode, so the explorer and query tools can read while cards are written;
@@ -89,7 +92,7 @@ python3 -m swarmgraph --db forum.sqlite call signals
 python3 -m swarmgraph --db forum.sqlite call actor_card '{"name": "lead-2"}'
 python3 -m swarmgraph --db forum.sqlite call propose_hypothesis '{"statement": "archivist is answered less than others",
   "plan": {"metric": "reply_rate", "params": {"actor": "archivist"}, "expect": {"op": "<", "value": "others_rate"}}}'
-python3 -m swarmgraph --db forum.sqlite tag                  # LLM event notes (needs Codex or $SWARMGRAPH_CODEX)
+python3 -m swarmgraph --db forum.sqlite tag                  # LLM event notes (needs Codex or Claude Code)
 python3 -m swarmgraph --db forum.sqlite build examples/forum/dataset   # rebuild: text addressees → llm_text relations
 python3 -m swarmgraph --db forum.sqlite structure            # useful links + note search (code)
 python3 -m swarmgraph --db forum.sqlite cards                # LLM trajectory / link / swarm cards, verified by code
@@ -155,7 +158,7 @@ starts afresh)
 swarmgraph/format.py     canonical format + validation        swarmgraph/tools.py        tool registry (MCP + CLI)
 swarmgraph/build.py      generic index builder                swarmgraph/mcp_server.py   stdio MCP server
 swarmgraph/query.py      read-only queries                    swarmgraph/cli.py          command line
-swarmgraph/metrics.py    deterministic metrics + checks       swarmgraph/llm.py          LLM CLI runner (Codex)
+swarmgraph/metrics.py    deterministic metrics + checks       swarmgraph/llm.py          LLM CLI runner (Codex or Claude Code)
 swarmgraph/signals.py    anomaly + behaviour signals          swarmgraph/summarize*.py   grounded node summaries
 swarmgraph/tags.py       LLM event notes + tag queries         swarmgraph/structure.py    useful links, change candidates, checks
 swarmgraph/cards.py      LLM trajectory / link / swarm cards    swarmgraph/story.html      phases + change points view

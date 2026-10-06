@@ -209,7 +209,7 @@ def verify(result, num):
 def read_chunk(con, chunk, question=SWEEP_Q, effort="low", timeout=1200, prompt_for=None):
     """one sub-agent reads one chunk; returns the row to store. prompt_for(chunk, span, text) -> (prompt, schema, key)
     overrides the sweep / question prompts (threads pass)"""
-    from .llm import Codex
+    from .llm import Agent
     text, num, lead = C.text(con, chunk["ids"], with_lead=True)
     chunk = {**chunk, "lead": lead}
     span = f"{chunk['start'][:16]} to {chunk['end'][:16]} UTC, {len(num)} lines"
@@ -221,7 +221,7 @@ def read_chunk(con, chunk, question=SWEEP_Q, effort="low", timeout=1200, prompt_
     else:
         prompt, schema, k = ASK.format(question=question, span=span, text=text), ASK_SCHEMA, qkey(question)
     t = time.time()
-    out, _ = Codex(effort=effort, timeout=timeout, retries=1).run(prompt, schema)
+    out, _ = Agent(effort=effort, timeout=timeout, retries=1).run(prompt, schema)
     out, cited, dropped = verify(out, num)
     return (chunk["id"], question, k, time.strftime("%Y-%m-%d %H:%M:%S"), effort, json.dumps(out), cited, dropped,
             time.time() - t)
@@ -375,7 +375,7 @@ def _sweep_items(work, live=None):
 def rules(db, effort="medium", workers=None, log=print):
     """merge the sweep's instructions and commitments into standing rules, one call per period (LLM)"""
     from . import query as Q
-    from .llm import Codex, default_workers
+    from .llm import Agent, default_workers
     from .store import open_work
     con, work = Q.connect(db), open_work(db)
     work.execute("CREATE TABLE IF NOT EXISTS rules(id INTEGER PRIMARY KEY, period INTEGER, ts TEXT, rule TEXT, "
@@ -401,7 +401,7 @@ def rules(db, effort="medium", workers=None, log=print):
         p, xs = job
         lines = "\n".join(f"{n} | {x['ts'][:16]} | {x['from'][:60]} | {x['kind']}: {' '.join(x['text'].split())[:300]}"
                           f" | {x['then']}" for n, x in enumerate(xs, 1))
-        out, _ = Codex(effort=effort, timeout=1500, retries=1).run(RULES.format(items=lines), RULES_SCHEMA)
+        out, _ = Agent(effort=effort, timeout=1500, retries=1).run(RULES.format(items=lines), RULES_SCHEMA)
         return p, xs, out
 
     with concurrent.futures.ThreadPoolExecutor(workers or default_workers()) as pool:

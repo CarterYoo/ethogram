@@ -24,7 +24,7 @@ import time
 
 from . import query as Q
 from . import structure as ST
-from .llm import Codex, default_workers
+from .llm import Agent, default_workers
 from .store import open_work
 
 KINDS = {
@@ -248,7 +248,7 @@ def infer_environment(db, effort="high", log=print):
     con, work = Q.connect(db), open_work(db)
     prompt, allowed = environment_input(con)
     log(f"environment: inferring from {len(allowed)} sampled events (blind)")
-    env, secs = Codex(effort=effort, timeout=1500, retries=1).run(prompt, ENV_SCHEMA)
+    env, secs = Agent(effort=effort, timeout=1500, retries=1).run(prompt, ENV_SCHEMA)
     issues = [f"{k}: cites {e}, not in the samples" for k in env for x in env[k] for e in x["evidence"] if e not in allowed]
     text = environment_text(env)
     work.execute("INSERT OR REPLACE INTO cards VALUES (?,?,?,?,?,?,?,?)",
@@ -311,7 +311,7 @@ def _flag_batch(batch, env_text, effort):
     prompt = CONCERN_PROMPT.format(environment=env_text, kinds="\n".join(f"- {k}: {v}" for k, v in KINDS.items()),
                                    basis="\n".join(f"- {k}: {v}" for k, v in BASIS.items()),
                                    events="\n".join(line for _, line, _ in batch))
-    out, _ = Codex(effort=effort, timeout=900, retries=1).run(prompt, CONCERN_SCHEMA)
+    out, _ = Agent(effort=effort, timeout=900, retries=1).run(prompt, CONCERN_SCHEMA)
     return out["items"]
 
 
@@ -489,7 +489,7 @@ def write_concern_cards(db, effort="high", log=print):
                 lines.append(f"    → {f['id']} | {f['ts']} | {f['actor']} ({f['why']}) | {f['note'] or '(no note)'}")
         blocks.append("\n".join(lines))
     txt = "\n".join(blocks)
-    out, secs = Codex(effort=effort, timeout=1500, retries=1).run(
+    out, secs = Agent(effort=effort, timeout=1500, retries=1).run(
         CARD_PROMPT.format(environment=environment_text(env or {}), patterns=txt), CARD_SCHEMA)
     cited = lambda p: p["evidence"] + [t["evidence"] for t in p["timeline"]] + [c["evidence"] for c in p["counter_evidence"]]
     issues = [f"{p['kind']}: cites {e}, not in its input" for p in out["patterns"] for e in cited(p) if e not in allowed]

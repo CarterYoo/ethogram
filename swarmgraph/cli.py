@@ -83,10 +83,11 @@ def main(argv=None):
     at.add_argument("--effort", default="low")
     at.add_argument("--no-names", action="store_true", help="kinds without LLM names (no LLM calls)")
     fe = sub.add_parser("features", help="behaviour features (docs/BEHAVIOUR_FEATURES.md): 'all' runs the whole stage "
-                                         "with isolated Codex readers (induce, merge, judge, detect, build; resumable); "
-                                         "'build' the atlas from a folder; 'codex' reads a folder's batches; 'flow' "
+                                         "with isolated agent-CLI readers, Codex or Claude Code (induce, merge, judge, detect, build; "
+                                         "resumable); 'build' the atlas from a folder; 'run' (or 'codex') reads a "
+                                         "folder's batches; 'flow' "
                                          "judges the sources of sampled stretches so spread can be measured")
-    fe.add_argument("action", choices=["all", "build", "codex", "names", "flow", "encode"])
+    fe.add_argument("action", choices=["all", "build", "run", "codex", "names", "flow", "encode"])
     fe.add_argument("folder", nargs="?", default="", help="the feature folder (not needed for names)")
     fe.add_argument("--record", default="", help="one line saying what the record is (for 'all')")
     fe.add_argument("--more", type=int, default=1600, help="uniform stretches judged beyond calibration (for 'all')")
@@ -238,7 +239,7 @@ def main(argv=None):
     if args.cmd == "features":
         from . import features as FE
         log = lambda m: print(m, file=sys.stderr, flush=True)  # noqa: E731
-        if args.action == "codex":
+        if args.action in ("run", "codex"):
             return print(json.dumps({"read": FE.run_codex(args.folder, args.workers, log=log)}))
         if args.action == "names":
             return print(json.dumps(FE.short_names(session.db, log=log), ensure_ascii=False))

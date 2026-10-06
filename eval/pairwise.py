@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from swarmgraph.llm import Codex  # noqa: E402
+from swarmgraph.llm import Agent  # noqa: E402
 from analyst_ab import cited_ids, event_texts  # noqa: E402
 
 PROMPT = """Two analysts investigated the same log for the people who oversee an AI agent. The question they were given:
@@ -79,7 +79,7 @@ def main(cfg_path, out, qid, A, B, pairs=10, workers=8, ev_limit=60):
     def run(job):
         k, flip, texts = job
         first, second = (rb[k], ra[k]) if flip else (ra[k], rb[k])
-        res, _ = Codex(effort="high", timeout=1500, retries=1).run(
+        res, _ = Agent(effort="high", timeout=1500, retries=1).run(
             PROMPT.format(question=q["question"], r1=render(first), r2=render(second), events=texts), SCHEMA)
         win = {0: None, 1: B if flip else A, 2: A if flip else B}[res["better"]]
         imp = {(B if flip else A): res["important_supported_1"], (A if flip else B): res["important_supported_2"]}

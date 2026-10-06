@@ -216,7 +216,7 @@ def _measured(con, segs, lift=2.0, least=3, top=10):
 def run(db, workers=None, effort="medium", log=print):
     """write period summaries and the storylines (LLM); stored in the work store as stories(kind='storyline')"""
     from . import query as Q
-    from .llm import Codex, default_workers
+    from .llm import Agent, default_workers
     from .store import open_work
     con, work = Q.connect(db), open_work(db)
     work.execute("CREATE TABLE IF NOT EXISTS stories(kind TEXT PRIMARY KEY, created TEXT, result TEXT)")
@@ -226,7 +226,7 @@ def run(db, workers=None, effort="medium", log=print):
     def one(item):
         sid, (label, span, lines) = item
         text = "\n".join(f"{l} [{e}]" if e else l for _, l, e in lines)
-        out, _ = Codex(effort=effort, timeout=1500, retries=1).run(
+        out, _ = Agent(effort=effort, timeout=1500, retries=1).run(
             PERIOD.format(label=label, span=span, digest=text), PERIOD_SCHEMA)
         known = {e for _, _, e in lines if e}
         for tp in out["turning_points"] + out["also"]:
@@ -244,7 +244,7 @@ def run(db, workers=None, effort="medium", log=print):
         f"- {tp['text']} [{', '.join(tp['events'])}]" for tp in p["turning_points"]) + (
         "\nalso:\n" + "\n".join(f"- {a['text']} [{', '.join(a['events'])}]" for a in p["also"]) if p["also"] else "")
         for p in periods)
-    overall, _ = Codex(effort="high", timeout=1800, retries=1).run(OVERALL.format(periods=text), OVERALL_SCHEMA)
+    overall, _ = Agent(effort="high", timeout=1800, retries=1).run(OVERALL.format(periods=text), OVERALL_SCHEMA)
     for x in overall["overview"] + overall["storylines"] + overall["also"]:
         x["events"] = [e for e in x["events"] if e in known]
     result = {"periods": periods, **overall}
@@ -261,7 +261,7 @@ def run(db, workers=None, effort="medium", log=print):
 
 def share_version(result, workers=None, batch=8):
     """the same story with methods described only by kind (for readers outside the investigation)"""
-    from .llm import Codex, default_workers
+    from .llm import Agent, default_workers
     overall = {k: result[k] for k in ("overview", "storylines", "uncertain", "also")}
     jobs = [("overall", overall, OVERALL_SCHEMA)]
     ps = result["periods"]
@@ -273,7 +273,7 @@ def share_version(result, workers=None, batch=8):
 
     def one(job):
         key, payload, schema = job
-        out, _ = Codex(effort="medium", timeout=1500, retries=1).run(
+        out, _ = Agent(effort="medium", timeout=1500, retries=1).run(
             SHARE.format(text=json.dumps(payload, ensure_ascii=False, indent=1)), schema)
         return key, out
 

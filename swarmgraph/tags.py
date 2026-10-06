@@ -1,4 +1,4 @@
-"""Event notes: the base layer of the summary structure. An LLM (Codex) writes one note per event: a verb-first
+"""Event notes: the base layer of the summary structure. An LLM (through Codex or Claude Code) writes one note per event: a verb-first
 one-line summary, behaviour tags from a small dataset-independent vocabulary, whom the text addresses, which earlier
 event it reacts to (`responds_to`) or repeats/continues (`continues`), what the actor claims, its stated goal.
 
@@ -14,7 +14,7 @@ import sys
 import time
 
 from . import query as Q
-from .llm import Codex
+from .llm import Agent, agent_cli
 from .store import open_work
 
 VERSION = 2  # bump when the prompt or fields change; `tag` redoes older notes
@@ -164,7 +164,7 @@ def batches(con, done, actors=None, max_chars=30000, max_events=60, clip=900):
 def tag_batch(batch, dataset, effort):
     prompt = PROMPT.format(dataset=dataset, vocab="\n".join(f"- {k}: {v}" for k, v in VOCAB.items()),
                            events="\n".join(line for _, line, _ in batch))
-    out, secs = Codex(effort=effort, timeout=900, retries=1).run(prompt, SCHEMA)
+    out, secs = Agent(effort=effort, timeout=900, retries=1).run(prompt, SCHEMA)
     return out["items"], secs
 
 
@@ -214,6 +214,7 @@ def run(db, workers=8, effort="low", limit=None, passes=2, actors=None,
         if not todo:
             break
         log(f"pass {p + 1}: {sum(len(b) for b in todo):,} events to note in {len(todo)} batches ({workers} workers)")
+        cli = agent_cli()
         started, n_ok, n_fail = time.time(), 0, 0
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = {pool.submit(tag_batch, b, dataset, effort): b for b in todo}
@@ -221,7 +222,7 @@ def run(db, workers=8, effort="low", limit=None, passes=2, actors=None,
                 b = futures[f]
                 try:
                     items, secs = f.result()
-                    n_ok += save(work, items, b, info, f"codex/{effort}")
+                    n_ok += save(work, items, b, info, f"{cli}/{effort}")
                 except Exception as ex:
                     n_fail += 1
                     log(f"  batch failed ({len(b)} events): {str(ex)[:200]}")

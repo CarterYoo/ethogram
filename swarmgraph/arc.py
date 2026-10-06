@@ -192,7 +192,7 @@ def undated(con, log=print, per_site=12, seed=0):
     """one reader's account of the undated material that the dataset kept apart (undated.jsonl), or ''"""
     import os
     import random
-    from .llm import Codex
+    from .llm import Agent
     row = con.execute("SELECT value FROM meta WHERE key='dataset_dir'").fetchone()
     path = os.path.join(row[0], "undated.jsonl") if row else ""
     if not path or not os.path.exists(path):
@@ -205,7 +205,7 @@ def undated(con, log=print, per_site=12, seed=0):
     parts = [f"## {site}: {len(us)} undated records\n" + "\n".join(
         f"- [{u['kind']}] {u['title'][:80]} | {' '.join(u['text'].split())[:300]}" for u in rng.sample(us, min(per_site, len(us))))
         for site, us in sorted(by.items(), key=lambda x: -len(x[1]))]
-    out, _ = Codex(effort="medium", timeout=1200, retries=1).run(UNDATED.format(sample="\n\n".join(parts)))
+    out, _ = Agent(effort="medium", timeout=1200, retries=1).run(UNDATED.format(sample="\n\n".join(parts)))
     log(f"arc: undated material read ({sum(len(v) for v in by.values())} records on {len(by)} sites)")
     return f"undated material kept apart from the timeline ({sum(len(v) for v in by.values())} records on {len(by)} sites), " \
            f"as one reader summarised a sample: {' '.join(out.split())}"
@@ -213,7 +213,7 @@ def undated(con, log=print, per_site=12, seed=0):
 
 def run(db, effort="high", log=print):
     from . import query as Q, storyline as SL
-    from .llm import Codex
+    from .llm import Agent
     from .store import open_work
     con, work = Q.connect(db), open_work(db)
     st = SL.get(con)
@@ -228,13 +228,13 @@ def run(db, effort="high", log=print):
         f"- {t['text']} [{', '.join(t['events'][:4])}]" for t in p.get("turning_points", [])) for p in st["periods"])
     lines = "\n".join(f"- {s['title']}: {s['explanation']}" for s in st["storylines"])
     log(f"arc: skeleton {len(sk)} chars, periods {len(periods)} chars")
-    out, secs = Codex(effort=effort, timeout=2400, retries=1).run(
+    out, secs = Agent(effort=effort, timeout=2400, retries=1).run(
         ARC.format(record=name, skeleton=sk, periods=periods, storylines=lines), ARC_SCHEMA)
     log(f"arc: written in {secs:.0f} s; reviewing")
     known = {e for p in st["periods"] for t in p.get("turning_points", []) + p.get("also", []) for e in t["events"]}
     for x in out["turning_points"] + out["hypotheses"]:
         x["events"] = [e for e in x["events"] if e in known]
-    review, secs = Codex(effort=effort, timeout=2400, retries=1).run(
+    review, secs = Agent(effort=effort, timeout=2400, retries=1).run(
         REVIEW.format(account=json.dumps(out, ensure_ascii=False, indent=1), skeleton=sk, periods=periods), REVIEW_SCHEMA)
     for h, r in zip(out["hypotheses"], review["hypotheses"]):
         h["verdict"], h["why"] = r["verdict"], r["why"]
@@ -375,7 +375,7 @@ def _material(con, out):
 def review_agent(db, effort="high", log=print):
     """review the stored analyst-written arc again against the material it rests on (see AGENT_REVIEW)"""
     from . import query as Q
-    from .llm import Codex
+    from .llm import Agent
     from .store import open_work
     con, work = Q.connect(db), open_work(db)
     row = work.execute("SELECT result FROM stories WHERE kind='arc'").fetchone()
@@ -390,7 +390,7 @@ def review_agent(db, effort="high", log=print):
         h.pop("why", None)
     keep = {k: out[k] for k in ("title", "arc", "phases", "turning_points", "hypotheses")}
     flow, turns, hyps = _material(con, out)
-    review, _ = Codex(effort=effort, timeout=2400, retries=1).run(
+    review, _ = Agent(effort=effort, timeout=2400, retries=1).run(
         AGENT_REVIEW.format(account=json.dumps(keep, ensure_ascii=False, indent=1), flow=flow, turns=turns, hyps=hyps),
         AGENT_REVIEW_SCHEMA)
     for h, r in zip(out["hypotheses"], review["hypotheses"]):
@@ -427,7 +427,7 @@ def run_agent(db, effort="high", log=print, timeout=3000):
     import sqlite3
     import tempfile
     from . import flow as FL, query as Q, storyline as SL
-    from .llm import Codex
+    from .llm import Agent
     from .store import open_work
     con, work = Q.connect(db), open_work(db)
     name = (con.execute("SELECT value FROM meta WHERE key='name'").fetchone() or ["a log"])[0]
@@ -446,7 +446,7 @@ def run_agent(db, effort="high", log=print, timeout=3000):
             if os.path.exists(p):
                 shutil.copy(p, run_dir)
         log(f"arc agent: querying the flow of {name}")
-        out, secs = Codex(effort=effort, timeout=timeout, retries=1, sandbox="workspace-write", workdir=run_dir,
+        out, secs = Agent(effort=effort, timeout=timeout, retries=1, sandbox="workspace-write", workdir=run_dir,
                           shell=True).run(AGENT.format(record=name), AGENT_SCHEMA)
     log(f"arc agent: written in {secs:.0f} s; testing and reviewing")
     known = lambda ids: [e for e in ids if con.execute("SELECT 1 FROM events WHERE id=?", (e,)).fetchone()]  # noqa

@@ -145,25 +145,38 @@ influence), `hypotheses` (the ledger), `llm_cache`, and the tables of the earlie
 
 ## 4. The model runner
 
-`swarmgraph/llm.py`, class `Codex`. One non-interactive `codex exec` per call, each its own process (safe in
-parallel threads):
+`swarmgraph/llm.py`, class `Agent` (formerly `Codex`, still an alias). One non-interactive call per process (safe
+in parallel threads) through a local agent CLI with the user's own login: Codex (`codex exec`) or Claude Code
+(`claude -p`). `SWARMGRAPH_AGENT=codex|claude` picks one; otherwise the first installed is used, Codex first
+(`SWARMGRAPH_CODEX`, `SWARMGRAPH_CLAUDE` set the commands). Every stage calls `Agent(...).run(prompt, schema)` and
+never sees which CLI answered.
 
-- `--skip-git-repo-check --ephemeral --color never -s <sandbox> -C <workdir> -o <last message file>`, the reasoning
-  effort as `-c model_reasoning_effort=...`, `--output-schema` with a strict JSON schema (every property required,
-  no extra properties), the prompt on stdin.
-- **Isolation** (`isolation()`): `--ignore-user-config`, `web_search="disabled"`, and `--disable` for apps, browser
-  use, computer use, image generation, goals, multi-agent, message boards, the code-mode host, plugins, remote
-  plugins, sleep, skill search, tool suggestion, the in-app browser, hooks, and the shell (analysts keep the shell and
-  the code-mode host it runs through).
-  Measured before this: a call inherited the user's MCP servers, plugins, a browser and web search, reachable by any
-  prompt inside the text it read.
+- **Codex**: `exec --skip-git-repo-check --ephemeral --color never -s <sandbox> -C <workdir> -o <last message file>`,
+  the reasoning effort as `-c model_reasoning_effort=...`, `--output-schema` with a strict JSON schema (every property
+  required, no extra properties), the prompt on stdin.
+- **Claude Code**: `-p --output-format json`, `--effort <level>` (low to max; minimal maps to low), `--json-schema`
+  with the same schema (the answer is read from `structured_output`), the prompt on stdin, the working directory as
+  the process's directory. If a structured answer fails, the retry puts the schema in the prompt and reads the JSON
+  from the reply.
+- **Isolation**, the same rule for both: a sub-agent reads untrusted text, so a prompt inside it must find no tool.
+  Codex (`isolation()`): `--ignore-user-config`, `web_search="disabled"`, and `--disable` for apps, browser use,
+  computer use, image generation, goals, multi-agent, message boards, the code-mode host, plugins, remote plugins,
+  sleep, skill search, tool suggestion, the in-app browser, hooks, and the shell (analysts keep the shell and the
+  code-mode host it runs through). Claude Code (`claude_isolation()`): `--restricted` (no user, project or local
+  settings files; file tools kept inside the working directory), `--strict-mcp-config` with no MCP servers,
+  `--disable-slash-commands`, `--no-session-persistence`, and `--tools ""` (no tool at all); analysts get `Bash`,
+  `Read`, `Grep` and `Glob`, pre-approved, with the command sandbox on (writes only in the working directory, no
+  network). Measured before isolation (Codex): a call inherited the user's MCP servers, plugins, a browser and web
+  search, reachable by any prompt inside the text it read.
 - **Sandboxes**: `read-only` with no shell for every reader, judge, writer and reviewer; `workspace-write` with the
   shell for analysts, which work in a temporary copy of the index, the package and the guides.
 - **Deadlines**: wall-clock timeouts checked by the runner (a Mac's sleep stops the monotonic clock), the CLI in its
   own process group so a timeout ends everything it started; one retry by default.
-- **Model**: `SWARMGRAPH_MODEL`, else the model named in the user's Codex config (the config itself is not loaded).
+- **Model**: `SWARMGRAPH_MODEL` for whichever CLI runs, else the model named in the user's Codex config (the config
+  itself is not loaded) or Claude Code's default.
 - **Parallelism**: `--workers`, or `SWARMGRAPH_WORKERS` (default 12).
-- **Cache**: `Codex.cached` keys a call by SHA-256 of (model, effort, schema, prompt) in `llm_cache`.
+- **Cache**: `Agent.cached` keys a call by SHA-256 of (model, effort, schema, prompt), plus the CLI when it is not
+  Codex (so the calls cached before Claude Code was supported still hit), in `llm_cache`.
 
 Effort by stage: readers, thread and trace readers, judges, the blind test and delegated questions low; rules, the
 inducers, period writers, short names and formalizers medium; the merger, the overall writer, the arc analyst and
@@ -628,7 +641,8 @@ the quotations; the three are separate instances and only reviewed items are sho
 - `scripts/verify.py`: copies each index and work store, rebuilds the atlas from the stored judges' outputs (seeded
   UMAP) and compares behaviours, judged stretches, agreement, coverage, layout and profiles; checks that the stories
   and short names exist. No model call.
-- `scripts/reproduce.sh`: the whole pipeline from the raw data (needs Codex).
+- `scripts/reproduce.sh`: the whole pipeline from the raw data (needs Codex or Claude Code; the stored results were
+  made with Codex).
 - `scripts/bundle.sh`, `deploy/`: a self-contained bundle of the pages and the stored results, served in share mode.
 - `scripts/harness_prompts.py`: regenerates the Appendix below from the code.
 

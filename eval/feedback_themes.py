@@ -11,7 +11,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from swarmgraph.llm import Codex  # noqa: E402
+from swarmgraph.llm import Agent  # noqa: E402
 
 THEMES = {
     "overstated": "labels or summaries claim more than the events show (imply intent, an explicit stop order, or a "
@@ -48,7 +48,7 @@ def main(dirs):
     order = list(range(len(rows)))
     random.Random(5).shuffle(order)
     comments = "\n".join(f"c{i}: {rows[i][2]}" for i in order)
-    out, _ = Codex(effort="high", timeout=1500).run(
+    out, _ = Agent(effort="high", timeout=1500).run(
         PROMPT.format(themes="\n".join(f"- {k}: {v}" for k, v in THEMES.items()), comments=comments), SCHEMA)
     got = {it["id"]: it["themes"] for it in out["items"]}
     rep = {}
