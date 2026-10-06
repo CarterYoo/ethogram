@@ -92,4 +92,3 @@ class MemoryAtlasAdapter:
 
     def reading_leads(self):
         return copy.deepcopy(self.leads)
-

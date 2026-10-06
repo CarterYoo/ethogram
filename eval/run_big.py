@@ -90,4 +90,3 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     workers = int(a[a.index("--workers") + 1]) if "--workers" in a else 24
     main(a[0], a[1], a[2], a[3], a[4], workers)
-

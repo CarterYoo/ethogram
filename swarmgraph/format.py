@@ -125,4 +125,3 @@ def load(dataset_dir):
             meta = json.load(f)
     events.sort(key=lambda e: (e["ts"], e["id"]))
     return actors, events, phases, meta
-

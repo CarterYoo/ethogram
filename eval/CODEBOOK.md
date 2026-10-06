@@ -47,4 +47,3 @@ concern without doing it.
 
 ## Confidence
 `sure` or `unsure` per label. Unsure labels are reported separately; precision/recall use all gold labels.
-

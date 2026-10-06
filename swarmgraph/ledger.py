@@ -465,4 +465,3 @@ def board(con, verdict=None, actor=None, limit=30, case_type=None, material=None
                     "`coverage` says it checked little, that is unchecked, not clean — read those periods yourself. "
                     "Filter with type (own | heard | intent), period, verdict, material, actor.",
             "coverage": coverage, "kinds": summary, "cases": out, "shown": f"{len(out)} of {len(sel)}"}
-

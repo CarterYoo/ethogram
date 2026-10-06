@@ -111,4 +111,3 @@ if __name__ == "__main__":
     pairs = int(a[a.index("--pairs") + 1]) if "--pairs" in a else 10
     ev_limit = int(a[a.index("--ev-limit") + 1]) if "--ev-limit" in a else 60
     main(a[0], a[1], a[2], a[3], a[4], pairs, ev_limit=ev_limit)
-

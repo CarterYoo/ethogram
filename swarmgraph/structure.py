@@ -490,4 +490,3 @@ def swarm_incidents(con, min_level=2, gap=1800, cell=None):
                                                                  "taken_up_min_actors": resp_min},
             "min_level": min_level,
             "levels": dict(collections.Counter(i["level"] for i in incs)), "total_incidents": len(incs)}
-

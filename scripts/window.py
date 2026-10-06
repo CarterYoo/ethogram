@@ -31,4 +31,3 @@ if __name__ == "__main__":
     if len(sys.argv) != 5:
         sys.exit(__doc__)
     print(f"{window(*sys.argv[1:5]):,} events kept in {sys.argv[2]}")
-

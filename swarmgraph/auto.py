@@ -310,4 +310,3 @@ def explore(db, rounds=3, per_round=6, effort="medium", workers=None, gen_effort
 def run(db, n=5, effort="medium", workers=None, log=lambda m: print(m, file=sys.stderr, flush=True)):
     """One round (kept for the `auto` command)."""
     return explore(db, 1, n, effort, workers, log=log)
-

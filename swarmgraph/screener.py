@@ -138,4 +138,3 @@ def run(db, kinds=DEFAULT_KINDS, log=lambda m: print(m, file=sys.stderr, flush=T
         log(f"  {kind}: AUC {report[kind]['auc']}, precision@k {prec_at_k}, recall {report[kind]['recall']} "
             f"({sum(yte)} held-out positives)")
     return report
-

@@ -12,4 +12,3 @@ SHARE=""
 cd "$HERE/app"
 exec python3 -m swarmgraph --db "$DATA/wiki_all.sqlite" serve --host "${SWARMGRAPH_HOST:-0.0.0.0}" --port "${PORT:-8080}" \
   --home /features $SHARE --also "aiv-julaug=$DATA/aiv-julaug.sqlite"
-

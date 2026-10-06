@@ -160,4 +160,3 @@ def main(raw, wiki, out_dir):
 
 if __name__ == "__main__":
     main(*sys.argv[1:4])
-

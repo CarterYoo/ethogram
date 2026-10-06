@@ -50,4 +50,3 @@ def run(session, segment, actors=None, min_events=20, workers=4, effort="low"):
             done += 1
             print(f"[{done}/{len(jobs)}] {name}: {secs:.0f}s, grounded {g:.0%} — {result['role'][:70]}", file=sys.stderr, flush=True)
     print(json.dumps({"segment": segment, "summarized": done, "failed": len(jobs) - done}))
-

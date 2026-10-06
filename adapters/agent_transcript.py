@@ -423,4 +423,3 @@ if __name__ == "__main__":
     opt = lambda k: a[a.index(k) + 1] if k in a else None
     actor_files = [a[i + 1] for i, x in enumerate(a) if x == "--actors"]
     main(a[0], a[1], actor_files, opt("--since"), opt("--until"))
-

@@ -274,4 +274,3 @@ def build_nodes(con):
                 summary.append(f"{label} others {x}×")
         out.append((a, s, r["f"], r["l"], r["n"], n_out, n_in, sr[0] if sr else None, "\n".join(summary)))
     con.executemany("INSERT INTO nodes VALUES (?,?,?,?,?,?,?,?,?)", out)
-

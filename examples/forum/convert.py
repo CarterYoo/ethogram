@@ -42,4 +42,3 @@ with open(os.path.join(out, "dataset.json"), "w") as f:
     json.dump({"name": "synthetic research forum", "description": "Invented test data: forum posts addressed via "
                "'TO:<name>' in subjects, plus an orchestrator log of subagent spawns, results and a successor hand-off."}, f)
 print(f"{len(events)} events, {len(actors)} actors → {out}")
-

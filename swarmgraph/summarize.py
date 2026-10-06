@@ -87,4 +87,3 @@ def summarize_node(con, work, actor, segment, effort="low", model=None):
                   json.dumps(result), grounded))
     work.commit()
     return {"actor": actor, "segment": segment, "seconds": round(secs, 1), "grounded": grounded, "refs": refs, **result}
-

@@ -129,4 +129,3 @@ if __name__ == "__main__":
         judge(sys.argv[2], sys.argv[3].split(":"))
     else:
         report(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
-

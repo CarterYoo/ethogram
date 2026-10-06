@@ -61,4 +61,3 @@ def open_work(db_path):
         if col not in ccols:  # concern flags made before flags said how far their evidence goes
             con.execute(f"ALTER TABLE concerns ADD COLUMN {col} TEXT")
     return con
-

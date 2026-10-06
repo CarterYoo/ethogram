@@ -13,4 +13,3 @@ it, citing the events it saw (checked to be in that chunk).
 At most 60 chunks per job and 150 chunk reads in all; a job reads in the background (about 1-2 minutes per chunk, 4 at
 a time), so keep working while it runs. Answers are leads with event ids: open the events (events.jsonl) before you
 cite them. You can still read events.jsonl directly.
-

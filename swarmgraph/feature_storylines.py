@@ -639,4 +639,3 @@ def page(con):
     except (PlanError, KeyError, TypeError, ValueError, sqlite3.Error):
         return {**out, "status": "stale"}
     return {**out, **result, "status": "ready" if result["stories"] else "missing"}
-

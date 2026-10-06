@@ -264,4 +264,3 @@ isolated Codex calls with caching (`llm.py`); the `/atlas` page to extend.
 
 New: the dictionary (induction, merge, versions), the judging pass with event marks, the checks of section 8, the
 feature atlas and unit map views, and the analyst tools.
-

@@ -156,4 +156,3 @@ def replicate(con, hyp):
             ok, obs = None, str(ex)[:80]
         halves.append({"since": s_, "until": u, "observed": obs, "passed": ok})
     return {"halves": halves, "replicated": all(h["passed"] for h in halves)}
-

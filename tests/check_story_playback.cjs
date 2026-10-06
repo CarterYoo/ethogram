@@ -83,4 +83,3 @@ assert.ok(sceneMeasuredNote(currentScene()).includes('outside the atlas'));
 vm.runInContext('acceptStoryResponse({status:"missing"});',context);assert.equal(posts,0);
 vm.runInContext('generateStorylines();',context);assert.equal(posts,1);
 console.log('Story playback: pause, view switch, missing observations, timing, replay, manual exit, calendar gaps, explicit generation passed.');
-

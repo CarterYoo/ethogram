@@ -26,4 +26,3 @@ python3 -m swarmgraph --db wiki.sqlite serve --share   # open /story; technical 
    traces to events".
 
 Do not show unmasked event text (`serve` without `--share`) to an audience.
-
