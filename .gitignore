@@ -13,3 +13,4 @@ demo/node_modules/
 demo/renders/
 demo/*.mp4
 demo/bin/
+.DS_Store
