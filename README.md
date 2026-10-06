@@ -37,19 +37,7 @@ Ethogram builds the structure first, and every number in it points back to the e
 
 ## How does it work?
 
-```mermaid
-flowchart LR
-    L["Multi-agent log"] --> S["1 · Stretches<br/>one agent, no long pause"]
-    S --> D["2 · Behaviour features<br/>a dictionary in natural language"]
-    D --> J["Two judges + blind test<br/>an activation per stretch"]
-    S --> K["3 · Links<br/>reply, mention, reuse, same place"]
-    J --> M["The atlas<br/>a map that plays over time"]
-    J --> I["4 · Influence<br/>how much more likely after seeing"]
-    K --> I
-    J --> T["MCP tools"]
-    I --> T
-    T --> A["Analyst agent<br/>storyline with tested hypotheses"]
-```
+<img src="docs/media/fig-architecture.png" alt="The architecture: a multi-agent log is cut into stretches; behaviour features (propose, merge, two judges, blind test) give an activation per stretch; links connect stretches; together they feed the atlas for people, influence, and MCP tools for agents; an analyst agent writes a storyline with tested hypotheses; delegated reading feeds reader-found behaviours and facts" width="100%">
 
 Four steps turn the log into something both people and agents can read. Each step is checked before the next one
 uses it.
@@ -78,7 +66,7 @@ feature is a behaviour written as a sentence.
 |---|---|---|
 | **Input** | a model's activations | a stretch of an agent's work |
 | **Dictionary** | learned directions | behaviours written as sentences, each with *fires if* and *not if* |
-| **Encoder** | a learned linear map | two independent LLM judges marking events (plus a small local encoder trained on them) |
+| **Encoder** | a learned map from activations to features | two independent LLM judges marking events (plus a small local encoder trained on them) |
 | **Activation** | how strongly a feature fires | the share of the stretch's events that show the behaviour |
 | **Sparsity** | a few features per input | a few behaviours per stretch, out of 60 or so |
 | **Interpretability check** | autointerp: explain, then predict | blind test: find the stretches from the sentence alone |
@@ -142,7 +130,7 @@ the stretches show any behaviour at all, usually one.
 
 <img src="docs/media/fig-links.png" alt="Reuse, reply, address, channel and next links between stretches of different agents over time" width="100%">
 
-Stretches are linked like pointers, always from earlier to later, and always from what the record itself states. A
+Each box above is one stretch of that agent's work. Stretches are linked like pointers, always from earlier to later, and always from what the record itself states. A
 later stretch is linked when it reuses word sequences an earlier one wrote first, or replies to it. It is also linked
 when the earlier one mentioned its agent, or when it is one of the last three stretches by others in the same place
 in the hour before. An agent's own next stretch is linked as well, but only as persistence, never as spread.
