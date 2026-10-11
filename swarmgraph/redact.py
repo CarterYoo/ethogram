@@ -1,8 +1,10 @@
 """Share mode: withhold technical detail (how something was done) from text shown to people, keep what was done.
 
 Logs of misbehaving agents contain working methods — encoded payloads, crafted URLs, injected markup, commands,
-addresses, secrets. A report for others needs the behaviour, not the recipe. `redact` replaces such spans with a
-short bracketed note; plain language passes through. Used by `serve --share` on every API response.
+addresses, secrets. A report for others needs the behaviour, not the recipe. Email addresses are withheld too: they
+point at people, and a report needs none of them. `redact` replaces such spans with a short bracketed note; plain
+language passes through. Used by `serve --share` on every API response, and by the static demo
+(scripts/build_pages.py).
 """
 import re
 
@@ -17,11 +19,12 @@ RULES = [
                            r"\b(?:curl|wget|nmap|sqlmap)\s+(?:-|['\"]|https?:).*$|"
                            r"\$\([^)]*\)|`[^`\n]*(?:\|\s*\w|&&|;\s*\w|\$\(|\b(?:curl|wget|sudo|chmod|rm -)\b)[^`\n]*`")),
     ("url", re.compile(r"(?i)(?:https?|ftp|file|data)://[^\s<>\"')\]]*")),
+    ("email", re.compile(r"(?<![\w.%+-])[\w.%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}\b")),
     ("address", re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\b|\b(?:localhost|0x[0-9a-f]{6,})\b", re.I)),
     ("encoded", re.compile(r"[^\s\[\]]*%[0-9A-Fa-f]{2}[^\s\[\]]*|\b[A-Za-z0-9+/_-]{32,}={0,2}(?![A-Za-z0-9])")),
 ]
 NOTE = {"secret": "[secret withheld]", "markup": "[markup withheld]", "command": "[command withheld]",
-        "address": "[address withheld]", "encoded": "[encoded text withheld]"}
+        "email": "[email withheld]", "address": "[address withheld]", "encoded": "[encoded text withheld]"}
 
 
 def _url(m):

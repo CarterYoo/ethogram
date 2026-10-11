@@ -600,8 +600,9 @@ card per behaviour, the Influence view, Why? with the hypotheses and their held-
 NAME=INDEX`, `?ds=`); `/healthz` lists them.
 
 **Share mode** (`serve --share`, `redact.py`): every API response passes through `redact`, which replaces secrets,
-markup, commands, URLs (cut to their domain where shown), addresses and encoded text with a bracketed note; stories
-use their share versions; no agent run can be started (POST answers 403).
+markup, commands, URLs (cut to their domain where shown), email addresses, addresses and encoded text with a bracketed
+note; stories use their share versions; no agent run can be started (POST answers 403). The static demo
+(`scripts/build_pages.py`) is the same answers written to files.
 
 **Stories on demand** (`incident_storylines.py`, started by POST from the page or the CLI): a frozen, bounded scan of
 the record; a scout (prompt `DISCOVERY_PROMPT`) proposes connected incidents from the catalog; a writer

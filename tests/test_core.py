@@ -376,6 +376,9 @@ class Redact(unittest.TestCase):
         self.assertIn("[secret withheld]", redact("password: hunter2abc9"))
         self.assertEqual(redact("ran `index.html` fine"), "ran `index.html` fine")
         self.assertIn("[command withheld]", redact("`ls -la | grep secret`"))
+        self.assertEqual(redact("mail jane.doe+x@mail.example.com or bot-5.1@agentvillage.org today"),
+                         "mail [email withheld] or [email withheld] today")
+        self.assertEqual(redact("see https://a.b/?to=x@y.com"), "see [link to a.b — details withheld]")
         o = redact_obj({"id": "https://a.b/c?d=1", "text": "see https://a.b/c?d=1"})
         self.assertEqual(o["id"], "https://a.b/c?d=1")
         self.assertEqual(o["text"], "see [link to a.b — details withheld]")

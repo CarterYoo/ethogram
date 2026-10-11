@@ -6,7 +6,7 @@
 
 <img src="docs/media/intro.gif" alt="Ethogram: multi-agent log support, natural language behavior features, feature activation over time, influence propagation, and a generated storyline with a tested hypothesis" width="100%">
 
-[Quick start](#quick-start) · [Why](#why-watching-a-swarm-is-hard) · [How does it work?](#how-does-it-work) · [What we found](#what-we-found) · [Docs](#docs)
+[Live demo](https://carteryoo.github.io/ethogram/) · [Quick start](#quick-start) · [Why](#why-watching-a-swarm-is-hard) · [How does it work?](#how-does-it-work) · [What we found](#what-we-found) · [Docs](#docs)
 
 </div>
 
@@ -25,6 +25,11 @@ People get a map that plays over time.
 Agents get the same flow as numbers, through MCP tools.
 
 ## Quick start
+
+### In your browser
+
+Open the [live demo](https://carteryoo.github.io/ethogram/) to explore the atlas of both records.
+Press ▶ Play, click a behaviour for its card, or turn on Influence.
 
 ### With an AI coding agent
 
@@ -161,6 +166,7 @@ Colour is when a behaviour peaked, size is how common it is, and the arcs are re
 
 Press play and the days run with the storyline.
 Dashed lines mark the days where the mix of behaviour changes, found by code.
+Try it in the [live demo](https://carteryoo.github.io/ethogram/).
 
 ### 4 · Influence as a number
 
@@ -265,12 +271,12 @@ Stored results rebuild exactly from the saved model outputs (`scripts/verify.py`
 - [**Behaviour features**](docs/BEHAVIOUR_FEATURES.md): how the dictionary is built and checked
 - [**Flow**](docs/FLOW.md): how behaviour moves (regimes, spread, coupling) as numbers agents can query
 - [**Reproduce**](docs/REPRODUCE.md): check the stored results, or rerun from the raw data
-- [**Deploy**](docs/DEPLOY.md): a self-contained bundle and container for the atlas
+- [**Deploy**](docs/DEPLOY.md): a self-contained bundle and container for the atlas, and the static live demo
 - [**Evaluation**](eval/RESULTS.md): every experiment, including the ones that did not work
 - [**Skill**](skills/ethogram/SKILL.md): what Claude Code or Codex follows to run Ethogram
 - [**Investigation guide**](skill/GUIDE.md): how an agent investigates with the tools
 - [**Reference**](docs/REFERENCE.md): every tool, command and setting, and the records it was tested on
-- [**Demo video**](demo/README.md): how the video above is made
+- [**Demo video**](demo/README.md): the 40-second demo video and how it is made
 
 <details>
 <summary><b>Limits</b></summary>
@@ -299,7 +305,7 @@ skills/ethogram/   the skill for Claude Code, Codex and other agents
 .claude-plugin/    the Claude Code plugin and marketplace
 bin/ethogram       the command line, callable from anywhere
 adapters/          converters for the records above (wiki logs, other boards, AI Village, agent transcripts)
-scripts/           verify, reproduce, bundle
+scripts/           verify, reproduce, bundle, build the static demo
 deploy/            container and serve script
 demo/              the demo video composition
 eval/              experiments and results

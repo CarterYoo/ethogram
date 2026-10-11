@@ -103,8 +103,9 @@ whether the CLI is Codex or Claude Code: they read untrusted text, so a prompt i
 (`llm.isolation()`, `llm.claude_isolation()`).
 
 `--share` masks working methods in everything shown (links reduced to their domain, encoded strings, markup,
-commands, addresses, secret-like tokens) and concern cards are written to describe methods only by kind; on the wiki
-logs no link, encoding, markup, address or command survives in any of the 19,913 events.
+commands, addresses, secret-like tokens), withholds email addresses, and concern cards are written to describe
+methods only by kind; on the wiki logs no link, encoding, markup, address or command survives in any of the 19,913
+events.
 
 | setting | default | meaning |
 |---|---|---|
